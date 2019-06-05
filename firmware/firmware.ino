@@ -89,7 +89,7 @@ void loop() {
     case 'm': moveJoint((int)(cmd.charAt(1) - '0'),cmd.substring(2).toInt()); break;
     default: Serial.println("Command not found");
    }
-   Serial.println(printPositions());
+   printPositions();
  }
  if(continuousMovement){
   for(int i = 0; i < 6; i++){
@@ -110,7 +110,7 @@ void calibration(){
 void printPositions(){
   String outputString = "";
   for(int i = 0; i < 6; i++) {
-    outputString += (String)joints[i].position+",";
+    outputString += (String)(joints[i].position)+",";
   }
   Serial.println(outputString);
 }

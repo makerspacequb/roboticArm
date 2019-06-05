@@ -1,4 +1,4 @@
-name: piapi
+name: roboticArm
 channels:
   - defaults
 dependencies:
@@ -34,5 +34,5 @@ dependencies:
   - zc.lockfile=1.4=py_0
   - pip:
     - cryptography==1.0.2
-prefix: C:\Users\Ryan\.conda\envs\piapi
+prefix: C:\Users\Ryan\.conda\envs\roboticArm
 

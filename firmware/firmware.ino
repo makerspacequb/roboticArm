@@ -54,7 +54,7 @@ Servo hand;
 void setup() { 
  pinMode(headPin,OUTPUT);
  hand.attach(headPin);
- Serial.begin(9600);
+ Serial.begin(115200);
 }
 
 void loop() {

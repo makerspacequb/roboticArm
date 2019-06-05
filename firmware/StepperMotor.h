@@ -4,7 +4,7 @@
 class StepperMotor{
   public:
   StepperMotor(){};
-  StepperMotor(int stepPin_, int dirPin_, int enablePin_, bool direction_, int stepsPerDegree_, int delayBetweenStep_, int startingDelay_, int profileSteps_);
+  StepperMotor(int stepPin_, int dirPin_, int enablePin_, bool inverted_, int stepsPerDegree_, int delayBetweenStep_, int startingDelay_, int profileSteps_);
   moveMotorSteps(int distance);
   moveMotorDegrees(int degreesToTurn);
 

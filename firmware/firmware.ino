@@ -2,7 +2,7 @@
 #include <Servo.h>
 
 //motors
-#define J1Pulse 2
+#define J1Step 2
 #define J1Dir 22
 #define J1Enable 23
 #define J1Inverted false
@@ -13,7 +13,7 @@
 #define J1StartingDelay 10000
 #define J1ProfileSteps 300
 
-#define J2Pulse 3
+#define J2Step 3
 #define J2Dir 24
 #define J2Enable 25
 #define J2Inverted false
@@ -24,7 +24,7 @@
 #define J2StartingDelay 10000
 #define J2ProfileSteps 300
 
-#define J3Pulse 4
+#define J3Step 4
 #define J3Dir 26
 #define J3Enable 27
 #define J3Inverted false
@@ -35,7 +35,7 @@
 #define J3StartingDelay 10000
 #define J3ProfileSteps 300
 
-#define J4Pulse 5
+#define J4Step 5
 #define J4Dir 28
 #define J4Enable 29
 #define J4Inverted false
@@ -48,7 +48,6 @@
 
 //other constants
 #define headPin 13
-#define maxRotation 180
 #define calibrationSpeed 10
 
 //calibration & continuous movement flags
@@ -59,11 +58,12 @@ bool continuousMovement = false;
 int continuousMovementSpeeds[] = {0,0,0,0,0,0};
 
 //motor & servo objects
+#define TOTAL_JOINTS 4
 Joint joints[] = {
-   Joint(new StepperMotor(J1Pulse,J1Dir,J1Enable,J1Inverted,J1StepsPerDegree,J1Delay,J1StartingDelay,J1ProfileSteps), J1SwitchPin),
-   Joint(new StepperMotor(J2Pulse,J2Dir,J2Enable,J2Inverted,J2StepsPerDegree,J2Delay,J2StartingDelay,J2ProfileSteps), J2SwitchPin),
-   Joint(new StepperMotor(J3Pulse,J3Dir,J3Enable,J3Inverted,J3StepsPerDegree,J3Delay,J3StartingDelay,J3ProfileSteps), J3SwitchPin),
-   Joint(new StepperMotor(J4Pulse,J4Dir,J4Enable,J4Inverted,J4StepsPerDegree,J4Delay,J4StartingDelay,J4ProfileSteps), J4SwitchPin)
+   Joint(new StepperMotor(J1Step,J1Dir,J1Enable,J1Inverted,J1StepsPerDegree,J1Delay,J1StartingDelay,J1ProfileSteps), J1SwitchPin, 180),
+   Joint(new StepperMotor(J2Step,J2Dir,J2Enable,J2Inverted,J2StepsPerDegree,J2Delay,J2StartingDelay,J2ProfileSteps), J2SwitchPin, 180),
+   Joint(new StepperMotor(J3Step,J3Dir,J3Enable,J3Inverted,J3StepsPerDegree,J3Delay,J3StartingDelay,J3ProfileSteps), J3SwitchPin, 180),
+   Joint(new StepperMotor(J4Step,J4Dir,J4Enable,J4Inverted,J4StepsPerDegree,J4Delay,J4StartingDelay,J4ProfileSteps), J4SwitchPin, 180)
 };
 Servo hand;
  
@@ -109,7 +109,7 @@ void calibration(){
 
 void printPositions(){
   String outputString = "";
-  for(int i = 0; i < 6; i++) {
+  for(int i = 0; i < TOTAL_JOINTS; i++) {
     outputString += (String)(joints[i].position)+",";
   }
   Serial.println(outputString);

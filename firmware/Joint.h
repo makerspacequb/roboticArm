@@ -5,7 +5,7 @@
 
 class Joint{
   public:
-  Joint(StepperMotor* stepperMotor_, int switchPin_);
+  Joint(StepperMotor* stepperMotor_, int switchPin_, int maxRotation_);
   move(int degrees);
   calibrate();
 
@@ -19,12 +19,13 @@ class Joint{
 
   private:
   StepperMotor* stepperMotor;
-  int switchPin;
+  int switchPin, maxRotation;
 };
 
-Joint::Joint(StepperMotor* stepperMotor_, int switchPin_){
+Joint::Joint(StepperMotor* stepperMotor_, int switchPin_, int maxRotation_){
 	stepperMotor = stepperMotor_;
 	switchPin = switchPin_;
+  maxRotation = maxRotation_;
 	pinMode(switchPin,INPUT);
 };
 

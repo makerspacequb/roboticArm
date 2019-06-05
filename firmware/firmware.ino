@@ -1,54 +1,7 @@
 #include "Joint.h"
+#include "pins.h"
+#include "Config.h"
 #include <Servo.h>
-
-//motors
-#define J1Step 2
-#define J1Dir 22
-#define J1Enable 23
-#define J1Inverted false
-#define J1StepsPerDegree 44
-#define J1SwitchPin 40
-
-#define J1Delay 500
-#define J1StartingDelay 10000
-#define J1ProfileSteps 300
-
-#define J2Step 3
-#define J2Dir 24
-#define J2Enable 25
-#define J2Inverted false
-#define J2StepsPerDegree 60
-#define J2SwitchPin 41
-
-#define J2Delay 600
-#define J2StartingDelay 10000
-#define J2ProfileSteps 300
-
-#define J3Step 4
-#define J3Dir 26
-#define J3Enable 27
-#define J3Inverted false
-#define J3StepsPerDegree 60
-#define J3SwitchPin 42
-
-#define J3Delay 600
-#define J3StartingDelay 10000
-#define J3ProfileSteps 300
-
-#define J4Step 5
-#define J4Dir 28
-#define J4Enable 29
-#define J4Inverted false
-#define J4StepsPerDegree 44
-#define J4SwitchPin 43
-
-#define J4Delay 300
-#define J4StartingDelay 10000
-#define J4ProfileSteps 300
-
-//other constants
-#define headPin 13
-#define calibrationSpeed 10
 
 //calibration & continuous movement flags
 bool isCalibrated = false;
@@ -58,19 +11,18 @@ bool continuousMovement = false;
 int continuousMovementSpeeds[] = {0,0,0,0,0,0};
 
 //motor & servo objects
-#define TOTAL_JOINTS 4
-Joint joints[] = {
-   Joint(new StepperMotor(J1Step,J1Dir,J1Enable,J1Inverted,J1StepsPerDegree,J1Delay,J1StartingDelay,J1ProfileSteps), J1SwitchPin, 180),
-   Joint(new StepperMotor(J2Step,J2Dir,J2Enable,J2Inverted,J2StepsPerDegree,J2Delay,J2StartingDelay,J2ProfileSteps), J2SwitchPin, 180),
-   Joint(new StepperMotor(J3Step,J3Dir,J3Enable,J3Inverted,J3StepsPerDegree,J3Delay,J3StartingDelay,J3ProfileSteps), J3SwitchPin, 180),
-   Joint(new StepperMotor(J4Step,J4Dir,J4Enable,J4Inverted,J4StepsPerDegree,J4Delay,J4StartingDelay,J4ProfileSteps), J4SwitchPin, 180)
+Joint joints[TOTAL_JOINTS] = {
+   Joint(new StepperMotor(J0_STEP,J0_DIR,J0_ENABLE,J0_STEPS_PER_DEG,J0_DELAY,J0_START_DELAY,J0_PROFILE_STEPS), J0_L_SWITCH, J0_MAX_ROT_DEG),
+   Joint(new StepperMotor(J1_STEP,J1_DIR,J1_ENABLE,J1_STEPS_PER_DEG,J1_DELAY,J1_START_DELAY,J1_PROFILE_STEPS), J1_L_SWITCH, J1_MAX_ROT_DEG),
+   Joint(new StepperMotor(J2_STEP,J2_DIR,J2_ENABLE,J2_STEPS_PER_DEG,J2_DELAY,J2_START_DELAY,J2_PROFILE_STEPS), J2_L_SWITCH, J2_MAX_ROT_DEG),
+   Joint(new StepperMotor(J3_STEP,J3_DIR,J3_ENABLE,J3_STEPS_PER_DEG,J3_DELAY,J3_START_DELAY,J3_PROFILE_STEPS), J3_L_SWITCH, J3_MAX_ROT_DEG)
 };
 Servo hand;
  
 void setup() { 
- pinMode(headPin,OUTPUT);
- hand.attach(headPin);
- Serial.begin(115200);
+ pinMode(HAND_PIN,OUTPUT);
+ hand.attach(HAND_PIN);
+ Serial.begin(BAUD_RATE);
 }
 
 void loop() {
@@ -135,9 +87,7 @@ void moveHand(int value) {
 
 void moveJoint(int jointIndex, int value){
   if(isCalibrated){
-    if(joints[jointIndex].position + value >= 0 && joints[jointIndex].position + value <= maxRotation){
-          joints[jointIndex].move(value);
-    }
+    joints[jointIndex].move(value);
   } else{
     //Serial.println("Warning: Motors are not calibrated");
     joints[jointIndex].move(value);

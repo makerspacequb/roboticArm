@@ -4,7 +4,7 @@
 class StepperMotor{
   public:
   StepperMotor(){};
-  StepperMotor(int stepPin_, int dirPin_, int enablePin_, bool inverted_, int stepsPerDegree_, int delayBetweenStep_, int startingDelay_, int profileSteps_);
+  StepperMotor(int stepPin_, int dirPin_, int enablePin_, int stepsPerDegree_, int delayBetweenStep_, int startingDelay_, int profileSteps_);
   moveMotorSteps(int distance);
   moveMotorDegrees(int degreesToTurn);
 
@@ -17,17 +17,15 @@ class StepperMotor{
   int stepPin, dirPin, enablePin, delayBetweenStep, stepsPerDegree;
   //delay within steps (setting pin HIGH->LOW)
   const int delay = 10;
-  bool inverted;
   //acc/dec profile
   int startingDelay, profileSteps, currentDelay, profileGradient;
   int getCurrentDelay(int remainingSteps);
 };
 
-StepperMotor::StepperMotor(int stepPin_, int dirPin_, int enablePin_, bool inverted_, int stepsPerDegree_, int delayBetweenStep_, int startingDelay_, int profileSteps_){
+StepperMotor::StepperMotor(int stepPin_, int dirPin_, int enablePin_, int stepsPerDegree_, int delayBetweenStep_, int startingDelay_, int profileSteps_){
   stepPin = stepPin_;
   dirPin = dirPin_;
   enablePin = enablePin_;
-  inverted = inverted_;
   delayBetweenStep = delayBetweenStep_;
   stepsPerDegree = stepsPerDegree_;
   startingDelay = startingDelay_;
@@ -53,9 +51,9 @@ StepperMotor::moveMotorSteps(int distance){
   currentDelay = startingDelay;
   profileGradient = (startingDelay - delayBetweenStep) / profileSteps;
   if(distance < 0){
-    digitalWrite(dirPin,inverted);
+    digitalWrite(dirPin,false);
   } else {
-    digitalWrite(dirPin,!inverted);
+    digitalWrite(dirPin,true);
   }
   for(int i = 0; i < abs(distance); i++){
     digitalWrite(stepPin,HIGH);

@@ -13,9 +13,15 @@ import os
 try:
     
     class API(object):
+
         @cherrypy.expose
         def index(self):
-            with open ("simple.html", "r") as webPage:
+            
+            #Open serial connection when API instance created
+            self.connected = False
+            self.connect()
+
+            with open ("api/simple.html", "r") as webPage:
                 contents=webPage.readlines()
             return contents
 
@@ -23,12 +29,12 @@ try:
         def clearLogs(self):
 
             #Clear Transmit Log
-            log = open("transmitLog.csv","w")
+            log = open("api/transmitLog.csv","w")
             log.write("Date and Time,Motor,Command,Parameter,Command,Parameter\n")
             log.close()
 
             #Clear Receive Log
-            log = open("receiveLog.csv","w")
+            log = open("api/receiveLog.csv","w")
             log.write("Date and Time,Motor,Command,Parameter,Command,Parameter\n")
             log.close()
 
@@ -49,7 +55,7 @@ try:
     
             try:
                 #Add command to transmit log
-                with open ("transmitLog.csv", "a+") as log:
+                with open ("api/transmitLog.csv", "a+") as log:
                     log.write(command+"/n")
 
                 #Write Command Passed to Serial Port
@@ -57,11 +63,12 @@ try:
                 self.leftArm.write(payload)
 
                 #Read Response if Avalible
-                while leftArm.in_waiting:
-                    response = leftArm.readline()
+                response = ""
+                while self.leftArm.in_waiting:
+                    response = self.leftArm.readline()
                     
                 #Add response to receive log
-                with open ("receiveLog.html", "a+") as log:
+                with open ("api/receiveLog.html", "a+") as log:
                     log.write(response)
 
                 status = currentDateTime + " INFO: '"+command+"' sent succesfully."
@@ -87,7 +94,7 @@ try:
                     bytesize=serial.EIGHTBITS
                     )
                 self.connected = True
-                status = "INFO: Left arm arduino connected to "+leftArm.name+"\n"
+                status = "INFO: Left arm arduino connected to "+self.leftArm.name+"\n"
             except:
                 status = "ERROR: No Connection to Arduino\n"
       
@@ -96,26 +103,18 @@ try:
             return status   
 
     if __name__ == '__main__':
+
         cherrypy.config.update(
             {'server.socket_host': '0.0.0.0'}
         )     
         cherrypy.quickstart(API(), '/',
             {
-                '/favicon.ico':
+                'favicon.ico':
                 {
                     'tools.staticfile.on': True,
-                    'tools.staticfile.filename': os.path.join(os.getcwd(),'favicon.ico')
+                    'tools.staticfile.filename': os.path.join(os.getcwd(),'api/favicon.ico')
                 }
             }
-        )
-
-    try:
-        leftArm = serial.Serial('/dev/ttyACM0')
-        leftArmActive = True
-        print("INFO: Connected to Left Arm")
-    except:
-        leftArmActive = False
-        print("INFO: Failed to connect to Left Arm")
-        
+        )        
 except:
     print("ERROR: Main sequence error.")

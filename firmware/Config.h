@@ -46,5 +46,6 @@
 //other constants
 #define TOTAL_JOINTS 4
 #define BAUD_RATE 115200
+#define INST_ARRAY_LEN 20 //length of instruction array
 
 #endif

@@ -30,10 +30,12 @@ Joint::Joint(StepperMotor* stepperMotor_, int switchPin_, int maxRotation_){
 };
 
 Joint::move(int degrees){
-  if(isCalibrated && position + value >= 0 && position + value <= max_rotation){
+  if(isCalibrated && position + degrees >= 0 && position + degrees <= maxRotation){
     position += degrees;
+    stepperMotor->moveMotorDegrees(degrees);
+  }else if(!isCalibrated){
+    stepperMotor->moveMotorDegrees(degrees);
   }
-  stepperMotor->moveMotorDegrees(degrees);
 }
 
 Joint::calibrate(){

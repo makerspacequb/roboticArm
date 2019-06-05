@@ -6,6 +6,8 @@
 //calibration & continuous movement flags
 bool isCalibrated = false;
 bool continuousMovement = false;
+char instruction[INST_ARRAY_LEN];
+int instIndex = 0;
 
 //motor & switch data
 int continuousMovementSpeeds[] = {0,0,0,0,0,0};
@@ -27,27 +29,72 @@ void setup() {
 
 void loop() {
   //printSwitches();
-  if(Serial.available()){
-   String cmd = Serial.readString();
-   char firstChar = toLowerCase(cmd.charAt(0));
-   switch(firstChar){
-    case 'c': calibration(); break;
-    case 'p': printPositions(); break;
-    case 'h': moveHand(cmd.substring(1).toInt()); break;
-    case 'x': continuousMovement = (bool)cmd.substring(1).toInt(); break;
-    case 'd': setJointDelay((int)(cmd.charAt(1) - '0'),cmd.substring(2).toInt()); break;
-    case 's': setJointStartingDelay((int)(cmd.charAt(1) - '0'),cmd.substring(2).toInt()); break;
-    case 'z': setJointProfileSteps((int)(cmd.charAt(1) - '0'),cmd.substring(2).toInt()); break;
-    case 'm': moveJoint((int)(cmd.charAt(1) - '0'),cmd.substring(2).toInt()); break;
-    default: Serial.println("Command not found");
-   }
-   printPositions();
- }
- if(continuousMovement){
-  for(int i = 0; i < 6; i++){
-    moveJoint(i,continuousMovementSpeeds[i]);
+  readSerial();
+  
+  if(continuousMovement){
+    for(int i = 0; i < 6; i++){
+      moveJoint(i,continuousMovementSpeeds[i]);
+    }
   }
- }
+}
+
+void readSerial(){
+  if (Serial.available() > 0){
+    char nextChar = Serial.read();
+    //if char is new line last instruction complete, process instruction
+    if(nextChar == '\n'){
+      if(instIndex > 0) {
+        //make sure rest of instruction is cleared
+        for (int i = instIndex; i < INST_ARRAY_LEN; i++)
+          instruction[i] = NULL;
+        //send instruction for processing
+        processInstruction(instruction);
+        instIndex = 0;
+      }
+    }
+    //add to instruction string
+    else {
+      if(instIndex >= INST_ARRAY_LEN)
+        Serial.println("ERROR - loop() instruction parser: Instruction index out of bounds.");
+      else{
+        instruction[instIndex] = nextChar;
+        instIndex++;
+      }
+    }
+  }
+}
+
+void processInstruction(char *input){
+  //check first byte
+  switch(toLowerCase(input[0])){
+    case 'c': 
+      calibration(); 
+      break;
+    case 'p': 
+      printPositions(); 
+      break;
+    case 'h': 
+      moveHand(atol(input+1)); 
+      break;
+    case 'x': 
+      continuousMovement = atol(input+1);
+      break;
+    case 'd': 
+      setJointDelay(input[1] - '0',atol(input+2)); 
+      break;
+    case 's': 
+      setJointStartingDelay(input[1] - '0',atol(input+2)); 
+      break;
+    case 'z': 
+      setJointProfileSteps(input[1] - '0',atol(input+2)); 
+      break;
+    case 'm': 
+      moveJoint(input[1] - '0',atol(input+2)); 
+      break;
+    default: 
+      Serial.println("Command not found");
+  }
+  printPositions();
 }
 
 void calibration(){

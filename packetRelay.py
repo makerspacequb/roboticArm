@@ -1,13 +1,12 @@
 import socket
 from glob import glob
-from time import time
 import serial
 import threading
 
 #define IP of raspberry pi here
 ip = "192.168.137.169"
 port = 8008
-bufferSize = 128
+bufferSize = 512
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 sock.bind((ip,port))
@@ -19,9 +18,7 @@ ser = None
 
 #buffer of commands to be sent at intervals
 queue = list()
-lastSent = 0
-#ms delay between serial messages being sent
-delay = 10
+sentFirstCommand = False
 
 def initialiseSerial():
     global ser
@@ -40,15 +37,24 @@ def initialiseSerial():
             pass
 
 def sendToSerial():
-    global lastSent,delay
+    command = queue.pop(0)
+    ser.write(command)
+    if verbose:
+        print("Sent "+command.decode("utf-8"))
+
+def sendCommands():
+    global sentFirstCommand
     while True:
-        #send command to serial every delay ms (if queue not empty)
-        if lastSent+delay < time()*1000 and len(queue) > 0:
- 	    lastSent = time()*1000
-            command = queue.pop(0)
-            ser.write(command)
-            if verbose:
-                print("Sent "+command.decode("utf-8"))
+        if len(queue) > 0:
+            if not sentFirstCommand:
+                sendToSerial()
+                sentFirstCommand = True
+            else:
+                line = ser.readline()
+                if len(line) > 0:
+                    sendToSerial()
+                    line = line.decode("utf-8")
+                    print(line[0:len(line)-1])
 
 def fetchPacket():
     #fetch and store all packets in queue
@@ -60,7 +66,7 @@ initialiseSerial()
 
 if __name__ == "__main__":
     packetThread = threading.Thread(target=fetchPacket)
-    serialThread = threading.Thread(target=sendToSerial)
+    serialThread = threading.Thread(target=sendCommands)
     packetThread.setDaemon(True)
     serialThread.setDaemon(True)
     packetThread.start()

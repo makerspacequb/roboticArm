@@ -9,12 +9,20 @@
 #define J1StepsPerDegree 44
 #define J1SwitchPin 40
 
+#define J1Delay 500
+#define J1StartingDelay 10000
+#define J1ProfileSteps 300
+
 #define J2Pulse 3
 #define J2Dir 24
 #define J2Enable 25
 #define J2Inverted false
 #define J2StepsPerDegree 60
 #define J2SwitchPin 41
+
+#define J2Delay 600
+#define J2StartingDelay 10000
+#define J2ProfileSteps 300
 
 #define J3Pulse 4
 #define J3Dir 26
@@ -23,12 +31,20 @@
 #define J3StepsPerDegree 60
 #define J3SwitchPin 42
 
+#define J3Delay 600
+#define J3StartingDelay 10000
+#define J3ProfileSteps 300
+
 #define J4Pulse 5
 #define J4Dir 28
 #define J4Enable 29
 #define J4Inverted false
 #define J4StepsPerDegree 44
 #define J4SwitchPin 43
+
+#define J4Delay 300
+#define J4StartingDelay 10000
+#define J4ProfileSteps 300
 
 //other constants
 #define headPin 13
@@ -44,10 +60,10 @@ int continuousMovementSpeeds[] = {0,0,0,0,0,0};
 
 //motor & servo objects
 Joint joints[] = {
-   Joint(new StepperMotor(J1Pulse,J1Dir,J1Enable,J1Inverted,500,J1StepsPerDegree), J1SwitchPin),
-   Joint(new StepperMotor(J2Pulse,J2Dir,J2Enable,J2Inverted,600,J2StepsPerDegree), J2SwitchPin),
-   Joint(new StepperMotor(J3Pulse,J3Dir,J3Enable,J3Inverted,600,J3StepsPerDegree), J3SwitchPin),
-   Joint(new StepperMotor(J4Pulse,J4Dir,J4Enable,J4Inverted,600,J4StepsPerDegree), J4SwitchPin)
+   Joint(new StepperMotor(J1Pulse,J1Dir,J1Enable,J1Inverted,J1StepsPerDegree,J1Delay,J1StartingDelay,J1ProfileSteps), J1SwitchPin),
+   Joint(new StepperMotor(J2Pulse,J2Dir,J2Enable,J2Inverted,J2StepsPerDegree,J2Delay,J2StartingDelay,J2ProfileSteps), J2SwitchPin),
+   Joint(new StepperMotor(J3Pulse,J3Dir,J3Enable,J3Inverted,J3StepsPerDegree,J3Delay,J3StartingDelay,J3ProfileSteps), J3SwitchPin),
+   Joint(new StepperMotor(J4Pulse,J4Dir,J4Enable,J4Inverted,J4StepsPerDegree,J4Delay,J4StartingDelay,J4ProfileSteps), J4SwitchPin)
 };
 Servo hand;
  
@@ -68,9 +84,12 @@ void loop() {
     case 'h': moveHand(cmd.substring(1).toInt()); break;
     case 'x': continuousMovement = (bool)cmd.substring(1).toInt(); break;
     case 'd': setJointDelay((int)(cmd.charAt(1) - '0'),cmd.substring(2).toInt()); break;
+    case 's': setJointStartingDelay((int)(cmd.charAt(1) - '0'),cmd.substring(2).toInt()); break;
+    case 'z': setJointProfileSteps((int)(cmd.charAt(1) - '0'),cmd.substring(2).toInt()); break;
     case 'm': moveJoint((int)(cmd.charAt(1) - '0'),cmd.substring(2).toInt()); break;
     default: Serial.println("Command not found");
    }
+   Serial.println(printPositions());
  }
  if(continuousMovement){
   for(int i = 0; i < 6; i++){
@@ -96,13 +115,13 @@ void printPositions(){
   Serial.println(outputString);
 }
 
-void printSwitches(){
+/*void printSwitches(){
   String outputString = "";
   for(int i = 40; i < 46; i++){
     outputString += (String)digitalRead(i)+",";
   }
   Serial.println(outputString);
-}
+}*/
 
 void moveHand(int value) {
   if(value > 90){
@@ -114,21 +133,29 @@ void moveHand(int value) {
   }
 }
 
-void moveJoint(int motorIndex, int value){
+void moveJoint(int jointIndex, int value){
   if(isCalibrated){
-    if(joints[motorIndex].position + value >= 0 && joints[motorIndex].position + value <= maxRotation){
-          joints[motorIndex].move(value);
+    if(joints[jointIndex].position + value >= 0 && joints[jointIndex].position + value <= maxRotation){
+          joints[jointIndex].move(value);
     }
   } else{
     //Serial.println("Warning: Motors are not calibrated");
-    joints[motorIndex].move(value);
+    joints[jointIndex].move(value);
   }
 }
 
-void setJointDelay(int motorIndex, int value){
-  joints[motorIndex].setDelay(value);
+void setJointDelay(int jointIndex, int value){
+  joints[jointIndex].setDelay(value);
 }
 
-void setJointSpeed(int motorIndex, int value){
-  continuousMovementSpeeds[motorIndex] = value;
+void setJointSpeed(int jointIndex, int value){
+  continuousMovementSpeeds[jointIndex] = value;
+}
+
+void setJointStartingDelay(int jointIndex, int value){
+  joints[jointIndex].setStartingDelay(value);
+}
+
+void setJointProfileSteps(int jointIndex, int value){
+  joints[jointIndex].setProfileSteps(value);
 }

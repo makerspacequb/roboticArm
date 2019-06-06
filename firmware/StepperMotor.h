@@ -3,80 +3,109 @@
 
 class StepperMotor{
   public:
-  StepperMotor(){};
-  StepperMotor(int stepPin_, int dirPin_, int enablePin_, int stepsPerDegree_, int delayBetweenStep_, int startingDelay_, int profileSteps_);
-  moveMotorSteps(int distance);
-  moveMotorDegrees(int degreesToTurn);
+    StepperMotor(){};
+    StepperMotor(int stepPin, int dirPin, int enablePin, int stepsPerDegree, int speed, int minSpeed, float accelRate);
+    void moveMotorSteps(int distance);
+    void moveMotorDegrees(int degreesToTurn);
+    void step(unsigned long elapsedMicros);
+  
+    //setters
+    void setSpeed(int speed);
+    void setMinSpeed(int minSpeed);
+    void setAccelRate(float rate);
 
-  //setters
-  setDelay(int delay);
-  setStartingDelay(int delay);
-  setProfileSteps(int steps);
+    //getters
+    int getSpeed(){ return speed; };
 
   private:
-  int stepPin, dirPin, enablePin, delayBetweenStep, stepsPerDegree;
-  //delay within steps (setting pin HIGH->LOW)
-  const int delay = 10;
-  //acc/dec profile
-  int startingDelay, profileSteps, currentDelay, profileGradient;
-  int getCurrentDelay(int remainingSteps);
+    int stepPin, dirPin, enablePin, speed, stepsPerDegree, steps, stepDelayDuration, minSpeed;
+    unsigned long stepRunTime, currentStepDelayDuration, maxStepDelayDuration;
+    float accelRate;
+    bool stepDelay;
+    void updateAcceleration();
 };
 
-StepperMotor::StepperMotor(int stepPin_, int dirPin_, int enablePin_, int stepsPerDegree_, int delayBetweenStep_, int startingDelay_, int profileSteps_){
-  stepPin = stepPin_;
-  dirPin = dirPin_;
-  enablePin = enablePin_;
-  delayBetweenStep = delayBetweenStep_;
-  stepsPerDegree = stepsPerDegree_;
-  startingDelay = startingDelay_;
-  profileSteps = profileSteps_;
+StepperMotor::StepperMotor(int stepPin, int dirPin, int enablePin, int stepsPerDegree, int speed,
+      int minSpeed, float accelRate){
+  this->stepPin = stepPin;
+  this->dirPin = dirPin;
+  this->enablePin = enablePin;
+  this->stepsPerDegree = stepsPerDegree;
+  this->accelRate = accelRate;
+  setSpeed(speed);
+  setMinSpeed(minSpeed);
+  steps = 0;
+  stepDelay = false;
+  currentStepDelayDuration = maxStepDelayDuration;
+  
   pinMode(stepPin,OUTPUT);
   pinMode(dirPin,OUTPUT);
 };
 
-int StepperMotor::getCurrentDelay(int remainingSteps){
-  if(remainingSteps <= profileSteps){
-    //deceleration
-    if(currentDelay < startingDelay){
-      currentDelay += profileGradient;
+void StepperMotor::step(unsigned long elapsedMicros){
+  stepRunTime += elapsedMicros;
+  //TODO replace these digital writes with port manipulation
+  if (steps > 0) {
+    if(!stepDelay) {
+      digitalWrite(stepPin, HIGH);
+      delayMicroseconds(5);
+      digitalWrite(stepPin, LOW);
+      steps--;
+      stepDelay = true;
     }
-  }else if(currentDelay > delayBetweenStep){
-    //acceleration
-    currentDelay -= profileGradient;
+    else {
+      if(currentStepDelayDuration < stepRunTime){
+        stepRunTime = 0;
+        updateAcceleration();
+        stepDelay = false;
+      }
+    }
   }
-  return currentDelay;
 }
 
-StepperMotor::moveMotorSteps(int distance){
-  currentDelay = startingDelay;
-  profileGradient = (startingDelay - delayBetweenStep) / profileSteps;
-  if(distance < 0){
+void StepperMotor::updateAcceleration(){
+  //update acceleration
+  if((long)steps * (long)currentStepDelayDuration / accelRate < maxStepDelayDuration - currentStepDelayDuration){
+    //deceleration
+    if(currentStepDelayDuration < maxStepDelayDuration){
+      currentStepDelayDuration += currentStepDelayDuration / accelRate;
+    }
+  }else if(currentStepDelayDuration > stepDelayDuration){
+    //acceleration  
+    currentStepDelayDuration -= (-(currentStepDelayDuration - maxStepDelayDuration) + stepDelayDuration) / accelRate;
+  }
+  
+  //constrain step delay
+  if(currentStepDelayDuration < stepDelayDuration) 
+    currentStepDelayDuration = stepDelayDuration;
+  else if (currentStepDelayDuration > maxStepDelayDuration)
+    currentStepDelayDuration = maxStepDelayDuration;
+}
+
+void StepperMotor::moveMotorDegrees(int degreesToTurn){
+  steps = abs(degreesToTurn) * stepsPerDegree;
+  if(degreesToTurn < 0){
     digitalWrite(dirPin,false);
   } else {
     digitalWrite(dirPin,true);
   }
-  for(int i = 0; i < abs(distance); i++){
-    digitalWrite(stepPin,HIGH);
-    delayMicroseconds(delay);
-    digitalWrite(stepPin,LOW);
-    delayMicroseconds(getCurrentDelay(abs(distance)-i));
-  }
-};
-
-StepperMotor::moveMotorDegrees(int degreesToTurn){
-  moveMotorSteps(degreesToTurn * stepsPerDegree);
+  currentStepDelayDuration = maxStepDelayDuration;
 };
 
 //setters
-StepperMotor::setDelay(int delay){
-	delayBetweenStep = delay;
+void StepperMotor::setSpeed(int speed){
+  //speed in degrees per second
+  this->speed = speed;
+  stepDelayDuration = (long)1000000 / ((long)stepsPerDegree * (long) speed);
 }
 
-StepperMotor::setStartingDelay(int delay){
-  startingDelay = delay;
+void StepperMotor::setMinSpeed(int minSpeed){
+  this->minSpeed = minSpeed;
+  maxStepDelayDuration = (long)1000000 / ((long)stepsPerDegree * (long)minSpeed);
 }
 
-StepperMotor::setProfileSteps(int steps){
-  profileSteps = steps;
+void StepperMotor::setAccelRate(float rate){
+  accelRate = rate;
 }
+
 #endif

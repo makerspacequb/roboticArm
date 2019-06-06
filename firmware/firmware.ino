@@ -1,6 +1,7 @@
 #include "Joint.h"
 #include "pins.h"
 #include "Config.h"
+#include "TimerOne.h"
 #include <Servo.h>
 
 //calibration & continuous movement flags
@@ -14,17 +15,39 @@ int continuousMovementSpeeds[] = {0,0,0,0,0,0};
 
 //motor & servo objects
 Joint joints[TOTAL_JOINTS] = {
-   Joint(new StepperMotor(J0_STEP,J0_DIR,J0_ENABLE,J0_STEPS_PER_DEG,J0_DELAY,J0_START_DELAY,J0_PROFILE_STEPS), J0_L_SWITCH, J0_MAX_ROT_DEG),
-   Joint(new StepperMotor(J1_STEP,J1_DIR,J1_ENABLE,J1_STEPS_PER_DEG,J1_DELAY,J1_START_DELAY,J1_PROFILE_STEPS), J1_L_SWITCH, J1_MAX_ROT_DEG),
-   Joint(new StepperMotor(J2_STEP,J2_DIR,J2_ENABLE,J2_STEPS_PER_DEG,J2_DELAY,J2_START_DELAY,J2_PROFILE_STEPS), J2_L_SWITCH, J2_MAX_ROT_DEG),
-   Joint(new StepperMotor(J3_STEP,J3_DIR,J3_ENABLE,J3_STEPS_PER_DEG,J3_DELAY,J3_START_DELAY,J3_PROFILE_STEPS), J3_L_SWITCH, J3_MAX_ROT_DEG)
+   Joint(new StepperMotor(J0_STEP,J0_DIR,J0_ENABLE,J0_STEPS_PER_DEG,J0_SPEED,J0_MIN_SPEED,J0_ACCEL_RATE), J0_L_SWITCH, J0_MAX_ROT_DEG),
+   Joint(new StepperMotor(J1_STEP,J1_DIR,J1_ENABLE,J1_STEPS_PER_DEG,J1_SPEED,J1_MIN_SPEED,J1_ACCEL_RATE), J1_L_SWITCH, J1_MAX_ROT_DEG),
+   Joint(new StepperMotor(J2_STEP,J2_DIR,J2_ENABLE,J2_STEPS_PER_DEG,J2_SPEED,J2_MIN_SPEED,J2_ACCEL_RATE), J2_L_SWITCH, J2_MAX_ROT_DEG),
+   Joint(new StepperMotor(J3_STEP,J3_DIR,J3_ENABLE,J3_STEPS_PER_DEG,J3_SPEED,J3_MIN_SPEED,J3_ACCEL_RATE), J3_L_SWITCH, J3_MAX_ROT_DEG)
 };
 Servo hand;
- 
+
+bool interruptBusy = false;
+unsigned long lastInterruptTime = micros();
+void interrupt(void){
+  if(!interruptBusy){
+    interruptBusy = true;
+    unsigned long currentMicros = micros();
+    unsigned long interruptTime = currentMicros - lastInterruptTime;
+    lastInterruptTime = currentMicros;
+    //handle motor movement by interrupt
+    //step motors
+    for (int i = 0; i < TOTAL_JOINTS; i++){
+      joints[i].update(interruptTime);
+    }
+    interruptBusy = false;
+  }
+}
+
 void setup() { 
- pinMode(HAND_PIN,OUTPUT);
- hand.attach(HAND_PIN);
- Serial.begin(BAUD_RATE);
+  pinMode(HAND_PIN,OUTPUT);
+  hand.attach(HAND_PIN);
+  Serial.begin(BAUD_RATE);
+ 
+  //set timer interrupt for motor and encoder control
+  Timer1.attachInterrupt(interrupt);
+  Timer1.initialize(INTERRUPT_TIME);
+  Timer1.start();
 }
 
 void loop() {
@@ -77,24 +100,44 @@ void processInstruction(char *input){
       moveHand(atol(input+1)); 
       break;
     case 'x': 
-      continuousMovement = atol(input+1);
+      //continuousMovement = atol(input+1);
       break;
     case 'd': 
-      setJointDelay(input[1] - '0',atol(input+2)); 
+      joints[input[1] - '0'].setSpeed(atol(input+2));
+      Serial.print("Set motor: ");
+      Serial.print(input[1]);
+      Serial.print(" to speed: ");
+      Serial.print(atol(input+2));
+      Serial.println("deg/s");
       break;
     case 's': 
-      setJointStartingDelay(input[1] - '0',atol(input+2)); 
+      joints[input[1] - '0'].setMinSpeed(atol(input+2));
+      Serial.print("Set motor: ");
+      Serial.print(input[1]);
+      Serial.print(" min speed to: ");
+      Serial.print(atol(input+2));
+      Serial.println("deg/s");
       break;
     case 'z': 
-      setJointProfileSteps(input[1] - '0',atol(input+2)); 
+      joints[input[1] - '0'].setAccelRate(atol(input+2));
+      Serial.print("Set motor: ");
+      Serial.print(input[1]);
+      Serial.print(" acceleration steps: ");
+      Serial.print(atol(input+2));
+      Serial.println("us/step");
       break;
     case 'm': 
       moveJoint(input[1] - '0',atol(input+2)); 
+      Serial.print("Moving motor: ");
+      Serial.print(input[1]);
+      Serial.print(" : ");
+      Serial.print(atol(input+2));
+      Serial.println("degs");
       break;
     default: 
       Serial.println("Command not found");
   }
-  printPositions();
+  //printPositions();
 }
 
 void calibration(){
@@ -113,14 +156,6 @@ void printPositions(){
   }
   Serial.println(outputString);
 }
-
-/*void printSwitches(){
-  String outputString = "";
-  for(int i = 40; i < 46; i++){
-    outputString += (String)digitalRead(i)+",";
-  }
-  Serial.println(outputString);
-}*/
 
 void moveHand(int value) {
   if(value > 90){
@@ -141,18 +176,3 @@ void moveJoint(int jointIndex, int value){
   }
 }
 
-void setJointDelay(int jointIndex, int value){
-  joints[jointIndex].setDelay(value);
-}
-
-void setJointSpeed(int jointIndex, int value){
-  continuousMovementSpeeds[jointIndex] = value;
-}
-
-void setJointStartingDelay(int jointIndex, int value){
-  joints[jointIndex].setStartingDelay(value);
-}
-
-void setJointProfileSteps(int jointIndex, int value){
-  joints[jointIndex].setProfileSteps(value);
-}

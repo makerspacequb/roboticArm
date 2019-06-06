@@ -44,7 +44,7 @@
 #define J5_MAX_ROT_DEG 180
 
 //other constants
-#define TOTAL_JOINTS 4
+#define TOTAL_JOINTS 6
 #define BAUD_RATE 115200
 #define INST_ARRAY_LEN 20 //length of instruction array
 #define INTERRUPT_TIME 100

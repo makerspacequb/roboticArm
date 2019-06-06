@@ -27,7 +27,7 @@ Joint::Joint(StepperMotor* stepperMotor, int switchPin, int maxRotation){
 	this->stepperMotor = stepperMotor;
 	this->switchPin = switchPin;
   this->maxRotation = maxRotation;
-	pinMode(switchPin,INPUT);
+	pinMode(switchPin,INPUT_PULLUP);
 };
 
 void Joint::update(unsigned long elapsedMicros){

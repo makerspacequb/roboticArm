@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <title>Robotic Arm API</title>
+    <link rel="icon" type="image/ico" href="favicon.ico" sizes="16x16">
+    <link rel="stylesheet" href="style.css">
+</head>
+        
+<body>
+
+<h1>Robotic Arm API</h1>
+<p>
+    The main API for the robotic arm can be access here commands can be sent directly using the following format as a URL;
+
+    <code>http://127.0.0.1:8080/send?command=motor,angle,other</code>
+
+    In this case <code>motor</code> represents the motor to move, between 0 and 5, <code>angle</code> the rotation in 
+    degrees and <code>other</code> is not yet set.
+
+    Commands can also be passed directly on this page and log files of received and sent data accessed.
+
+</p>
+
+<script src="jquery.min.js"></script>
+<script>
+    function reconnect(){
+          
+        document.getElementById("status").src=on;
+            
+            //AJAX EMERGENCY COMMAND
+            $.ajax({
+                    type: "GET",
+                    url: "http://192.168.0.5:8080/reconnect",
+                    datatype: "text",
+                    success: function(result) {
+                        
+                    //If there was data read...
+                    if(result != ""){
+                        
+                        console.log(result);
+                        
+                        //Print Status Message
+                        var status = result;
+                        outputStatus = document.getElementById('status');
+                        outputStatus.innerHTML = status;
+
+                        }
+                    }
+                });
+    }
+</script>
+
+<h2>Connection</h2>
+
+<p>Connection status: <b id="status">No Connection</b></p>
+
+<button type="button" onclick=reconnect()>Connect/Reconnect</button>
+
+<h2>Interaction</h2>
+
+<p>Enter a command to pass to the arm and press send to deliver.</p>
+
+<form action="send">
+    First name:
+    <br>
+        <input type="text" name="command" value="motor,angle,other">
+    <br>
+    
+    <br>
+        <button type="submit">Send</button>
+</form> 
+
+<h2>Returned Data</h2>
+
+<p>Any data return from the arms is displayed here after sending.</p>
+
+<h2>Logging</h2>
+
+<p>
+    Data is automatically logged as it is sent and received. 
+    Logging is undertaken in CSV format and timestamped for syncronisation. 
+    You can reset the log to clear them by following the link below.
+</p>
+
+<button type="submit" action=clearLogs>Clear Logs</button>
+
+<h3>Transmit</h3>
+
+<h3>Receive</h3>
+
+</body>
+</html>

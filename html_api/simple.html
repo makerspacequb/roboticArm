@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <title>Robotic Arm API</title>
+    <link rel="icon" type="image/ico" href="favicon.ico" sizes="16x16">
+    <link rel="stylesheet" href="style.css">
+</head>
+        
+<body text-align="center" width="500px">
+
+<h1>Robotic Arm API</h1>
+
+<button type="submit" action=connect>Connect/Reconnect</button>
+
+<br>
+
+<button type="submit" action=clearLogs>Clear Logs</button>
+
+<h2>Interaction</h2>
+
+<p>Enter a command to pass to the arm and press send to deliver.</p>
+
+<form action="send">
+    First name:
+    <br>
+        <input type="text" name="command" value="motor,angle,other">
+    <br>
+    
+    <br>
+        <button type="submit">Send</button>
+</form> 
+
+</body>
+</html>

@@ -6,30 +6,36 @@
 class Joint{
   public:
   Joint(StepperMotor* stepperMotor_, int switchPin_, int maxRotation_);
-  move(int degrees);
-  calibrate();
+  void move(int degrees);
+  void calibrate();
+  void update(unsigned long elapsedMicros);
 
   //setters
-  setDelay(int delay);
-  setStartingDelay(int delay);
-  setProfileSteps(int steps);
+  void setSpeed(int speed);
+  void setMinSpeed(int speed);
+  void setAccelRate(int rate);
   
   bool isCalibrated = false;
   int position = 0; 
 
   private:
-  StepperMotor* stepperMotor;
   int switchPin, maxRotation;
+  StepperMotor* stepperMotor;
 };
 
-Joint::Joint(StepperMotor* stepperMotor_, int switchPin_, int maxRotation_){
-	stepperMotor = stepperMotor_;
-	switchPin = switchPin_;
-  maxRotation = maxRotation_;
+Joint::Joint(StepperMotor* stepperMotor, int switchPin, int maxRotation){
+	this->stepperMotor = stepperMotor;
+	this->switchPin = switchPin;
+  this->maxRotation = maxRotation;
 	pinMode(switchPin,INPUT);
 };
 
-Joint::move(int degrees){
+void Joint::update(unsigned long elapsedMicros){
+  stepperMotor->step(elapsedMicros);
+  //poll switch
+}
+
+void Joint::move(int degrees){
   if(isCalibrated && position + degrees >= 0 && position + degrees <= maxRotation){
     position += degrees;
     stepperMotor->moveMotorDegrees(degrees);
@@ -38,7 +44,7 @@ Joint::move(int degrees){
   }
 }
 
-Joint::calibrate(){
+void Joint::calibrate(){
   while(!digitalRead(switchPin)){
     stepperMotor->moveMotorDegrees(1);
   }
@@ -46,16 +52,16 @@ Joint::calibrate(){
 }
 
 //setters
-Joint::setDelay(int delay){
-  stepperMotor->setDelay(delay);
+void Joint::setSpeed(int speed){
+  stepperMotor->setSpeed(speed);
 }
 
-Joint::setStartingDelay(int delay){
-  stepperMotor->setStartingDelay(delay);
+void Joint::setMinSpeed(int speed){
+  stepperMotor->setMinSpeed(speed);
 }
 
-Joint::setProfileSteps(int steps){
-  stepperMotor->setProfileSteps(steps);
+void Joint::setAccelRate(int rate){
+  stepperMotor->setAccelRate(rate);
 }
 
 #endif

@@ -14,13 +14,8 @@
 
 <h1>Robotic Arm API</h1>
 
-<form action="connect">
-    <button class="button" type="submit">Reconnect</button>
-</form>
-
-<form action="clearLogs">
-    <button class="button" type="submit">Clear Logs</button>
-</form>
+<button class="button" onclick="callCommand('connect')">Connect</button>
+<button class="button" onclick="callCommand('clearLogs')">Clear Logs</button>
 
 <h2>Interaction</h2>
 
@@ -42,6 +37,35 @@
  <form method="get" action="public/receiveLog.csv">
     <button class="button" type="submit">Receive Log</button>
  </form>
+
+ <h2>Status Message</h2>
+
+ <p id="status"></p>
+
+<script src="public/jquery.min.js"></script>
+
+<script>
+    function callCommand(data){
+
+        var action = "connect";
+            
+        $.ajax({
+            type: "GET",
+            url: action,
+            datatype: "text",
+            success: function(status) {
+        
+                //Print Data to console
+                console.log(status);
+
+                //Print Status			
+                statusElement = document.getElementById('status');
+                statusElement.innerHTML = status;
+            }
+        });
+        return status;
+    }    
+</script>
 
 </body>
 </html>

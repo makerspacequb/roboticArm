@@ -14,13 +14,11 @@ try:
     
     class API(object):
 
+        connected = False
+
         @cherrypy.expose
         def index(self):
             
-            #Open serial connection when API instance created
-            self.connected = False
-            self.connect()
-
             with open ("http_api/index.html", "r") as webPage:
                 contents=webPage.readlines()
             return contents
@@ -59,30 +57,32 @@ try:
                     log.write(currentDateTime+","+command+"\n")
 
                 #Write Command Passed to Serial Port
+                self.leftArm.reset_input_buffer()
                 payload = (str(command)+"\r\n").encode()
                 self.leftArm.write(payload)
 
                 #Read Response if Avalible
-                response = ""
-                while self.leftArm.in_waiting:
-                    response = self.leftArm.readline()
+                response = "VOID"
+                try:
+                    response = self.leftArm.readline().decode('utf-8')
+                except:
+                    response = "NULL\n"
                     
                 #Add response to receive log
-                with open ("http_api/public/receiveLog.html", "a+") as log:
-                    log.write(currentDateTime+","+response)
+                with open ("http_api/public/receiveLog.csv", "a+") as log:
+                    log.write(currentDateTime+","+str(response))
 
-                status = currentDateTime + " INFO: '"+command+"' sent succesfully."
+                status = currentDateTime + " INFO: '"+command+"' sent succesfully. Response is '"+response+"'."
 
             except:
-                status = currentDateTime + " INFO: Could not send data to serial port. Check connection."
+                #status = currentDateTime + " INFO: Could not send data to serial port. Check connection."
                 self.connected = False
 
+            print(status)
             return status
 
         @cherrypy.expose
         def connect(self):
-            
-            self.connected = False
             
             try:
                 #Open Serial Connection

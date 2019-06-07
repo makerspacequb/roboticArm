@@ -1,7 +1,7 @@
 #NAME:  main.py
 #DATE:  Wednesday 5th June 2019
 #AUTH:  Ryan McCartney, EEE Undergraduate, Queen's University Belfast
-#DESC:  A python function for running a cherrpi API as a serial pass through
+#DESC:  A python script for running a cherrpi API as a serial passthrough
 #COPY:  Copyright 2018, All Rights Reserved, Ryan McCartney
 
 import threading
@@ -21,7 +21,7 @@ try:
             self.connected = False
             self.connect()
 
-            with open ("api/simple.html", "r") as webPage:
+            with open ("http_api/index.html", "r") as webPage:
                 contents=webPage.readlines()
             return contents
 
@@ -29,13 +29,13 @@ try:
         def clearLogs(self):
 
             #Clear Transmit Log
-            log = open("api/transmitLog.csv","w")
-            log.write("Date and Time,Motor,Command,Parameter,Command,Parameter\n")
+            log = open("http_api/public/transmitLog.csv","w")
+            log.write("Date and Time,Command String Passed\n")
             log.close()
 
             #Clear Receive Log
-            log = open("api/receiveLog.csv","w")
-            log.write("Date and Time,Motor,Command,Parameter,Command,Parameter\n")
+            log = open("http_api/public/receiveLog.csv","w")
+            log.write("Date and Time,Arm Response\n")
             log.close()
 
             #Return Message
@@ -55,8 +55,8 @@ try:
     
             try:
                 #Add command to transmit log
-                with open ("api/transmitLog.csv", "a+") as log:
-                    log.write(command+"/n")
+                with open ("http_api/public/transmitLog.csv", "a+") as log:
+                    log.write(currentDateTime+","+command+"\n")
 
                 #Write Command Passed to Serial Port
                 payload = (str(command)+"\r\n").encode()
@@ -68,8 +68,8 @@ try:
                     response = self.leftArm.readline()
                     
                 #Add response to receive log
-                with open ("api/receiveLog.html", "a+") as log:
-                    log.write(response)
+                with open ("http_api/public/receiveLog.html", "a+") as log:
+                    log.write(currentDateTime+","+response)
 
                 status = currentDateTime + " INFO: '"+command+"' sent succesfully."
 
@@ -112,7 +112,13 @@ try:
                 'favicon.ico':
                 {
                     'tools.staticfile.on': True,
-                    'tools.staticfile.filename': os.path.join(os.getcwd(),'api/favicon.ico')
+                    'tools.staticfile.filename': os.path.join(os.getcwd(),'http_api\public\favicon.ico')
+                },
+                '/public': {
+                    'tools.staticdir.on'    : True,
+                    'tools.staticdir.dir'   : os.path.join(os.getcwd(),'http_api\public'),
+                    'tools.staticdir.index' : 'index.html',
+                    'tools.gzip.on'         : True
                 }
             }
         )        

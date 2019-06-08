@@ -25,17 +25,13 @@ Joint joints[TOTAL_JOINTS] = {
 Servo hand;
 
 bool interruptBusy = false;
-unsigned long lastInterruptTime = micros();
 void interrupt(void){
   if(!interruptBusy){
     interruptBusy = true;
-    unsigned long currentMicros = micros();
-    unsigned long interruptTime = currentMicros - lastInterruptTime;
-    lastInterruptTime = currentMicros;
     //handle motor movement by interrupt
     //step motors
     for (int i = 0; i < TOTAL_JOINTS; i++){
-      joints[i].update(interruptTime);
+      joints[i].update(INTERRUPT_TIME);
     }
     interruptBusy = false;
   }

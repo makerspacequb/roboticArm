@@ -12,15 +12,14 @@ class StepperMotor{
     //setters
     void setSpeed(int speed);
     void setMinSpeed(int minSpeed);
-    void setAccelRate(float rate);
+    void setAccelRate(int rate);
 
     //getters
     int getSpeed(){ return speed; };
 
   private:
-    int stepPin, dirPin, enablePin, speed, stepsPerDegree, steps, stepDelayDuration, minSpeed;
+    int stepPin, dirPin, enablePin, speed, stepsPerDegree, steps, stepDelayDuration, minSpeed, accelRate;
     unsigned long stepRunTime, currentStepDelayDuration, maxStepDelayDuration;
-    float accelRate;
     bool stepDelay;
     void updateAcceleration();
 };
@@ -44,11 +43,11 @@ StepperMotor::StepperMotor(int stepPin, int dirPin, int enablePin, int stepsPerD
 
 void StepperMotor::step(unsigned long elapsedMicros){
   stepRunTime += elapsedMicros;
-  //TODO replace these digital writes with port manipulation
   if (steps > 0) {
     if(!stepDelay) {
       digitalWrite(stepPin, HIGH);
-      delayMicroseconds(5);
+      // digital write is slow enough to not need a delay.
+      // digital write will take about 6us
       digitalWrite(stepPin, LOW);
       steps--;
       stepDelay = true;
@@ -65,7 +64,7 @@ void StepperMotor::step(unsigned long elapsedMicros){
 
 void StepperMotor::updateAcceleration(){
   //update acceleration
-  if((long)steps * (long)currentStepDelayDuration / accelRate < maxStepDelayDuration - currentStepDelayDuration){
+  if(steps * currentStepDelayDuration / accelRate < maxStepDelayDuration - currentStepDelayDuration){
     //deceleration
     if(currentStepDelayDuration < maxStepDelayDuration){
       currentStepDelayDuration += currentStepDelayDuration / accelRate;
@@ -104,7 +103,7 @@ void StepperMotor::setMinSpeed(int minSpeed){
   maxStepDelayDuration = (long)1000000 / ((long)stepsPerDegree * (long)minSpeed);
 }
 
-void StepperMotor::setAccelRate(float rate){
+void StepperMotor::setAccelRate(int rate){
   accelRate = rate;
 }
 

@@ -18,8 +18,9 @@ class StepperMotor{
     int getSpeed(){ return speed; };
 
   private:
-    int stepPin, dirPin, enablePin, speed, stepsPerDegree, steps, stepDelayDuration, minSpeed, accelRate;
-    unsigned long stepRunTime, currentStepDelayDuration, maxStepDelayDuration;
+    int stepPin, dirPin, enablePin, speed, stepsPerDegree, minSpeed, accelRate;
+    volatile int steps, currentStepDelayDuration, maxStepDelayDuration, stepDelayDuration;
+    unsigned long stepRunTime;
     bool stepDelay;
     void updateAcceleration();
 };

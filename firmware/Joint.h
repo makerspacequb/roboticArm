@@ -5,10 +5,12 @@
 
 class Joint{
   public:
-  Joint(StepperMotor* stepperMotor_, int switchPin_, int maxRotation_);
+  Joint(StepperMotor* stepperMotor, int switchPin, int maxRotation);
   void move(int degrees);
   void calibrate();
   void update(unsigned long elapsedMicros);
+  bool checkLimitSwitch(){ return limitSwitchFlag; };
+  void resetLimitSwitch(){ limitSwitchFlag = false; };
 
   //setters
   void setSpeed(int speed);
@@ -21,6 +23,7 @@ class Joint{
   private:
   int switchPin, maxRotation;
   StepperMotor* stepperMotor;
+  volatile bool limitSwitchFlag = false;
 };
 
 Joint::Joint(StepperMotor* stepperMotor, int switchPin, int maxRotation){
@@ -31,8 +34,14 @@ Joint::Joint(StepperMotor* stepperMotor, int switchPin, int maxRotation){
 };
 
 void Joint::update(unsigned long elapsedMicros){
-  stepperMotor->step(elapsedMicros);
+  if (!limitSwitchFlag)
+    stepperMotor->step(elapsedMicros);
   //poll switch
+  if (!digitalRead(switchPin)){
+    limitSwitchFlag = true;
+    // set motor movement to 0
+    stepperMotor->moveMotorDegrees(0);
+  }
 }
 
 void Joint::move(int degrees){

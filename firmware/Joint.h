@@ -18,48 +18,62 @@ class Joint{
   void setAccelRate(int rate);
   
   bool isCalibrated = false;
-  int position = 0; 
+  volatile int positionSteps = 0; 
+  int position = 0;
 
   private:
   int switchPin, maxRotation;
   StepperMotor* stepperMotor;
-  volatile bool limitSwitchFlag = false;
+  volatile bool limitSwitchFlag, contMoveFlag;
+  volatile int movDir;
 };
 
 Joint::Joint(StepperMotor* stepperMotor, int switchPin, int maxRotation){
+  //TODO move stepper creation to this constructor, move stepsPerDegree here, pass
+  // stepperMotor speed in steps/ sec not degrees. remove stepsPerDegree from stepperMotor entirely
 	this->stepperMotor = stepperMotor;
 	this->switchPin = switchPin;
   this->maxRotation = maxRotation;
 	pinMode(switchPin,INPUT_PULLUP);
+  contMoveFlag = false;
+  limitSwitchFlag = false;
+  movDir = 1;
 };
 
 void Joint::update(unsigned long elapsedMicros){
   if (!limitSwitchFlag)
-    stepperMotor->step(elapsedMicros);
+    if (stepperMotor->step(elapsedMicros, contMoveFlag))
+      positionSteps += movDir;
   //poll switch
-  if (!digitalRead(switchPin)){
+  if (!digitalRead(switchPin) || position >= maxRotation){
     limitSwitchFlag = true;
+    contMoveFlag = false;
     // set motor movement to 0
-    stepperMotor->moveMotorDegrees(0);
+    stepperMotor->moveDegrees(0);
+  }
+  if (position < 0){
+     // TODO need calibration if this happens
   }
 }
 
 void Joint::move(int degrees){
+  movDir = degrees / abs(degrees);
+  //TODO needs fixed
   if(isCalibrated && position + degrees >= 0 && position + degrees <= maxRotation){
-    position += degrees;
-    stepperMotor->moveMotorDegrees(degrees);
-  }else if(!isCalibrated){
-    stepperMotor->moveMotorDegrees(degrees);
+    stepperMotor->moveDegrees(degrees);
+  } else if(!isCalibrated){
+    stepperMotor->moveDegrees(degrees);
   }
 }
 
 void Joint::calibrate(int jointNumber){
-  stepperMotor->moveMotorDegrees(-maxRotation);
+  stepperMotor->moveDegrees(-maxRotation);
   while(!digitalRead(switchPin)){
     Serial.print("Calibrating joint: ");
     Serial.println(jointNumber);
     delay(1000);
   }
+  position = 0;
   Serial.print("Finished calibrating joint: ");
   Serial.println(jointNumber);
   isCalibrated = true;

@@ -3,11 +3,11 @@
 
 class StepperMotor{
   public:
-    StepperMotor(){};
+    StepperMotor();
     StepperMotor(int stepPin, int dirPin, int enablePin, int stepsPerDegree, int speed, int minSpeed, float accelRate);
-    void moveMotorSteps(int distance);
-    void moveMotorDegrees(int degreesToTurn);
-    void step(unsigned long elapsedMicros);
+    void moveDegrees(int degreesToTurn);
+    void move(int stepsToMove);
+    bool step(unsigned long elapsedMicros, bool contMove);
   
     //setters
     void setSpeed(int speed);
@@ -40,9 +40,9 @@ StepperMotor::StepperMotor(int stepPin, int dirPin, int enablePin, int stepsPerD
   
   pinMode(stepPin,OUTPUT);
   pinMode(dirPin,OUTPUT);
-};
+}
 
-void StepperMotor::step(unsigned long elapsedMicros){
+bool StepperMotor::step(unsigned long elapsedMicros, bool contMove){
   stepRunTime += elapsedMicros;
   if (steps > 0) {
     if(!stepDelay) {
@@ -50,8 +50,10 @@ void StepperMotor::step(unsigned long elapsedMicros){
       // digital write is slow enough to not need a delay.
       // digital write will take about 6us
       digitalWrite(stepPin, LOW);
-      steps--;
+      if (!contMove)
+        steps--;
       stepDelay = true;
+      return true;
     }
     else {
       if(currentStepDelayDuration < stepRunTime){
@@ -61,6 +63,7 @@ void StepperMotor::step(unsigned long elapsedMicros){
       }
     }
   }
+  return false;
 }
 
 void StepperMotor::updateAcceleration(){
@@ -82,15 +85,17 @@ void StepperMotor::updateAcceleration(){
     currentStepDelayDuration = maxStepDelayDuration;
 }
 
-void StepperMotor::moveMotorDegrees(int degreesToTurn){
+void StepperMotor::moveDegrees(int degreesToTurn){
   steps = abs(degreesToTurn) * stepsPerDegree;
-  if(degreesToTurn < 0){
-    digitalWrite(dirPin,false);
-  } else {
-    digitalWrite(dirPin,true);
-  }
+  digitalWrite(dirPin, degreesToTurn > 0);
   currentStepDelayDuration = maxStepDelayDuration;
-};
+}
+
+void StepperMotor::move(int stepsToMove){
+  steps = abs(stepsToMove);
+  digitalWrite(dirPin, stepsToMove > 0);
+  currentStepDelayDuration = maxStepDelayDuration;
+}
 
 //setters
 void StepperMotor::setSpeed(int speed){

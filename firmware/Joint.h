@@ -7,7 +7,7 @@ class Joint{
   public:
   Joint(StepperMotor* stepperMotor, int switchPin, int maxRotation);
   void move(int degrees);
-  void calibrate();
+  void calibrate(int jointNumber);
   void update(unsigned long elapsedMicros);
   bool checkLimitSwitch(){ return limitSwitchFlag; };
   void resetLimitSwitch(){ limitSwitchFlag = false; };
@@ -53,10 +53,15 @@ void Joint::move(int degrees){
   }
 }
 
-void Joint::calibrate(){
+void Joint::calibrate(int jointNumber){
+  stepperMotor->moveMotorDegrees(-maxRotation);
   while(!digitalRead(switchPin)){
-    stepperMotor->moveMotorDegrees(1);
+    Serial.print("Calibrating joint: ");
+    Serial.println(jointNumber);
+    delay(1000);
   }
+  Serial.print("Finished calibrating joint: ");
+  Serial.println(jointNumber);
   isCalibrated = true;
 }
 

@@ -144,9 +144,7 @@ void processInstruction(char *input){
 
 void calibration(){
   for(int i = 0; i < 1; i++){
-    joints[i].calibrate();
-    Serial.println("Calibrated "+(String)i);
-    delay(100);
+    joints[i].calibrate(i);
   }
   isCalibrated = true;
 }

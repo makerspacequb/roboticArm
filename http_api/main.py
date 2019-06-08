@@ -26,6 +26,8 @@ try:
         @cherrypy.expose
         def clearLogs(self):
 
+            currentDateTime = time.strftime("%d/%m/%Y %H:%M:%S")
+
             #Clear Transmit Log
             log = open("http_api/public/transmitLog.csv","w")
             log.write("Date and Time,Command String Passed\n")
@@ -37,7 +39,7 @@ try:
             log.close()
 
             #Return Message
-            status = "INFO: Transmit and Receive Logs have been cleared."
+            status = currentDateTime + " - INFO: Transmit and Receive Logs have been cleared."
             print(status)
 
             return status
@@ -72,10 +74,10 @@ try:
                 with open ("http_api/public/receiveLog.csv", "a+") as log:
                     log.write(currentDateTime+","+str(response))
 
-                status = currentDateTime + " INFO: '"+command+"' sent succesfully. Response is '"+response+"'."
+                status = currentDateTime + " - INFO: '" + command + "' sent succesfully. Response is '"+response+"'."
 
             except:
-                #status = currentDateTime + " INFO: Could not send data to serial port. Check connection."
+                status = currentDateTime + " - ERROR: Could not send '"+ command +"' to serial port. Check connection."
                 self.connected = False
 
             print(status)
@@ -84,6 +86,8 @@ try:
         @cherrypy.expose
         def connect(self):
             
+            currentDateTime = time.strftime("%d/%m/%Y %H:%M:%S")
+
             try:
                 #Open Serial Connection
                 self.leftArm = serial.Serial(
@@ -94,9 +98,9 @@ try:
                     bytesize=serial.EIGHTBITS
                     )
                 self.connected = True
-                status = "INFO: Left arm arduino connected to "+self.leftArm.name+"\n"
+                status = currentDateTime + " - INFO: Left arm arduino connected to "+self.leftArm.name+"\n"
             except:
-                status = "ERROR: No Connection to Arduino\n"
+                status = currentDateTime + " - ERROR: Could not establish a connection with Arduino\n"
       
             print(status)
 

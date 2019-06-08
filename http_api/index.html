@@ -21,12 +21,11 @@
 
 <p>Enter a command to pass to the arm and press send to deliver.</p>
 
-<form action="send">
-    <br>
-        <input type="text" name="command" value="m020s45">
+<input id="inputCommand" type="text" name="command" value="m020s45">
+<button class="button" onclick="actionSendData()">Send</button>
 
-        <button class="button" type="submit">Send</button>
-</form> 
+<h2>Status Message</h2>
+<p id="status"></p>
 
 <h2>Logs</h2>
 
@@ -38,20 +37,21 @@
     <button class="button" type="submit">Receive Log</button>
  </form>
 
- <h2>Status Message</h2>
-
- <p id="status"></p>
-
 <script src="public/jquery.min.js"></script>
 
 <script>
-    function callCommand(data){
 
-        var action = "connect";
+    function actionSendData(){
+        command = document.getElementById('inputCommand').value;
+        var fullCommandString = "send?command=".concat(command);
+        callCommand(fullCommandString);
+    }
+
+    function callCommand(command){
             
         $.ajax({
             type: "GET",
-            url: action,
+            url: command,
             datatype: "text",
             success: function(status) {
         

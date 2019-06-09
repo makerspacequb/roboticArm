@@ -1,7 +1,7 @@
 
 The MIT License (MIT)
 
-Copyright (c) 2019 Ryan McCartney
+Copyright (c) 2019 QLab Makerspace, Queen's University Belfast
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

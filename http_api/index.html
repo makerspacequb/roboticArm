@@ -10,35 +10,34 @@
         
 <body>
 
-<img class="center" src="public/logo.png" width="200">
+    <img class="center" src="public/logo.png" width="200">
 
-<h1>Robotic Arm API</h1>
+    <h1>Robotic Arm API</h1>
 
-<button class="button" onclick="callCommand('connect')">Connect</button>
-<button class="button" onclick="callCommand('clearLogs')">Clear Logs</button>
+        <button class="button" onclick="callCommand('connect')">Connect</button>
+        <button class="button" onclick="callCommand('clearLogs')">Clear Logs</button>
 
-<h2>Interaction</h2>
+    <h2>Interaction</h2>
 
-<p>Enter a command to pass to the arm and press send to deliver.</p>
+    <p>Enter a command to pass to the arm and press send to deliver.</p>
+    <input id="inputCommand" type="text" name="command" value="m020s45">
+    <button class="button" onclick="actionSendData()">Send</button>
 
-<input id="inputCommand" type="text" name="command" value="m020s45">
-<button class="button" onclick="actionSendData()">Send</button>
+    <h2>Status Message</h2>
+        
+        <p id="status"></p>
 
-<h2>Status Message</h2>
-<p id="status"></p>
+    <h2>Logs</h2>
 
-<h2>Logs</h2>
+        <form method="get" action="public/transmitLog.csv">
+            <button class="button" type="submit">Transmit Log</button>
+        </form>
 
-<form method="get" action="public/transmitLog.csv">
-    <button class="button" type="submit">Transmit Log</button>
- </form>
-
- <form method="get" action="public/receiveLog.csv">
-    <button class="button" type="submit">Receive Log</button>
- </form>
+        <form method="get" action="public/receiveLog.csv">
+            <button class="button" type="submit">Receive Log</button>
+        </form>
 
 <script src="public/jquery.min.js"></script>
-
 <script>
 
     function actionSendData(){

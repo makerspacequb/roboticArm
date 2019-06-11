@@ -116,11 +116,11 @@ try:
                 'favicon.ico':
                 {
                     'tools.staticfile.on': True,
-                    'tools.staticfile.filename': os.path.join(os.getcwd(),'http_api\public\favicon.ico')
+                    'tools.staticfile.filename': os.path.join(os.getcwd(),'http_api/public/favicon.ico')
                 },
                 '/public': {
                     'tools.staticdir.on'    : True,
-                    'tools.staticdir.dir'   : os.path.join(os.getcwd(),'http_api\public'),
+                    'tools.staticdir.dir'   : os.path.join(os.getcwd(),'http_api/public'),
                     'tools.staticdir.index' : 'index.html',
                     'tools.gzip.on'         : True
                 }

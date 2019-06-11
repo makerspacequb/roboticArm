@@ -4,8 +4,7 @@
 class StepperMotor{
   public:
     StepperMotor();
-    StepperMotor(int stepPin, int dirPin, int enablePin, int stepsPerDegree, int speed, int minSpeed, float accelRate);
-    void moveDegrees(int degreesToTurn);
+    StepperMotor(int stepPin, int dirPin, int enablePin, int speed, int minSpeed, int accelRate);
     void move(int stepsToMove);
     bool step(unsigned long elapsedMicros, bool contMove);
   
@@ -18,19 +17,18 @@ class StepperMotor{
     int getSpeed(){ return speed; };
 
   private:
-    int stepPin, dirPin, enablePin, speed, stepsPerDegree, minSpeed, accelRate;
+    int stepPin, dirPin, enablePin, speed, minSpeed, accelRate;
     volatile int steps, currentStepDelayDuration, maxStepDelayDuration, stepDelayDuration;
     unsigned long stepRunTime;
     bool stepDelay;
     void updateAcceleration();
 };
 
-StepperMotor::StepperMotor(int stepPin, int dirPin, int enablePin, int stepsPerDegree, int speed,
-      int minSpeed, float accelRate){
+StepperMotor::StepperMotor(int stepPin, int dirPin, int enablePin, int speed,
+      int minSpeed, int accelRate){
   this->stepPin = stepPin;
   this->dirPin = dirPin;
   this->enablePin = enablePin;
-  this->stepsPerDegree = stepsPerDegree;
   this->accelRate = accelRate;
   setSpeed(speed);
   setMinSpeed(minSpeed);
@@ -85,12 +83,6 @@ void StepperMotor::updateAcceleration(){
     currentStepDelayDuration = maxStepDelayDuration;
 }
 
-void StepperMotor::moveDegrees(int degreesToTurn){
-  steps = abs(degreesToTurn) * stepsPerDegree;
-  digitalWrite(dirPin, degreesToTurn > 0);
-  currentStepDelayDuration = maxStepDelayDuration;
-}
-
 void StepperMotor::move(int stepsToMove){
   steps = abs(stepsToMove);
   digitalWrite(dirPin, stepsToMove > 0);
@@ -99,14 +91,15 @@ void StepperMotor::move(int stepsToMove){
 
 //setters
 void StepperMotor::setSpeed(int speed){
-  //speed in degrees per second
+  //speed in steps per second
   this->speed = speed;
-  stepDelayDuration = (long)1000000 / ((long)stepsPerDegree * (long) speed);
+  stepDelayDuration = (long)1000000 / (long) speed;
 }
 
 void StepperMotor::setMinSpeed(int minSpeed){
+  //speed in steps per second
   this->minSpeed = minSpeed;
-  maxStepDelayDuration = (long)1000000 / ((long)stepsPerDegree * (long)minSpeed);
+  maxStepDelayDuration = (long)1000000 / (long)minSpeed;
 }
 
 void StepperMotor::setAccelRate(int rate){

@@ -6,21 +6,17 @@
 
 //calibration & continuous movement flags
 bool isCalibrated = false;
-bool continuousMovement = false;
 char instruction[INST_ARRAY_LEN];
 int instIndex = 0;
 
-//motor & switch data
-int continuousMovementSpeeds[] = {0,0,0,0,0,0};
-
 //motor & servo objects
 Joint joints[TOTAL_JOINTS] = {
-   Joint(new StepperMotor(J0_STEP,J0_DIR,J0_ENABLE,J0_STEPS_PER_DEG,J0_SPEED,J0_MIN_SPEED,J0_ACCEL_RATE), J0_L_SWITCH, J0_MAX_ROT_DEG),
-   Joint(new StepperMotor(J1_STEP,J1_DIR,J1_ENABLE,J1_STEPS_PER_DEG,J1_SPEED,J1_MIN_SPEED,J1_ACCEL_RATE), J1_L_SWITCH, J1_MAX_ROT_DEG),
-   Joint(new StepperMotor(J2_STEP,J2_DIR,J2_ENABLE,J2_STEPS_PER_DEG,J2_SPEED,J2_MIN_SPEED,J2_ACCEL_RATE), J2_L_SWITCH, J2_MAX_ROT_DEG),
-   Joint(new StepperMotor(J3_STEP,J3_DIR,J3_ENABLE,J3_STEPS_PER_DEG,J3_SPEED,J3_MIN_SPEED,J3_ACCEL_RATE), J3_L_SWITCH, J3_MAX_ROT_DEG),
-   Joint(new StepperMotor(J4_STEP,J4_DIR,J4_ENABLE,J4_STEPS_PER_DEG,J4_SPEED,J4_MIN_SPEED,J4_ACCEL_RATE), J4_L_SWITCH, J4_MAX_ROT_DEG),
-   Joint(new StepperMotor(J5_STEP,J5_DIR,J5_ENABLE,J5_STEPS_PER_DEG,J5_SPEED,J5_MIN_SPEED,J5_ACCEL_RATE), J5_L_SWITCH, J5_MAX_ROT_DEG)
+   Joint(J0_STEP,J0_DIR,J0_ENABLE,J0_STEPS_PER_DEG,J0_SPEED,J0_MIN_SPEED,J0_ACCEL_RATE, J0_L_SWITCH, J0_MAX_ROT_DEG),
+   Joint(J1_STEP,J1_DIR,J1_ENABLE,J1_STEPS_PER_DEG,J1_SPEED,J1_MIN_SPEED,J1_ACCEL_RATE, J1_L_SWITCH, J1_MAX_ROT_DEG),
+   Joint(J2_STEP,J2_DIR,J2_ENABLE,J2_STEPS_PER_DEG,J2_SPEED,J2_MIN_SPEED,J2_ACCEL_RATE, J2_L_SWITCH, J2_MAX_ROT_DEG),
+   Joint(J3_STEP,J3_DIR,J3_ENABLE,J3_STEPS_PER_DEG,J3_SPEED,J3_MIN_SPEED,J3_ACCEL_RATE, J3_L_SWITCH, J3_MAX_ROT_DEG),
+   Joint(J4_STEP,J4_DIR,J4_ENABLE,J4_STEPS_PER_DEG,J4_SPEED,J4_MIN_SPEED,J4_ACCEL_RATE, J4_L_SWITCH, J4_MAX_ROT_DEG),
+   Joint(J5_STEP,J5_DIR,J5_ENABLE,J5_STEPS_PER_DEG,J5_SPEED,J5_MIN_SPEED,J5_ACCEL_RATE, J5_L_SWITCH, J5_MAX_ROT_DEG)
 };
 Servo hand;
 
@@ -51,12 +47,6 @@ void setup() {
 void loop() {
   //printSwitches();
   readSerial();
-  
-  if(continuousMovement){
-    for(int i = 0; i < 6; i++){
-      moveJoint(i,continuousMovementSpeeds[i]);
-    }
-  }
 }
 
 void readSerial(){

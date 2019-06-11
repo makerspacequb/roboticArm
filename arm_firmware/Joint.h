@@ -5,7 +5,8 @@
 
 class Joint{
   public:
-  Joint(StepperMotor* stepperMotor, int switchPin, int maxRotation);
+  Joint(int stepPin, int dirPin, int enablePin, int stepsPerDegree, int speed, int minSpeed, 
+        int accelRate, int switchPin, int maxRotation);
   void move(int degrees);
   void calibrate(int jointNumber);
   void update(unsigned long elapsedMicros);
@@ -22,18 +23,19 @@ class Joint{
   int position = 0;
 
   private:
-  int switchPin, maxRotation;
+  int switchPin, maxRotation, stepsPerDegree;
   StepperMotor* stepperMotor;
   volatile bool limitSwitchFlag, contMoveFlag;
   volatile int movDir;
 };
 
-Joint::Joint(StepperMotor* stepperMotor, int switchPin, int maxRotation){
-  //TODO move stepper creation to this constructor, move stepsPerDegree here, pass
-  // stepperMotor speed in steps/ sec not degrees. remove stepsPerDegree from stepperMotor entirely
-	this->stepperMotor = stepperMotor;
+Joint::Joint(int stepPin, int dirPin, int enablePin, int stepsPerDegree, int speed, int minSpeed, 
+             int accelRate, int switchPin, int maxRotation){
+  int speedStepsPerSec = speed * stepsPerDegree;
+	stepperMotor = new StepperMotor(stepPin, dirPin, enablePin, speedStepsPerSec, minSpeed, accelRate);
 	this->switchPin = switchPin;
   this->maxRotation = maxRotation;
+  this->stepsPerDegree = stepsPerDegree;
 	pinMode(switchPin,INPUT_PULLUP);
   contMoveFlag = false;
   limitSwitchFlag = false;
@@ -49,7 +51,7 @@ void Joint::update(unsigned long elapsedMicros){
     limitSwitchFlag = true;
     contMoveFlag = false;
     // set motor movement to 0
-    stepperMotor->moveDegrees(0);
+    stepperMotor->move(0);
   }
   if (position < 0){
      // TODO need calibration if this happens
@@ -60,14 +62,14 @@ void Joint::move(int degrees){
   movDir = degrees / abs(degrees);
   //TODO needs fixed
   if(isCalibrated && position + degrees >= 0 && position + degrees <= maxRotation){
-    stepperMotor->moveDegrees(degrees);
+    stepperMotor->move(degrees * stepsPerDegree);
   } else if(!isCalibrated){
-    stepperMotor->moveDegrees(degrees);
+    stepperMotor->move(degrees * stepsPerDegree);
   }
 }
 
 void Joint::calibrate(int jointNumber){
-  stepperMotor->moveDegrees(-maxRotation);
+  stepperMotor->move(-maxRotation * stepsPerDegree);
   while(!digitalRead(switchPin)){
     Serial.print("Calibrating joint: ");
     Serial.println(jointNumber);
@@ -81,11 +83,11 @@ void Joint::calibrate(int jointNumber){
 
 //setters
 void Joint::setSpeed(int speed){
-  stepperMotor->setSpeed(speed);
+  stepperMotor->setSpeed(speed * stepsPerDegree);
 }
 
 void Joint::setMinSpeed(int speed){
-  stepperMotor->setMinSpeed(speed);
+  stepperMotor->setMinSpeed(speed * stepsPerDegree);
 }
 
 void Joint::setAccelRate(int rate){

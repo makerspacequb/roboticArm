@@ -176,7 +176,7 @@ try:
             return status   
 
         @cherrypy.expose
-        def getImage():
+        def getImage(self):
 
             image = "NOT YET OPERATIONAL"
             

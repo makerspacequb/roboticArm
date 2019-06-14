@@ -13,9 +13,28 @@
 	width: 180px;
 	font-size: 1vw;
 	font-family: helvetica, sans-serif;
-	background: #16aacf;
+	background: #42d4f4;
 }
 
+table {
+	font-family: arial, sans-serif;
+	font-size: 0.8vw;
+	border-collapse: collapse;
+	width: 100%;
+  }
+  
+th {
+	border: 1px solid #42d4f4;
+	text-align: left;
+	padding: 6px;
+  }
+
+td {
+	border: 1px solid #42d4f4;
+	text-align: left;
+	padding: 4px;
+  }
+  
 code {
     font-family:monospace,monospace;
     font-size:1em
@@ -32,7 +51,7 @@ body {
 h1 {
 	font-family: helvetica, sans-serif;
 	width: 100%;
-	font-size: 2.2vw;
+	font-size: 2vw;
 	color: black;
 	clear: left;
 	text-align: center;
@@ -41,7 +60,7 @@ h1 {
 h2 {
 	font-family: helvetica, sans-serif;
 	width: 100%;
-	font-size: 1.8vw;
+	font-size: 1.6vw;
 	color: black;
 	clear: left;
 	text-align: center;
@@ -51,7 +70,7 @@ input[type=text] {
 	border-radius: 8px;
 	padding: 5px;
 	margin: auto;
-	border:1px solid #16aacf;
+	border:1px solid #42d4f4;
 	width:60%;
 	font-size: 1vw;
 	font-family: helvetica, sans-serif;

@@ -4,7 +4,7 @@
 class StepperMotor{
   public:
     StepperMotor();
-    StepperMotor(int stepPin, int dirPin, int enablePin, int speed, int minSpeed, int accelRate);
+    StepperMotor(int stepPin, int dirPin, int enablePin, int speed, int minSpeed, int accelRate, bool enableHIGH);
     void move(int stepsToMove);
     bool step(unsigned long elapsedMicros, bool contMove);
   
@@ -20,24 +20,27 @@ class StepperMotor{
     int stepPin, dirPin, enablePin, speed, minSpeed, accelRate;
     volatile int steps, currentStepDelayDuration, maxStepDelayDuration, stepDelayDuration;
     unsigned long stepRunTime;
-    bool stepDelay;
+    bool stepDelay, enableHIGH;
     void updateAcceleration();
 };
 
 StepperMotor::StepperMotor(int stepPin, int dirPin, int enablePin, int speed,
-      int minSpeed, int accelRate){
+      int minSpeed, int accelRate, bool enableHIGH){
   this->stepPin = stepPin;
   this->dirPin = dirPin;
   this->enablePin = enablePin;
   this->accelRate = accelRate;
+  this->enableHIGH = enableHIGH;
   setSpeed(speed);
   setMinSpeed(minSpeed);
   steps = 0;
   stepDelay = false;
   currentStepDelayDuration = maxStepDelayDuration;
   
+  pinMode(enablePin,OUTPUT);
   pinMode(stepPin,OUTPUT);
   pinMode(dirPin,OUTPUT);
+  digitalWrite(enablePin,enableHIGH);
 }
 
 bool StepperMotor::step(unsigned long elapsedMicros, bool contMove){

@@ -6,7 +6,7 @@
 class Joint{
   public:
   Joint(int stepPin, int dirPin, int enablePin, int stepsPerDegree, int speed, int minSpeed, 
-        int accelRate, int switchPin, int maxRotation);
+        int accelRate, bool enableHIGH, int switchPin, int maxRotation);
   void move(float degrees);
   void calibrate(int jointNumber);
   void update(unsigned long elapsedMicros);
@@ -30,9 +30,9 @@ class Joint{
 };
 
 Joint::Joint(int stepPin, int dirPin, int enablePin, int stepsPerDegree, int speed, int minSpeed, 
-             int accelRate, int switchPin, int maxRotation){
+             int accelRate, bool enableHIGH, int switchPin, int maxRotation){
   int speedStepsPerSec = speed * stepsPerDegree;
-	stepperMotor = new StepperMotor(stepPin, dirPin, enablePin, speedStepsPerSec, minSpeed, accelRate);
+	stepperMotor = new StepperMotor(stepPin, dirPin, enablePin, speedStepsPerSec, minSpeed, accelRate, enableHIGH);
 	this->switchPin = switchPin;
   this->maxRotation = maxRotation;
   this->stepsPerDegree = stepsPerDegree;

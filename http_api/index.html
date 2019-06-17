@@ -10,22 +10,28 @@
         
 <body>
 
-    <img class="center" src="public/logo.png" width="200">
+    <img class="center" src="public/logo.png" width="150">
 
     <h1>Robotic Arm API</h1>
-
+    
         <button class="button" onclick="callCommand('connect')">Connect</button>
         <button class="button" onclick="callCommand('clearLogs')">Clear Logs</button>
 
     <h2>Interaction</h2>
 
     <p>Enter a command to pass to the arm and press send to deliver.</p>
-    <input id="inputCommand" type="text" name="command" value="m020s45">
+    <input id="inputCommand" type="text" name="command" value="">
     <button class="button" onclick="actionSendData()">Send</button>
 
     <h2>Status Message</h2>
         
-        <p id="status"></p>
+        <p id="status">When commands are sent, their status is shown here.</p>
+
+    <h2>Serial Monitor</h2>
+
+    <div id="serialMonitor"></div>
+
+    </div>
 
     <h2>Logs</h2>
 
@@ -36,6 +42,8 @@
         <form method="get" action="public/receiveLog.csv">
             <button class="button" type="submit">Receive Log</button>
         </form>
+    
+        <p></p>
 
 <script src="public/jquery.min.js"></script>
 <script>
@@ -64,6 +72,23 @@
         });
         return status;
     }    
+
+    setInterval(function(){
+
+        $.ajax({
+            type: "GET",
+            url: "serialMonitor",
+            datatype: "text",
+            success: function(table) {
+                
+                console.log(table)
+                //Print Status			
+                serialMonitor = document.getElementById('serialMonitor');
+                serialMonitor.innerHTML = table;
+            }
+        });
+    }, 1/4 * 1000);
+    
 </script>
 
 </body>

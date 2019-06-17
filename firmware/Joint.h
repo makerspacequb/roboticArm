@@ -47,7 +47,7 @@ void Joint::update(unsigned long elapsedMicros){
     if (stepperMotor->step(elapsedMicros, contMoveFlag))
       positionSteps += movDir;
   //poll switch
-  if (!digitalRead(switchPin) || position >= maxRotation){
+  if (digitalRead(switchPin) || position >= maxRotation){
     limitSwitchFlag = true;
     contMoveFlag = false;
     // set motor movement to 0
@@ -70,7 +70,7 @@ void Joint::move(float degrees){
 
 void Joint::calibrate(int jointNumber){
   stepperMotor->move(-maxRotation * stepsPerDegree);
-  while(!digitalRead(switchPin)){
+  while(digitalRead(switchPin)){
     Serial.print("Calibrating joint: ");
     Serial.println(jointNumber);
     delay(1000);

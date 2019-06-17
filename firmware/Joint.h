@@ -7,7 +7,7 @@ class Joint{
   public:
   Joint(int stepPin, int dirPin, int enablePin, int stepsPerDegree, int speed, int minSpeed, 
         int accelRate, int switchPin, int maxRotation);
-  void move(int degrees);
+  void move(float degrees);
   void calibrate(int jointNumber);
   void update(unsigned long elapsedMicros);
   bool checkLimitSwitch(){ return limitSwitchFlag; };
@@ -58,7 +58,7 @@ void Joint::update(unsigned long elapsedMicros){
   }
 }
 
-void Joint::move(int degrees){
+void Joint::move(float degrees){
   movDir = degrees / abs(degrees);
   //TODO needs fixed
   if(isCalibrated && position + degrees >= 0 && position + degrees <= maxRotation){

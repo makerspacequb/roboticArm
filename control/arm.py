@@ -26,10 +26,15 @@ class Arm:
 
         self.logging = True
         self.baseURL = "http://"+ipAddress+":8080/"
-        self.connected = True
         self.error = False
         self.timeout = 4 #Seconds
 
+        try:
+            self.session = requests.session()
+            self.connected = True
+        except:
+            self.log("ERROR: Cannot create a session.")
+            self.connected = False
         #Start capturing status packets
         self.getStatus()
 
@@ -57,7 +62,7 @@ class Arm:
         message = self.baseURL + "send?command=" + command
     
         try:
-            response = requests.post(message,timeout=self.timeout)
+            response = self.session.get(message,timeout=self.timeout)
             status = response.content.decode("utf-8").split("\n")
 
             if self.debug == True:
@@ -79,7 +84,7 @@ class Arm:
 
             try:
                 message = self.baseURL + "getLine"
-                response = requests.post(message,timeout=1)
+                response = self.session.get(message,timeout=self.timeout)
             
                 status = response.content.decode("utf-8").split("\n")
                 self.log("INFO: " + status)
@@ -88,7 +93,17 @@ class Arm:
                 self.connected = False
         
             time.sleep(delay)
+    
+    def move(self,motor,degrees):
+        command = "m"+str(motor)+str(degrees)
+        self.sendCommand(command)
+        self.log("INFO: Joint "+str(motor)+" adjusted "+str(degrees)+" degrees.")
 
+    def speed(self,motor,speed):
+        command = "S"+str(motor)+str(speed)
+        self.sendCommand(command)
+        self.log("INFO: Joint "+str(motor)+" speed adjusted to "+str(speed)+" degrees per second.")
+    
     def stop(self):
         self.sendCommand("q")
         self.log("INFO: Arm Emergency Stopped.")

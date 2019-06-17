@@ -47,10 +47,20 @@ bool StepperMotor::step(unsigned long elapsedMicros, bool contMove){
   stepRunTime += elapsedMicros;
   if (steps > 0) {
     if(!stepDelay) {
+      //if (!enableHIGH) {
       digitalWrite(stepPin, HIGH);
       // digital write is slow enough to not need a delay.
       // digital write will take about 6us
+      delayMicroseconds(5);
       digitalWrite(stepPin, LOW);
+      //}
+      /*else {
+      digitalWrite(stepPin, LOW);
+      // digital write is slow enough to not need a delay.
+      // digital write will take about 6us
+      digitalWrite(stepPin, HIGH);
+        
+      }*/
       if (!contMove)
         steps--;
       stepDelay = true;

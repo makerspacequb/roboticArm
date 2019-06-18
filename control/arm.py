@@ -28,6 +28,8 @@ class Arm:
         self.baseURL = "http://"+ipAddress+":8080/"
         self.error = False
         self.timeout = 4 #Seconds
+        self.jointPositions = [0,0,0,0,0,0]
+        self.jointPositionsMax = [350,190,]
 
         try:
             self.session = requests.session()
@@ -94,6 +96,12 @@ class Arm:
         
             time.sleep(delay)
     
+    def moveTo(self,motor,position):
+
+        self.sendCommand(command)
+        self.log("INFO: Joint "+str(motor)+" moved to "+str(degrees)+" degrees.")
+
+
     def move(self,motor,degrees):
         command = "m"+str(motor)+str(degrees)
         self.sendCommand(command)

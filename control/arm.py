@@ -28,8 +28,8 @@ class Arm:
         self.baseURL = "http://"+ipAddress+":8080/"
         self.error = False
         self.timeout = 4 #Seconds
-        self.jointPositions = [0,0,0,0,0,0]
-        self.jointPositionsMax = [350,190,]
+        self.jointPosition = [0,0,0,0,0,0]
+        self.jointPositionMax = [350,190,190,350,180,350]
 
         try:
             self.session = requests.session()
@@ -55,6 +55,7 @@ class Arm:
         print(logEntry)
     
     #Send and Receive Messages with implemented logging
+    @threaded
     def sendCommand(self, command):
 
         #Start Timing
@@ -89,7 +90,7 @@ class Arm:
                 response = self.session.get(message,timeout=self.timeout)
             
                 status = response.content.decode("utf-8").split("\n")
-                self.log("INFO: " + status)
+                #self.log("INFO: " + status)
             except:
                 self.log("ERROR: No status response. No Connection.")
                 self.connected = False
@@ -97,14 +98,24 @@ class Arm:
             time.sleep(delay)
     
     def moveTo(self,motor,position):
-
-        self.sendCommand(command)
+        #Determine how to move to get to position
+        degrees = position - self.jointPosition[motor]
+        #Make the move
+        self.move(motor,degrees)
+        #Log the move
         self.log("INFO: Joint "+str(motor)+" moved to "+str(degrees)+" degrees.")
 
+    def move(self,motor,degrees):      
+        #Check movement is within range allowed
+        if (self.jointPosition[motor]+degrees) > self.jointPositionMax[motor]:
+            degrees = self.jointPositionMax[motor] - (self.jointPosition[motor]+degrees)
 
-    def move(self,motor,degrees):
         command = "m"+str(motor)+str(degrees)
         self.sendCommand(command)
+
+        #Update joint positions
+        self.jointPosition[motor] = self.jointPosition[motor]+degrees
+
         self.log("INFO: Joint "+str(motor)+" adjusted "+str(degrees)+" degrees.")
 
     def speed(self,motor,speed):

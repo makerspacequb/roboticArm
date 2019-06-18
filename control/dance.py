@@ -26,6 +26,7 @@ while arm.connected:
     arm.move(3,angle)
     arm.move(4,angle)
     arm.move(5,angle)
+    
     time.sleep(3)
     arm.move(0,-angle)
     arm.move(1,-angle)
@@ -34,4 +35,5 @@ while arm.connected:
     arm.move(4,-angle)
     arm.move(5,-angle)
     time.sleep(3)
+    
 arm.stop()

@@ -8,6 +8,7 @@
 #define J0_ACCEL_RATE 100
 #define J0_MAX_ROT_DEG 180
 #define J0_ENABLE_HIGH 0
+#define J0_MOTOR_INVERT 0
 
 //Joint 1 - Shoulder Pitch
 #define J1_STEPS_PER_DEG 60
@@ -16,6 +17,7 @@
 #define J1_ACCEL_RATE 100
 #define J1_MAX_ROT_DEG 180
 #define J1_ENABLE_HIGH 0
+#define J1_MOTOR_INVERT 0
 
 //Joint 2 Elbow Pitch
 #define J2_STEPS_PER_DEG 60
@@ -24,14 +26,16 @@
 #define J2_ACCEL_RATE 100
 #define J2_MAX_ROT_DEG 180
 #define J2_ENABLE_HIGH 0
+#define J2_MOTOR_INVERT 1
 
 // Joint 3 Elbow Roll
-#define J3_STEPS_PER_DEG 44
+#define J3_STEPS_PER_DEG 90
 #define J3_SPEED 10
 #define J3_MIN_SPEED 5
 #define J3_ACCEL_RATE 100
-#define J3_MAX_ROT_DEG 180
+#define J3_MAX_ROT_DEG 350
 #define J3_ENABLE_HIGH 1
+#define J3_MOTOR_INVERT 0
 
 //Joint 4 Wrist Pitch
 #define J4_STEPS_PER_DEG 44
@@ -40,6 +44,7 @@
 #define J4_ACCEL_RATE 100
 #define J4_MAX_ROT_DEG 180
 #define J4_ENABLE_HIGH 0
+#define J4_MOTOR_INVERT 0
 
 //Joint 5 Wrist Roll
 #define J5_STEPS_PER_DEG 44
@@ -48,6 +53,7 @@
 #define J5_ACCEL_RATE 100
 #define J5_MAX_ROT_DEG 180
 #define J5_ENABLE_HIGH 0
+#define J5_MOTOR_INVERT 0
 
 //other constants
 #define TOTAL_JOINTS 6

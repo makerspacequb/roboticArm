@@ -38,7 +38,8 @@
 #define J5_L_SWITCH 48
 
 //End Effector Connection
-#define HAND_PIN 8
+#define END_EFFECTOR_1 8
+#define END_EFFECTOR_2 9
 #define ESTOP 2
 
 #endif

@@ -54,6 +54,8 @@ void Joint::update(unsigned long elapsedMicros){
       contMoveFlag = false;
       //Stop movement 
       stepperMotor->move(0);
+      //Reset Position
+      position = 0;
     }
     limitSwitchActivated = true;
   }
@@ -63,13 +65,16 @@ void Joint::update(unsigned long elapsedMicros){
   //Set switch flag
   switchStatePrevious = switchStateCurrent;
   
+  //Track motor position in Steps
   if (stepperMotor->step(elapsedMicros, contMoveFlag)){
     positionSteps += movDir;
+    position = positionSteps/stepsPerDegree;
     }
 
-    
   if (position < 0){
-     // TODO need calibration if this happens
+    contMoveFlag = false;
+    //Stop movement 
+    stepperMotor->move(0);
   }
   
 }

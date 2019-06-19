@@ -36,6 +36,8 @@ void interrupt(void){
     for (int i = 0; i < TOTAL_JOINTS; i++){
       joints[i].update(INTERRUPT_TIME);
     }
+    //Send Motor Positions for status Message
+    printPositions();
     interruptBusy = false;
   }
 }
@@ -63,7 +65,7 @@ void setup() {
   Timer1.attachInterrupt(interrupt);
   Timer1.initialize(INTERRUPT_TIME);
   Timer1.start();
-  Serial.println("STATUS: Setup Complete.");
+  Serial.println("INFO: Setup Complete.");
 }
 
 void loop() {
@@ -141,7 +143,7 @@ void processInstruction(char *input){
     case 'q': 
       for (int i = 0; i < TOTAL_JOINTS; i++)
         joints[i].move(0);
-      Serial.println("STATUS: Arm Stopped");
+      Serial.println("INFO: Arm Stopped");
       break;
     case 'r':
       eStopActivated = false;
@@ -159,7 +161,6 @@ void processInstruction(char *input){
     default: 
       Serial.println("WARNING: Command not found");
   }
-  //printPositions();
 }
 
 void calibration(){
@@ -183,13 +184,13 @@ void calibration(){
     Serial.println("ERROR: Arm Calibration Failed");
     }
   else{
-    Serial.println("STATUS: Arm Calibration Succesful");
+    Serial.println("INFO: Arm Calibration Succesful");
     }
   
 }
 
 void printPositions(){
-  String outputString = "";
+  String outputString = "STATUS:";
   for(int i = 0; i < TOTAL_JOINTS; i++) {
     outputString += (String)(joints[i].position)+",";
   }

@@ -48,6 +48,10 @@ void setup() {
 
   Serial.begin(BAUD_RATE);
 
+  //Setup Tool Communication line
+  Serial1.begin(BAUD_RATE);
+  Serial1.println("INFO: Arm Setup Complete.");
+
   for(int i = 38; i < 50; i=i+2) {
     pinMode(i,INPUT_PULLUP);
   }
@@ -139,13 +143,18 @@ void processInstruction(char *input){
         joints[i].move(0);
       Serial.println("STATUS: Arm Stopped");
       break;
-    case 't': 
-      Serial.println("Tool Command Recieved, Passing message on.");
-      Serial3.println("TEST");
-      break;
     case 'r':
       eStopActivated = false;
       Serial.println("INFO: Emergency stop reset.");
+      break;
+    case 't':
+      //Send Message to Tool
+      String toolMessage = input+10;
+      Serial1.println(toolMessage);
+      //Status output
+      Serial.print("TOOL: '");
+      Serial.print(toolMessage);
+      Serial.print("' sent to tool on end effector.");
       break;
     default: 
       Serial.println("WARNING: Command not found");

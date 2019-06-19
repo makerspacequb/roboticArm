@@ -12,6 +12,7 @@
 ## Commands
 
 * `mNUMBERDEGREES`, moves motor `NUMBER` a set number of `DEGREES`
+* `pNUMBERDEGREES`, moves motor `NUMBER` to a set position within range using `DEGREES`
 * `r` resets the emergency stop after being pressed
 * `c` starts calibration routine
 * `q` quit, ceases all activity

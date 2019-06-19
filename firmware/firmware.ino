@@ -105,7 +105,7 @@ void processInstruction(char *input){
       calibration(); 
       break;
     case 'p': 
-      printPositions(); 
+      moveJointTo(input[1] - '0',atol(input+2));  
       break;
     case 'h': 
       moveHand(atol(input+1)); 
@@ -220,6 +220,26 @@ void moveJoint(int jointIndex, int value){
       Serial.print(value);
       Serial.println(" degrees");
       joints[jointIndex].move(value);
+    } 
+    else{
+      Serial.println("WARNING: Motors are not calibrated. Calibrate with 'c' command.");
+      joints[jointIndex].move(value);
+    }
+  }
+  else{
+    Serial.println("WARNING: EStop activated. Reset with 'r' to continue.");
+  }
+}
+
+void moveJointTo(int jointIndex, int value){
+  if(!eStopActivated){
+    if(armCalibrated){
+      Serial.print("INFO: Moving motor ");
+      Serial.print(jointIndex);
+      Serial.print(" to position ");
+      Serial.print(value);
+      Serial.println(" degrees");
+      joints[jointIndex].moveTo(value);
     } 
     else{
       Serial.println("WARNING: Motors are not calibrated. Calibrate with 'c' command.");

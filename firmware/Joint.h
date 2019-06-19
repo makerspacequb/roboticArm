@@ -8,6 +8,7 @@ class Joint{
   Joint(int stepPin, int dirPin, int enablePin, int stepsPerDegree, int speed, int minSpeed, 
         int accelRate, bool enableHIGH, int switchPin, int maxRotation, int motorInvert);
   void move(float degrees);
+  void moveTo(float targetPosition)
   bool calibrate();
   void update(unsigned long elapsedMicros);
   bool checkLimitSwitch(){ return limitSwitchActivated; };
@@ -98,6 +99,14 @@ void Joint::move(float degrees){
     stepperMotor->move(degrees * stepsPerDegree);
   }
 }
+
+void Joint::moveTo(float targetPosition){
+  float degrees = targetPostion - position;
+  if((targetPosition < maxRotation)&&(targetPosition > 0)){
+    move(degrees);
+  }
+}
+
 
 bool Joint::calibrate(){
   

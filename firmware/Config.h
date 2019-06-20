@@ -4,10 +4,10 @@
 // Joint 0 - Shoulder Yaw 
 #define J0_JOINT_NUMBER 0
 #define J0_STEPS_PER_DEG 44
-#define J0_SPEED 30
+#define J0_SPEED 50
 #define J0_MIN_SPEED 5
-#define J0_ACCEL_RATE 100
-#define J0_MAX_ROT_DEG 340
+#define J0_ACCEL_RATE 50
+#define J0_MAX_ROT_DEG 350
 #define J0_ENABLE_HIGH 0
 #define J0_MOTOR_INVERT 0
 
@@ -59,7 +59,7 @@
 #define J5_ACCEL_RATE 100
 #define J5_MAX_ROT_DEG 310
 #define J5_ENABLE_HIGH 0
-#define J5_MOTOR_INVERT 0
+#define J5_MOTOR_INVERT 1
 
 //other constants
 #define TOTAL_JOINTS 6

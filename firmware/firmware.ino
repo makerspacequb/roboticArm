@@ -217,14 +217,14 @@ void calibrate(int joint){
     }
   }
   else{
-    Serial.println("WARNING: EStop activated. Reset with 'r' to continue.");
+    Serial.println("WARNING: Calibration Disabled. Reset with 'r' to continue.");
   }  
 }
 
 void printPositions(){
   String outputString = "STATUS:";
   for(int i = 0; i < TOTAL_JOINTS; i++) {
-    outputString += (String)(joints[i].position)+",";
+    outputString += (String)(joints[i].getPosDegrees())+",";
   }
   Serial.println(outputString);
 }
@@ -234,7 +234,7 @@ void moveHand(int value) {
     Serial.println("ERROR: Invalid hand movement");
   } 
   else{
-    int mapping = map(value,0,100,1,120);
+    int mapping = map(value,0,100,110,180);
     hand.write(mapping);
     delay(15);
     Serial.print("INFO: Moving hand to ");
@@ -255,11 +255,16 @@ void moveJoint(int jointIndex, int value){
     } 
     else{
       Serial.println("WARNING: Motors are not calibrated. Calibrate with 'c' command.");
+      Serial.print("INFO: Moving motor ");
+      Serial.print(jointIndex);
+      Serial.print(", ");
+      Serial.print(value);
+      Serial.println(" degrees");
       joints[jointIndex].move(value);
     }
   }
   else{
-    Serial.println("WARNING: EStop activated. Reset with 'r' to continue.");
+    Serial.println("WARNING: Movement Disabled. Reset with 'r' to continue.");
   }
 }
 
@@ -279,7 +284,7 @@ void moveJointTo(int jointIndex, int value){
     }
   }
   else{
-    Serial.println("WARNING: EStop activated. Reset with 'r' to continue.");
+    Serial.println("WARNING: Movement Disabled. Reset with 'r' to continue.");
   }
 }
 

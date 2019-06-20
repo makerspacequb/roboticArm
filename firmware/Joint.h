@@ -5,14 +5,6 @@
 
 class Joint{
   public:
-  Joint(int jointNumber, int stepPin, int dirPin, int enablePin, int stepsPerDegree, int speed, int minSpeed, 
-        int accelRate, bool enableHIGH, int switchPin, int maxRotation, int motorInvert, int switchBufferLen);
-  void move(float degrees);
-  void moveTo(float targetPosition);
-  bool calibrate();
-  void update(unsigned long elapsedMicros);
-  bool checkLimitSwitch(){ return limitSwitchActivated; };
-  void resetLimitSwitch(){ limitSwitchActivated = false; };
 
   //setters
   void setSpeed(int speed);
@@ -21,14 +13,23 @@ class Joint{
   
   bool isCalibrated = false;
   volatile int positionSteps = 0; 
-  int position = 0;
+  
+  Joint(int jointNumber, int stepPin, int dirPin, int enablePin, int stepsPerDegree, int speed, int minSpeed, 
+        int accelRate, bool enableHIGH, int switchPin, int maxRotation, int motorInvert, int switchBufferLen);
+  void move(float degrees);
+  void moveTo(float targetPosition);
+  bool calibrate();
+  void update(unsigned long elapsedMicros);
+  bool checkLimitSwitch(){ return limitSwitchActivated; };
+  void resetLimitSwitch(){ limitSwitchActivated = false; };
+  float getPosDegrees(){return positionSteps/stepsPerDegree; };
 
   private:
   int jointNumber = 0;
   volatile int bufferPos = 0;
   volatile bool switchState = 0;
   volatile int switchBuffer = 1;
-  int switchPin, maxRotation, stepsPerDegree, motorInvert,switchBufferLen;
+  int switchPin, maxRotation, stepsPerDegree, motorInvert,minSpeed,switchBufferLen, defaultSpeed;
   StepperMotor* stepperMotor;
   volatile bool limitSwitchActivated, contMoveFlag;
   volatile int movDir;
@@ -44,6 +45,8 @@ Joint::Joint(int jointNumber, int stepPin, int dirPin, int enablePin, int stepsP
   this->stepsPerDegree = stepsPerDegree;
   this->motorInvert = motorInvert;
   this->switchBufferLen = switchBufferLen;
+  this->minSpeed = minSpeed;
+  this->defaultSpeed = speed;
 	pinMode(switchPin,INPUT_PULLUP);
   contMoveFlag = false;
   limitSwitchActivated = false;
@@ -72,7 +75,7 @@ void Joint::update(unsigned long elapsedMicros){
     //Stop movement 
     stepperMotor->move(0);
     //Reset Position
-    position = 0;
+    //positionDegrees = 0;
     limitSwitchActivated = true;
   }
   else if(switchState == 1){
@@ -87,15 +90,7 @@ void Joint::update(unsigned long elapsedMicros){
   //Track motor position in Steps
   if (stepperMotor->step(elapsedMicros, contMoveFlag)){
     positionSteps += movDir;
-    position = int(positionSteps/stepsPerDegree);
     }
-
-  if (position < 0){
-    contMoveFlag = false;
-    //Stop movement 
-    stepperMotor->move(0);
-  }
-  
 }
 
 void Joint::move(float degrees){
@@ -104,52 +99,66 @@ void Joint::move(float degrees){
   if(motorInvert == 1){
     degrees = -degrees;
     }
-  
+ 
   movDir = degrees / abs(degrees);
 
   //Prevent movement further than the limit switch
   if((limitSwitchActivated == true) && (movDir == -1)){
     degrees = 0;
   }
+
+  int steps = degrees*stepsPerDegree;
  
-  if(isCalibrated && position + degrees >= 0 && position + degrees <= maxRotation){
-    stepperMotor->move(degrees * stepsPerDegree);
-  } else if(!isCalibrated){
-    stepperMotor->move(degrees * stepsPerDegree);
+  if(isCalibrated && (((positionSteps + steps) >= 0) && ((positionSteps + steps) <= (maxRotation*stepsPerDegree)))){
+    stepperMotor->move(steps);
   }
+  else if(!isCalibrated && (((positionSteps + steps) >= 0) && ((positionSteps + steps) <= (maxRotation*stepsPerDegree)))){
+    stepperMotor->move(steps);
+  }
+  else{
+    Serial.println("ERROR: Movement out of range.");
+    steps = 0;
+    stepperMotor->move(steps);
+    }
 }
 
 void Joint::moveTo(float targetPosition){
-  float degrees = targetPosition - position;
+  int steps = (targetPosition*stepsPerDegree) - positionSteps;
   if((targetPosition < maxRotation)&&(targetPosition > 0)){
-    move(degrees);
+    move(steps);
   }
 }
 
-
 bool Joint::calibrate(){
 
-  int maxMovement = maxRotation * stepsPerDegree;
-  
+  setSpeed(minSpeed);
+  int maxSteps = -maxRotation * stepsPerDegree;
+
   //Invert direction if set in the config
   if(motorInvert == 1){
-    maxMovement = -maxMovement;
+    maxSteps = -maxSteps;
     }
     
-  stepperMotor->move(maxMovement);
-  position = 0;
+  movDir = maxSteps / abs(maxSteps);
+  positionSteps = 0;
   
-  while((!limitSwitchActivated) && (position < maxRotation) ){
+  if(!limitSwitchActivated){stepperMotor->move(maxSteps);}
+  
+  while((!limitSwitchActivated) && (abs(positionSteps) < abs(maxSteps))){
     }
-
+  
+  stepperMotor->move(0);
+  positionSteps = 0;
+  setSpeed(defaultSpeed);
+  
   if(limitSwitchActivated){
-    position = 0;
     isCalibrated = true;
+    stepperMotor->move(int(-maxSteps/2));
   }
   else{
     isCalibrated = false;
   }
-
+  
   return isCalibrated;
 }
 

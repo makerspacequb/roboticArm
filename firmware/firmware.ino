@@ -3,6 +3,7 @@
 #include "Config.h"
 #include "TimerOne.h"
 #include <Servo.h>
+#include <EEPROM.h>
 
 //calibration & continuous movement flags
 bool armCalibrated = false;
@@ -38,6 +39,8 @@ void interrupt(void){
     }
     //Send Motor Positions for status Message
     //printPositions();
+    //Save Positons in steps to EEPROM
+    //savePositions();
     interruptBusy = false;
   }
 }
@@ -58,6 +61,9 @@ void setup() {
   for(int i = 38; i < 50; i=i+2) {
     pinMode(i,INPUT_PULLUP);
   }
+
+  //Load data from EEPROM
+  loadPositions();
 
   //Set Hardware Interupt for EStop
   attachInterrupt(digitalPinToInterrupt(ESTOP), eStop, FALLING);
@@ -156,6 +162,7 @@ void processInstruction(char *input){
     case 'i':
       //Return information about positions
       printPositions();
+      savePositions();
       break;
     case 't':
       //Send Message to Tool
@@ -233,6 +240,24 @@ void printPositions(){
   Serial.println(outputString);
 }
 
+void savePositions(){
+  for(int i = 0; i < TOTAL_JOINTS; i++) {
+    EEPROM.update(i,joints[i].positionSteps);
+    Serial.print("DATA: Saving position for joint ");
+    Serial.print(i);
+    Serial.println("to EEPROM.");
+  }
+}
+
+void loadPositions(){
+  for(int i = 0; i < TOTAL_JOINTS; i++) {
+    joints[i].positionSteps = EEPROM.read(i);
+    Serial.print("DATA: Reading position for joint ");
+    Serial.print(i);
+    Serial.println(" from EEPROM.");
+  }
+}
+
 void moveHand(int value) {
   if(value > 100){
     Serial.println("ERROR: Invalid hand movement");
@@ -284,7 +309,6 @@ void moveJointTo(int jointIndex, int value){
     } 
     else{
       Serial.println("WARNING: Motors are not calibrated. Calibrate with 'c' command.");
-      joints[jointIndex].move(value);
     }
   }
   else{

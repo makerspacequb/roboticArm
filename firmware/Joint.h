@@ -131,7 +131,7 @@ void Joint::move(float degrees){
 void Joint::moveTo(float targetPosition){
   int steps = (targetPosition*stepsPerDegree) - positionSteps;
   if((targetPosition < maxRotation)&&(targetPosition > 0)){
-    move(steps);
+    move(int(targetPosition/stepsPerDegree));
   }
 }
 

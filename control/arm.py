@@ -90,7 +90,12 @@ class Arm:
                 response = self.session.get(message,timeout=self.timeout)
             
                 status = response.content.decode("utf-8").split("\n")
-                #self.log("INFO: " + status)
+                self.log(status)
+                
+                #Extract Joint Positions
+                if(status.find("STATUS:")>0):
+                    
+
             except:
                 self.log("ERROR: No status response. No Connection.")
                 self.connected = False

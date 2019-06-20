@@ -43,7 +43,10 @@ void setup() {
   pinMode(HAND_PIN,OUTPUT);
   hand.attach(HAND_PIN);
   Serial.begin(BAUD_RATE);
- 
+
+  //Set Hardware Interupt for EStop
+  attachInterrupt(digitalPinToInterrupt(ESTOP), eStop, FALLING);
+  
   //set timer interrupt for motor and encoder control
   Timer1.attachInterrupt(interrupt);
   Timer1.initialize(INTERRUPT_TIME);
@@ -170,5 +173,11 @@ void moveJoint(int jointIndex, int value){
   } else{
     //Serial.println("Warning: Motors are not calibrated");
     joints[jointIndex].move(value);
+  }
+}
+
+void eStop(){
+  for (int i = 0; i < TOTAL_JOINTS; i++){
+    joints[i].move(0);
   }
 }

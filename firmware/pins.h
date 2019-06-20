@@ -39,5 +39,6 @@
 
 //End Effector Connection
 #define HAND_PIN 8
+#define ESTOP 2
 
 #endif

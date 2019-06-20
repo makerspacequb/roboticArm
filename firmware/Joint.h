@@ -29,6 +29,7 @@ class Joint{
   volatile int bufferPos = 0;
   volatile bool switchState = 0;
   volatile int switchBuffer = 1;
+  volatile bool claibrating = false;
   int switchPin, maxRotation, stepsPerDegree, motorInvert,minSpeed,switchBufferLen, defaultSpeed;
   StepperMotor* stepperMotor;
   volatile bool limitSwitchActivated, contMoveFlag;
@@ -66,7 +67,7 @@ void Joint::update(unsigned long elapsedMicros){
     bufferPos = 0;
   }
   
-  if((switchState == 1)&&(limitSwitchActivated == false)){
+  if((switchState == 1)&&(limitSwitchActivated == false)&&(claibrating==false)){
     //First Time Switch Detected Activated
     Serial.print("INFO: Limit switch on joint ");
     Serial.print(jointNumber);
@@ -75,7 +76,7 @@ void Joint::update(unsigned long elapsedMicros){
     //Stop movement 
     stepperMotor->move(0);
     //Reset Position
-    //positionDegrees = 0;
+    positionSteps = 0;
     limitSwitchActivated = true;
   }
   else if(switchState == 1){
@@ -89,7 +90,12 @@ void Joint::update(unsigned long elapsedMicros){
   
   //Track motor position in Steps
   if (stepperMotor->step(elapsedMicros, contMoveFlag)){
-    positionSteps += movDir;
+    if(motorInvert == 1){
+      positionSteps += movDir;
+    }
+    else{
+      positionSteps -= movDir;
+    }
     }
 }
 
@@ -130,7 +136,7 @@ void Joint::moveTo(float targetPosition){
 }
 
 bool Joint::calibrate(){
-
+  
   setSpeed(minSpeed);
   int maxSteps = -maxRotation * stepsPerDegree;
 
@@ -148,6 +154,7 @@ bool Joint::calibrate(){
     }
   
   stepperMotor->move(0);
+  claibrating = true;
   positionSteps = 0;
   setSpeed(defaultSpeed);
   
@@ -158,7 +165,8 @@ bool Joint::calibrate(){
   else{
     isCalibrated = false;
   }
-  
+
+  claibrating = false;
   return isCalibrated;
 }
 

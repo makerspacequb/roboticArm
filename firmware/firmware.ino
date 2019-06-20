@@ -104,9 +104,9 @@ void processInstruction(char *input){
   switch(toLowerCase(input[0])){
     case 'c': 
       //Calibrate whole arm
-      //calibrateArm(); 
-      //Calibrate Individual Joint
-      calibrate(atol(input+1));
+      calibrateArm(); 
+      //Calibrate Individual Joints
+      //calibrate(atol(input+1));
       break;
     case 'p': 
       moveJointTo(input[1] - '0',atol(input+2));  
@@ -173,27 +173,31 @@ void processInstruction(char *input){
 void calibrateArm(){
   armCalibrated = true;
   bool isCalibrated = false;
-  
-  for(int i = TOTAL_JOINTS; i >= 0; i--){
-    Serial.print("INFO: Calibrating joint: ");
-    Serial.println(i);
-    isCalibrated = joints[i].calibrate();
+
+  if(!eStopActivated){
+    for(int i = TOTAL_JOINTS-1; i >= 0; i--){
+      Serial.print("INFO: Calibrating joint: ");
+      Serial.println(i);
+      isCalibrated = joints[i].calibrate();     
     
-    if(!isCalibrated){
-      Serial.print("ERROR: Calibration of joint ");
-      Serial.print(i);
-      Serial.println(" failed");
+      if(!isCalibrated){
+        Serial.print("ERROR: Calibration of joint ");
+        Serial.print(i);
+        Serial.println(" failed.");
+        }
+      //Overall calibration for arm
+      armCalibrated = armCalibrated & isCalibrated;
+    }
+    if(!armCalibrated){
+      Serial.println("ERROR: Arm Calibration Failed.");
       }
-     //Overall calibration for arm
-    armCalibrated = armCalibrated && isCalibrated;
+    else{
+      Serial.println("INFO: Arm Calibration Succesful.");
+      }
   }
-  if(!armCalibrated){
-    Serial.println("ERROR: Arm Calibration Failed");
-    }
   else{
-    Serial.println("INFO: Arm Calibration Succesful");
-    }
-  
+    Serial.println("WARNING: Calibration Disabled. Reset with 'r' to continue.");
+  }
 }
 
 void calibrate(int joint){

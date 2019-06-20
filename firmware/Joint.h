@@ -109,8 +109,15 @@ void Joint::moveTo(float targetPosition){
 
 
 bool Joint::calibrate(){
+
+  int maxMovement = maxRotation * stepsPerDegree;
   
-  stepperMotor->move(-maxRotation * stepsPerDegree);
+  //Invert direction if set in the config
+  if(motorInvert == 0){
+    maxMovement = -maxMovement;
+    }
+    
+  stepperMotor->move(maxMovement);
   
   while(!limitSwitchActivated && (maxRotation) ){
     }

@@ -37,7 +37,7 @@ void interrupt(void){
       joints[i].update(INTERRUPT_TIME);
     }
     //Send Motor Positions for status Message
-    printPositions();
+    //printPositions();
     interruptBusy = false;
   }
 }
@@ -157,6 +157,10 @@ void processInstruction(char *input){
       Serial.print("TOOL: '");
       Serial.print(toolMessage);
       Serial.print("' sent to tool on end effector.");
+      break;
+     case 'i':
+      //Return information about positions
+      printPositions();
       break;
     default: 
       Serial.println("WARNING: Command not found");

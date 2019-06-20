@@ -1,5 +1,5 @@
 {
-    "port": "COM7",
+    "port": "COM9",
     "board": "arduino:avr:megaADK",
     "sketch": "firmware\\firmware.ino"
 }

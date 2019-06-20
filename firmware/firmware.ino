@@ -102,7 +102,10 @@ void processInstruction(char *input){
   //check first byte
   switch(toLowerCase(input[0])){
     case 'c': 
-      calibration(); 
+      //Calibrate whole arm
+      //calibrateArm(); 
+      //Calibrate Individual Joint
+      calibrate(atol(input+1));
       break;
     case 'p': 
       moveJointTo(input[1] - '0',atol(input+2));  
@@ -149,25 +152,25 @@ void processInstruction(char *input){
       eStopActivated = false;
       Serial.println("INFO: Emergency stop reset.");
       break;
+    case 'i':
+      //Return information about positions
+      Serial.println("TEST");
+      printPositions();
+      break;
     case 't':
       //Send Message to Tool
-      String toolMessage = input+10;
-      Serial1.println(toolMessage);
+      Serial1.println(input+1);
       //Status output
       Serial.print("TOOL: '");
-      Serial.print(toolMessage);
-      Serial.print("' sent to tool on end effector.");
-      break;
-     case 'i':
-      //Return information about positions
-      printPositions();
+      Serial.print(input+1);
+      Serial.println("' sent to tool on end effector.");
       break;
     default: 
       Serial.println("WARNING: Command not found");
   }
 }
 
-void calibration(){
+void calibrateArm(){
   armCalibrated = true;
   bool isCalibrated = false;
   
@@ -191,6 +194,31 @@ void calibration(){
     Serial.println("INFO: Arm Calibration Succesful");
     }
   
+}
+
+void calibrate(int joint){
+  armCalibrated = false;
+  bool isCalibrated = false;
+
+  if(!eStopActivated){
+    Serial.print("INFO: Calibrating joint: ");
+    Serial.println(joint);
+  
+    if(joints[joint].calibrate()){
+      Serial.print("INFO: Calibration of joint ");
+      Serial.print(joint);
+      Serial.println(" complete.");
+      armCalibrated = true;
+        }
+    else{
+      Serial.print("ERROR: Calibration of joint ");
+      Serial.print(joint);
+      Serial.println(" failed.");
+    }
+  }
+  else{
+    Serial.println("WARNING: EStop activated. Reset with 'r' to continue.");
+  }  
 }
 
 void printPositions(){

@@ -12,18 +12,18 @@ int instIndex = 0;
 
 //motor & servo objects
 Joint joints[TOTAL_JOINTS] = {
-   Joint(J0_STEP,J0_DIR,J0_ENABLE,J0_STEPS_PER_DEG,J0_SPEED,J0_MIN_SPEED,J0_ACCEL_RATE, 
-          J0_ENABLE_HIGH, J0_L_SWITCH, J0_MAX_ROT_DEG,J0_MOTOR_INVERT),
-   Joint(J1_STEP,J1_DIR,J1_ENABLE,J1_STEPS_PER_DEG,J1_SPEED,J1_MIN_SPEED,J1_ACCEL_RATE, 
-          J1_ENABLE_HIGH, J1_L_SWITCH, J1_MAX_ROT_DEG,J1_MOTOR_INVERT),
-   Joint(J2_STEP,J2_DIR,J2_ENABLE,J2_STEPS_PER_DEG,J2_SPEED,J2_MIN_SPEED,J2_ACCEL_RATE, 
-          J2_ENABLE_HIGH, J2_L_SWITCH, J2_MAX_ROT_DEG,J2_MOTOR_INVERT),
-   Joint(J3_STEP,J3_DIR,J3_ENABLE,J3_STEPS_PER_DEG,J3_SPEED,J3_MIN_SPEED,J3_ACCEL_RATE, 
-          J3_ENABLE_HIGH, J3_L_SWITCH, J3_MAX_ROT_DEG,J3_MOTOR_INVERT),
-   Joint(J4_STEP,J4_DIR,J4_ENABLE,J4_STEPS_PER_DEG,J4_SPEED,J4_MIN_SPEED,J4_ACCEL_RATE, 
-          J4_ENABLE_HIGH, J4_L_SWITCH, J4_MAX_ROT_DEG,J4_MOTOR_INVERT),
-   Joint(J5_STEP,J5_DIR,J5_ENABLE,J5_STEPS_PER_DEG,J5_SPEED,J5_MIN_SPEED,J5_ACCEL_RATE, 
-          J5_ENABLE_HIGH, J5_L_SWITCH, J5_MAX_ROT_DEG,J5_MOTOR_INVERT)
+   Joint(J0_JOINT_NUMBER,J0_STEP,J0_DIR,J0_ENABLE,J0_STEPS_PER_DEG,J0_SPEED,J0_MIN_SPEED,J0_ACCEL_RATE, 
+          J0_ENABLE_HIGH, J0_L_SWITCH, J0_MAX_ROT_DEG,J0_MOTOR_INVERT,SWITCH_BEBOUNCE_LEN),
+   Joint(J1_JOINT_NUMBER,J1_STEP,J1_DIR,J1_ENABLE,J1_STEPS_PER_DEG,J1_SPEED,J1_MIN_SPEED,J1_ACCEL_RATE, 
+          J1_ENABLE_HIGH, J1_L_SWITCH, J1_MAX_ROT_DEG,J1_MOTOR_INVERT,SWITCH_BEBOUNCE_LEN),
+   Joint(J2_JOINT_NUMBER,J2_STEP,J2_DIR,J2_ENABLE,J2_STEPS_PER_DEG,J2_SPEED,J2_MIN_SPEED,J2_ACCEL_RATE, 
+          J2_ENABLE_HIGH, J2_L_SWITCH, J2_MAX_ROT_DEG,J2_MOTOR_INVERT,SWITCH_BEBOUNCE_LEN),
+   Joint(J3_JOINT_NUMBER,J3_STEP,J3_DIR,J3_ENABLE,J3_STEPS_PER_DEG,J3_SPEED,J3_MIN_SPEED,J3_ACCEL_RATE, 
+          J3_ENABLE_HIGH, J3_L_SWITCH, J3_MAX_ROT_DEG,J3_MOTOR_INVERT,SWITCH_BEBOUNCE_LEN),
+   Joint(J4_JOINT_NUMBER,J4_STEP,J4_DIR,J4_ENABLE,J4_STEPS_PER_DEG,J4_SPEED,J4_MIN_SPEED,J4_ACCEL_RATE, 
+          J4_ENABLE_HIGH, J4_L_SWITCH, J4_MAX_ROT_DEG,J4_MOTOR_INVERT,SWITCH_BEBOUNCE_LEN),
+   Joint(J5_JOINT_NUMBER,J5_STEP,J5_DIR,J5_ENABLE,J5_STEPS_PER_DEG,J5_SPEED,J5_MIN_SPEED,J5_ACCEL_RATE, 
+          J5_ENABLE_HIGH, J5_L_SWITCH, J5_MAX_ROT_DEG,J5_MOTOR_INVERT,SWITCH_BEBOUNCE_LEN)
 };
 Servo hand;
 
@@ -36,17 +36,24 @@ void interrupt(void){
     for (int i = 0; i < TOTAL_JOINTS; i++){
       joints[i].update(INTERRUPT_TIME);
     }
+    //Send Motor Positions for status Message
+    //printPositions();
     interruptBusy = false;
   }
 }
 
 void setup() { 
+  //Setup Main Serial
+  Serial.begin(BAUD_RATE);
+  Serial.println("INFO: Starting up...");
+  
   //Setup Hand
   pinMode(END_EFFECTOR_2,OUTPUT);
-  hand.attach(END_EFFECTOR_2);
-  moveHand(50); 
+  hand.attach(END_EFFECTOR_2); 
 
-  Serial.begin(BAUD_RATE);
+  //Setup Tool Communication line
+  Serial1.begin(BAUD_RATE);
+  Serial1.println("INFO: Arm Setup Complete.");
 
   for(int i = 38; i < 50; i=i+2) {
     pinMode(i,INPUT_PULLUP);
@@ -59,7 +66,7 @@ void setup() {
   Timer1.attachInterrupt(interrupt);
   Timer1.initialize(INTERRUPT_TIME);
   Timer1.start();
-  Serial.println("STATUS: Setup Complete.");
+  Serial.println("INFO: Setup Complete.");
 }
 
 void loop() {
@@ -96,10 +103,13 @@ void processInstruction(char *input){
   //check first byte
   switch(toLowerCase(input[0])){
     case 'c': 
-      calibration(); 
+      //Calibrate whole arm
+      calibrateArm(); 
+      //Calibrate Individual Joints
+      //calibrate(atol(input+1));
       break;
     case 'p': 
-      printPositions(); 
+      moveJointTo(input[1] - '0',atol(input+2));  
       break;
     case 'h': 
       moveHand(atol(input+1)); 
@@ -137,52 +147,88 @@ void processInstruction(char *input){
     case 'q': 
       for (int i = 0; i < TOTAL_JOINTS; i++)
         joints[i].move(0);
-      Serial.println("STATUS: Arm Stopped");
-      break;
-    case 't': 
-      Serial.println("Tool Command Recieved, Passing message on.");
-      Serial3.println("TEST");
+      Serial.println("INFO: Arm Stopped");
       break;
     case 'r':
       eStopActivated = false;
       Serial.println("INFO: Emergency stop reset.");
       break;
+    case 'i':
+      //Return information about positions
+      printPositions();
+      break;
+    case 't':
+      //Send Message to Tool
+      Serial1.println(input+1);
+      //Status output
+      Serial.print("TOOL: '");
+      Serial.print(input+1);
+      Serial.println("' sent to tool on end effector.");
+      break;
     default: 
       Serial.println("WARNING: Command not found");
   }
-  //printPositions();
 }
 
-void calibration(){
+void calibrateArm(){
   armCalibrated = true;
   bool isCalibrated = false;
-  
-  for(int i = TOTAL_JOINTS; i >= 0; i--){
-    Serial.print("INFO: Calibrating joint: ");
-    Serial.println(i);
-    isCalibrated = joints[i].calibrate();
+
+  if(!eStopActivated){
+    for(int i = TOTAL_JOINTS-1; i >= 0; i--){
+      Serial.print("INFO: Calibrating joint: ");
+      Serial.println(i);
+      isCalibrated = joints[i].calibrate();     
     
-    if(!isCalibrated){
-      Serial.print("ERROR: Calibration of joint ");
-      Serial.print(i);
-      Serial.println(" failed");
+      if(!isCalibrated){
+        Serial.print("ERROR: Calibration of joint ");
+        Serial.print(i);
+        Serial.println(" failed.");
+        }
+      //Overall calibration for arm
+      armCalibrated = armCalibrated & isCalibrated;
+    }
+    if(!armCalibrated){
+      Serial.println("ERROR: Arm Calibration Failed.");
       }
-     //Overall calibration for arm
-    armCalibrated = armCalibrated && isCalibrated;
+    else{
+      Serial.println("INFO: Arm Calibration Succesful.");
+      }
   }
-  if(!armCalibrated){
-    Serial.println("ERROR: Arm Calibration Failed");
-    }
   else{
-    Serial.println("STATUS: Arm Calibration Succesful");
-    }
+    Serial.println("WARNING: Calibration Disabled. Reset with 'r' to continue.");
+  }
+}
+
+void calibrate(int joint){
+  armCalibrated = false;
+  bool isCalibrated = false;
+
+  if(!eStopActivated){
+    Serial.print("INFO: Calibrating joint: ");
+    Serial.println(joint);
   
+    if(joints[joint].calibrate()){
+      Serial.print("INFO: Calibration of joint ");
+      Serial.print(joint);
+      Serial.println(" complete.");
+      armCalibrated = true;
+        }
+    else{
+      Serial.print("ERROR: Calibration of joint ");
+      Serial.print(joint);
+      Serial.println(" failed.");
+    }
+  }
+  else{
+    Serial.println("WARNING: Calibration Disabled. Reset with 'r' to continue.");
+  }  
 }
 
 void printPositions(){
-  String outputString = "";
+  String outputString = "STATUS:";
   for(int i = 0; i < TOTAL_JOINTS; i++) {
-    outputString += (String)(joints[i].position)+",";
+    outputString += (String)(joints[i].getPosDegrees())+",";
   }
   Serial.println(outputString);
 }
@@ -192,7 +238,7 @@ void moveHand(int value) {
     Serial.println("ERROR: Invalid hand movement");
   } 
   else{
-    int mapping = map(value,0,100,1,120);
+    int mapping = map(value,0,100,110,180);
     hand.write(mapping);
     delay(15);
     Serial.print("INFO: Moving hand to ");
@@ -213,11 +259,36 @@ void moveJoint(int jointIndex, int value){
     } 
     else{
       Serial.println("WARNING: Motors are not calibrated. Calibrate with 'c' command.");
+      Serial.print("INFO: Moving motor ");
+      Serial.print(jointIndex);
+      Serial.print(", ");
+      Serial.print(value);
+      Serial.println(" degrees");
       joints[jointIndex].move(value);
     }
   }
   else{
-    Serial.println("WARNING: EStop activated. Reset with 'r' to continue.");
+    Serial.println("WARNING: Movement Disabled. Reset with 'r' to continue.");
+  }
+}
+
+void moveJointTo(int jointIndex, int value){
+  if(!eStopActivated){
+    if(armCalibrated){
+      Serial.print("INFO: Moving motor ");
+      Serial.print(jointIndex);
+      Serial.print(" to position ");
+      Serial.print(value);
+      Serial.println(" degrees");
+      joints[jointIndex].moveTo(value);
+    } 
+    else{
+      Serial.println("WARNING: Motors are not calibrated. Calibrate with 'c' command.");
+      joints[jointIndex].move(value);
+    }
+  }
+  else{
+    Serial.println("WARNING: Movement Disabled. Reset with 'r' to continue.");
   }
 }
 

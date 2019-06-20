@@ -137,8 +137,9 @@ bool Joint::calibrate(){
     }
     
   stepperMotor->move(maxMovement);
+  position = 0;
   
-  while(!limitSwitchActivated && (maxRotation) ){
+  while((!limitSwitchActivated) && (position < maxRotation) ){
     }
 
   if(limitSwitchActivated){

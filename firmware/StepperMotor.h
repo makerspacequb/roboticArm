@@ -12,6 +12,7 @@ class StepperMotor{
     void setSpeed(int speed);
     void setMinSpeed(int minSpeed);
     void setAccelRate(int rate);
+    void begin();
 
     //getters
     int getSpeed(){ return speed; };
@@ -37,6 +38,10 @@ StepperMotor::StepperMotor(int stepPin, int dirPin, int enablePin, int speed,
   stepDelay = false;
   currentStepDelayDuration = maxStepDelayDuration;
   
+}
+
+//Needs to be called in setup to initialise pins
+void StepperMotor::begin(){
   pinMode(enablePin,OUTPUT);
   pinMode(stepPin,OUTPUT);
   pinMode(dirPin,OUTPUT);
@@ -47,20 +52,11 @@ bool StepperMotor::step(unsigned long elapsedMicros, bool contMove){
   stepRunTime += elapsedMicros;
   if (steps > 0) {
     if(!stepDelay) {
-      //if (!enableHIGH) {
-      digitalWrite(stepPin, HIGH);
-      // digital write is slow enough to not need a delay.
+      // TODO replace these with port manipulation
       // digital write will take about 6us
+      digitalWrite(stepPin, HIGH);
       delayMicroseconds(5);
       digitalWrite(stepPin, LOW);
-      //}
-      /*else {
-      digitalWrite(stepPin, LOW);
-      // digital write is slow enough to not need a delay.
-      // digital write will take about 6us
-      digitalWrite(stepPin, HIGH);
-        
-      }*/
       if (!contMove)
         steps--;
       stepDelay = true;

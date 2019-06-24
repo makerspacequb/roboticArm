@@ -63,7 +63,7 @@
 
 //other constants
 #define TOTAL_JOINTS 6
-#define SWITCH_BEBOUNCE_LEN 5 // length of the debounce buffer
+#define SWITCH_DEBOUNCE_LEN 5 // length of the debounce buffer
 #define BAUD_RATE 115200
 #define INST_ARRAY_LEN 20 //length of instruction array
 #define INTERRUPT_TIME 100 //Polling interupt time (microseconds)

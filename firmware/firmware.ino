@@ -306,7 +306,7 @@ void moveJointTo(int jointIndex, int value){
 }
 
 void sendStatus(){
-  savePositions();
+  //savePositions();
   printPositions();
   printSwitchStates();
   statusTime = millis();

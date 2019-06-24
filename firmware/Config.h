@@ -29,7 +29,7 @@
 #define J2_ACCEL_RATE 100
 #define J2_MAX_ROT_DEG 142
 #define J2_ENABLE_HIGH 0
-#define J2_MOTOR_INVERT 1
+#define J2_MOTOR_INVERT 0
 
 // Joint 3 Elbow Roll
 #define J3_JOINT_NUMBER 3
@@ -59,10 +59,10 @@
 #define J5_ACCEL_RATE 100
 #define J5_MAX_ROT_DEG 310
 #define J5_ENABLE_HIGH 0
-#define J5_MOTOR_INVERT 1
+#define J5_MOTOR_INVERT 0
 
 //other constants
-#define STATUS_FREQ 2
+#define STATUS_FREQ 1
 #define TOTAL_JOINTS 6
 #define SWITCH_DEBOUNCE_LEN 5 // length of the debounce buffer
 #define BAUD_RATE 115200

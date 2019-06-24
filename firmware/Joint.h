@@ -68,21 +68,21 @@ void Joint::update(unsigned long elapsedMicros){
   
   //Poll switch
   // TODO change to port manipulation for better performance
-  switchBuffer &= !(*switchPort & switchByte);
+  switchBuffer &= (*switchPort & switchByte);
   bufferPos++;
 
   // switch state updates once every SWITCH_DEBOUNCE_LEN
-  if(bufferPos >= SWITCH_DEBOUNCE_LEN) {
+  if(bufferPos >= SWITCH_DEBOUNCE_LEN){
     switchState = switchBuffer;
     switchBuffer = true;
     bufferPos = 0;
-    
+
+    //First Time Switch Detected Activated
     if(switchState && !limitSwitchActivated && !calibrating) {
-      //First Time Switch Detected Activated
       //Stop movement 
       stepperMotor->move(0);
       //Reset Position
-      positionSteps = 0;
+      //positionSteps = 0;
       limitSwitchActivated = true;
     }
     else
@@ -122,11 +122,12 @@ bool Joint::calibrate(){
   movDir = -1;
   positionSteps = maxSteps;
   
-  if(!limitSwitchActivated) 
-    stepperMotor->move(-maxSteps);
+  if(!limitSwitchActivated){ 
+    stepperMotor->move(maxSteps);
+  }
   
   calibrating = true;
-  while(!limitSwitchActivated && (positionSteps > 0)){
+  while(!limitSwitchActivated || (positionSteps > 0)){
   }
   
   stepperMotor->move(0);

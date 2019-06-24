@@ -1,181 +1,155 @@
 #ifndef JOINT_H
 #define JOINT_H
 
+#include "Config.h"
 #include "StepperMotor.h"
 
 class Joint{
   public:
-
-  //setters
-  void setSpeed(int speed);
-  void setMinSpeed(int speed);
-  void setAccelRate(int rate);
-  
-  bool isCalibrated = false;
-  volatile int positionSteps = 0; 
-  
-  Joint(int jointNumber, int stepPin, int dirPin, int enablePin, int stepsPerDegree, int speed, int minSpeed, 
-        int accelRate, bool enableHIGH, int switchPin, int maxRotation, int motorInvert, int switchBufferLen);
-  void move(float degrees);
-  void moveTo(float targetPosition);
-  bool calibrate();
-  void update(unsigned long elapsedMicros);
-  bool checkLimitSwitch(){ return limitSwitchActivated; };
-  void resetLimitSwitch(){ limitSwitchActivated = false; };
-  float getPosDegrees(){return positionSteps/stepsPerDegree; };
+    Joint(int stepPin, int dirPin, int enablePin, int stepsPerDegree, int speed, int minSpeed, 
+          int accelRate, bool enableHIGH, int switchPin, int maxRotation, bool motorInvert);
+    void move(float degrees);
+    void moveTo(float targetPosition);
+    bool calibrate();
+    void update(unsigned long elapsedMicros);
+    bool checkLimitSwitch(){ return limitSwitchActivated; };
+    void resetLimitSwitch(){ limitSwitchActivated = false; };
+    float getPosDegrees(){ return positionSteps/stepsPerDegree; };
+    void begin();
+    
+    //setters
+    void setSpeed(int speed);
+    void setMinSpeed(int speed);
+    void setAccelRate(int rate);
+    
 
   private:
-  int jointNumber = 0;
-  volatile int bufferPos = 0;
-  volatile bool switchState = 0;
-  volatile int switchBuffer = 1;
-  volatile bool claibrating = false;
-  int switchPin, maxRotation, stepsPerDegree, motorInvert,minSpeed,switchBufferLen, defaultSpeed;
-  StepperMotor* stepperMotor;
-  volatile bool limitSwitchActivated, contMoveFlag;
-  volatile int movDir;
+    volatile int bufferPos = 0;
+    volatile bool switchState = false;
+    volatile bool switchBuffer = true;
+    volatile bool calibrating = false;
+    volatile int positionSteps = 0; 
+    int switchPin, maxRotation, stepsPerDegree, minSpeed, speed;
+    StepperMotor* stepperMotor;
+    bool isCalibrated = false;
+    volatile bool limitSwitchActivated, contMoveFlag;
+    volatile int movDir;
 };
 
-Joint::Joint(int jointNumber, int stepPin, int dirPin, int enablePin, int stepsPerDegree, int speed, int minSpeed, 
-             int accelRate, bool enableHIGH, int switchPin, int maxRotation, int motorInvert,int switchBufferLen){
+Joint::Joint(int stepPin, int dirPin, int enablePin, int stepsPerDegree, int speed, int minSpeed, 
+             int accelRate, bool enableHIGH, int switchPin, int maxRotation, bool motorInvert){
   int speedStepsPerSec = speed * stepsPerDegree;
-	stepperMotor = new StepperMotor(stepPin, dirPin, enablePin, speedStepsPerSec, minSpeed, accelRate, enableHIGH);
-	this->jointNumber = jointNumber;
+  int minSpeedStepsPerSec = minSpeed * stepsPerDegree;
+	stepperMotor = new StepperMotor(stepPin, dirPin, enablePin, speedStepsPerSec, minSpeedStepsPerSec, accelRate, enableHIGH, motorInvert);
 	this->switchPin = switchPin;
   this->maxRotation = maxRotation;
   this->stepsPerDegree = stepsPerDegree;
-  this->motorInvert = motorInvert;
-  this->switchBufferLen = switchBufferLen;
   this->minSpeed = minSpeed;
-  this->defaultSpeed = speed;
-	pinMode(switchPin,INPUT_PULLUP);
+  this->speed = speed;
   contMoveFlag = false;
   limitSwitchActivated = false;
   movDir = 1;
-};
+}
+
+//Needs to be called in setup to initialise pins
+void Joint::begin(){
+  pinMode(switchPin,INPUT_PULLUP);
+  stepperMotor->begin();
+}
 
 void Joint::update(unsigned long elapsedMicros){
+
+  //Step Motors and track steps
+  if (stepperMotor->step(elapsedMicros, contMoveFlag))
+    positionSteps += movDir;
   
   //Poll switch
+  // TODO change to port manipulation for better performance
   switchBuffer &= !digitalRead(switchPin);
   bufferPos++;
 
-  //Check if switch debounce buffer needs reset
-  if(bufferPos >= switchBufferLen){
+  // switch state updates once every SWITCH_DEBOUNCE_LEN
+  if(bufferPos >= SWITCH_DEBOUNCE_LEN) {
     switchState = switchBuffer;
-    switchBuffer = 1;
+    switchBuffer = true;
     bufferPos = 0;
-  }
-  
-  if((switchState == 1)&&(limitSwitchActivated == false)&&(claibrating==false)){
-    //First Time Switch Detected Activated
-    Serial.print("INFO: Limit switch on joint ");
-    Serial.print(jointNumber);
-    Serial.println(" activated");
-    contMoveFlag = false;
-    //Stop movement 
-    stepperMotor->move(0);
-    //Reset Position
-    positionSteps = 0;
-    limitSwitchActivated = true;
-  }
-  else if(switchState == 1){
-    //For every other detections
-    limitSwitchActivated = true;
-  }
-  else{
-    //If not detected
-    limitSwitchActivated = false;
-  }
-  
-  //Track motor position in Steps
-  if (stepperMotor->step(elapsedMicros, contMoveFlag)){
-    if(motorInvert == 1){
-      positionSteps += movDir;
+    
+    if(switchState && !limitSwitchActivated && !calibrating) {
+      //First Time Switch Detected Activated
+      //Stop movement 
+      stepperMotor->move(0);
+      //Reset Position
+      positionSteps = 0;
+      limitSwitchActivated = true;
     }
-    else{
-      positionSteps -= movDir;
-    }
-    }
+    else
+      limitSwitchActivated = switchState;
+  }
 }
 
 void Joint::move(float degrees){
-  
-  //Invert direction if set in the config
-  if(motorInvert == 1){
-    degrees = -degrees;
-    }
  
   movDir = degrees / abs(degrees);
 
   //Prevent movement further than the limit switch
-  if((limitSwitchActivated == true) && (movDir == -1)){
+  if(limitSwitchActivated && (movDir == -1))
     degrees = 0;
-  }
 
-  int steps = degrees*stepsPerDegree;
- 
-  if(isCalibrated && (((positionSteps + steps) >= 0) && ((positionSteps + steps) <= (maxRotation*stepsPerDegree)))){
+  int steps = degrees * stepsPerDegree;
+
+  // TODO consider effect of calibration
+  if(((positionSteps + steps) >= 0) && ((positionSteps + steps) <= (maxRotation*stepsPerDegree)))
     stepperMotor->move(steps);
-  }
-  else if(!isCalibrated && (((positionSteps + steps) >= 0) && ((positionSteps + steps) <= (maxRotation*stepsPerDegree)))){
-    stepperMotor->move(steps);
-  }
-  else{
+  else {
     Serial.println("ERROR: Movement out of range.");
-    steps = 0;
-    stepperMotor->move(steps);
-    }
+  }
 }
 
 void Joint::moveTo(float targetPosition){
-  int steps = (targetPosition*stepsPerDegree) - positionSteps;
-  if((targetPosition < maxRotation)&&(targetPosition > 0)){
-    move(int(targetPosition/stepsPerDegree));
-  }
+  int steps = (targetPosition * stepsPerDegree) - positionSteps;
+  if((targetPosition <= maxRotation) && (targetPosition >= 0))
+    move(steps/stepsPerDegree);
 }
 
 bool Joint::calibrate(){
   
   setSpeed(minSpeed);
-  int maxSteps = -maxRotation * stepsPerDegree;
-
-  //Invert direction if set in the config
-  if(motorInvert == 1){
-    maxSteps = -maxSteps;
-    }
+  int maxSteps = maxRotation * stepsPerDegree;
     
-  movDir = maxSteps / abs(maxSteps);
-  positionSteps = 0;
+  movDir = -1;
+  positionSteps = maxSteps;
   
-  if(!limitSwitchActivated){stepperMotor->move(maxSteps);}
+  if(!limitSwitchActivated) 
+    stepperMotor->move(-maxSteps);
   
-  while((!limitSwitchActivated) && (abs(positionSteps) < abs(maxSteps))){
-    }
+  calibrating = true;
+  while(!limitSwitchActivated && (positionSteps > 0)){
+  }
   
   stepperMotor->move(0);
-  claibrating = true;
   positionSteps = 0;
-  setSpeed(defaultSpeed);
+  setSpeed(speed);
   
-  if(limitSwitchActivated){
+  if(limitSwitchActivated) {
     isCalibrated = true;
-    stepperMotor->move(int(-maxSteps/2));
+    stepperMotor->move(maxSteps/2);
   }
   else{
     isCalibrated = false;
   }
 
-  claibrating = false;
+  calibrating = false;
   return isCalibrated;
 }
 
 //setters
 void Joint::setSpeed(int speed){
+  this->speed = speed;
   stepperMotor->setSpeed(speed * stepsPerDegree);
 }
 
 void Joint::setMinSpeed(int speed){
+  this->minSpeed = speed;
   stepperMotor->setMinSpeed(speed * stepsPerDegree);
 }
 

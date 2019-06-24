@@ -6,6 +6,8 @@
 #include <EEPROM.h>
 
 //calibration & continuous movement flags
+unsigned long statusTime = millis();
+const int statusDelay = (1/STATUS_FREQ)*1000;
 bool armCalibrated = false;
 volatile bool eStopActivated = false;
 char instruction[INST_ARRAY_LEN];
@@ -73,6 +75,11 @@ void setup() {
 
 void loop() {
   readSerial();
+
+  //Send Status Message at Configured Frequency
+  if((millis()-statusTime) > statusDelay){
+    sendStatus();
+  }
 }
 
 void readSerial(){
@@ -221,8 +228,16 @@ void calibrate(int jointNum){
     Serial.println("WARNING: Calibration Disabled. Reset with 'r' to continue.");
 }
 
+void printSwitchStates(){
+  String outputString = "STATUS: SWITCH: ";
+  for(int i = 0; i < TOTAL_JOINTS; i++) {
+    outputString += (String)(joints[i].checkLimitSwitch())+",";
+  }
+  Serial.println(outputString);
+}
+
 void printPositions(){
-  String outputString = "STATUS:";
+  String outputString = "STATUS: POSITION:";
   for(int i = 0; i < TOTAL_JOINTS; i++) {
     outputString += (String)(joints[i].getPosDegrees())+",";
   }
@@ -232,9 +247,6 @@ void printPositions(){
 /*void savePositions(){
   for(int i = 0; i < TOTAL_JOINTS; i++) {
     EEPROM.update(i,joints[i].positionSteps);
-    Serial.print("DATA: Saving position for joint ");
-    Serial.print(i);
-    Serial.println("to EEPROM.");
   }
 }
 
@@ -291,6 +303,13 @@ void moveJointTo(int jointIndex, int value){
   }
   else
     Serial.println("WARNING: Movement Disabled. Reset with 'r' to continue.");
+}
+
+void sendStatus(){
+  savePositions();
+  printPositions();
+  printSwitchStates();
+  statusTime = millis();
 }
 
 void eStop(){

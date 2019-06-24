@@ -7,7 +7,7 @@
 class Joint{
   public:
     Joint(int stepPin, int dirPin, int enablePin, int stepsPerDegree, int speed, int minSpeed, 
-          int accelRate, bool enableHIGH, int switchPin, int maxRotation, bool motorInvert);
+          int accelRate, bool enableHIGH, volatile uint8_t *switchPort, uint8_t switchByte, int maxRotation, bool motorInvert);
     void move(float degrees);
     void moveTo(float targetPosition);
     bool calibrate();
@@ -22,7 +22,6 @@ class Joint{
     void setMinSpeed(int speed);
     void setAccelRate(int rate);
     
-
   private:
     volatile int bufferPos = 0;
     volatile bool switchState = false;
@@ -34,10 +33,12 @@ class Joint{
     bool isCalibrated = false;
     volatile bool limitSwitchActivated, contMoveFlag;
     volatile int movDir;
+    volatile uint8_t *switchPort;
+    uint8_t switchByte;
 };
 
 Joint::Joint(int stepPin, int dirPin, int enablePin, int stepsPerDegree, int speed, int minSpeed, 
-             int accelRate, bool enableHIGH, int switchPin, int maxRotation, bool motorInvert){
+             int accelRate, bool enableHIGH, volatile uint8_t *switchPort, uint8_t switchByte, int maxRotation, bool motorInvert){
   int speedStepsPerSec = speed * stepsPerDegree;
   int minSpeedStepsPerSec = minSpeed * stepsPerDegree;
 	stepperMotor = new StepperMotor(stepPin, dirPin, enablePin, speedStepsPerSec, minSpeedStepsPerSec, accelRate, enableHIGH, motorInvert);
@@ -49,6 +50,8 @@ Joint::Joint(int stepPin, int dirPin, int enablePin, int stepsPerDegree, int spe
   contMoveFlag = false;
   limitSwitchActivated = false;
   movDir = 1;
+  this->switchPort = switchPort;
+  this->switchByte = switchByte;
 }
 
 //Needs to be called in setup to initialise pins
@@ -65,7 +68,7 @@ void Joint::update(unsigned long elapsedMicros){
   
   //Poll switch
   // TODO change to port manipulation for better performance
-  switchBuffer &= !digitalRead(switchPin);
+  switchBuffer &= !(*switchPort & switchByte);
   bufferPos++;
 
   // switch state updates once every SWITCH_DEBOUNCE_LEN

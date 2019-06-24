@@ -62,6 +62,7 @@
 #define J5_MOTOR_INVERT 1
 
 //other constants
+#define STATUS_FREQ 2
 #define TOTAL_JOINTS 6
 #define SWITCH_BEBOUNCE_LEN 5 // length of the debounce buffer
 #define BAUD_RATE 115200

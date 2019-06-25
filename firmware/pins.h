@@ -1,5 +1,6 @@
 #ifndef PINS_H
 #define PINS_H
+#include "Arduino.h"
 
 // Joint 0 - Shoulder Yaw 
 #define J0_STEP 22

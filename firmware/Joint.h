@@ -1,13 +1,15 @@
 #ifndef JOINT_H
 #define JOINT_H
 
+#include "pins.h"
 #include "Config.h"
 #include "StepperMotor.h"
+#include "Arduino.h"
 
 class Joint{
   public:
     Joint(int stepPin, int dirPin, int enablePin, int stepsPerDegree, int speed, int minSpeed, 
-          int accelRate, bool enableHIGH, volatile uint8_t *switchPort, uint8_t switchByte, int maxRotation, bool motorInvert);
+          int accelRate, bool enableHIGH, int switchPin, volatile uint8_t switchPort, uint8_t switchByte, int maxRotation, bool motorInvert);
     void move(float degrees);
     void moveTo(float targetPosition);
     bool calibrate();
@@ -31,14 +33,14 @@ class Joint{
     int switchPin, maxRotation, stepsPerDegree, minSpeed, speed;
     StepperMotor* stepperMotor;
     bool isCalibrated = false;
-    volatile bool limitSwitchActivated, contMoveFlag;
+    volatile bool limitSwitchActivated = false, contMoveFlag = false;
     volatile int movDir;
     volatile uint8_t *switchPort;
     uint8_t switchByte;
 };
 
 Joint::Joint(int stepPin, int dirPin, int enablePin, int stepsPerDegree, int speed, int minSpeed, 
-             int accelRate, bool enableHIGH, volatile uint8_t *switchPort, uint8_t switchByte, int maxRotation, bool motorInvert){
+             int accelRate, bool enableHIGH, int switchPin, volatile uint8_t switchPort, uint8_t switchByte, int maxRotation, bool motorInvert){
   int speedStepsPerSec = speed * stepsPerDegree;
   int minSpeedStepsPerSec = minSpeed * stepsPerDegree;
 	stepperMotor = new StepperMotor(stepPin, dirPin, enablePin, speedStepsPerSec, minSpeedStepsPerSec, accelRate, enableHIGH, motorInvert);
@@ -63,12 +65,13 @@ void Joint::begin(){
 void Joint::update(unsigned long elapsedMicros){
 
   //Step Motors and track steps
-  if (stepperMotor->step(elapsedMicros, contMoveFlag))
+  if (stepperMotor->step(elapsedMicros, contMoveFlag)){
     positionSteps += movDir;
+  }
   
   //Poll switch
   // TODO change to port manipulation for better performance
-  switchBuffer &= (*switchPort & switchByte);
+  switchBuffer &= !digitalRead(switchPin); //(*switchPort & switchByte);
   bufferPos++;
 
   // switch state updates once every SWITCH_DEBOUNCE_LEN
@@ -78,15 +81,16 @@ void Joint::update(unsigned long elapsedMicros){
     bufferPos = 0;
 
     //First Time Switch Detected Activated
-    if(switchState && !limitSwitchActivated && !calibrating) {
+    if(switchState && !limitSwitchActivated && !calibrating){
       //Stop movement 
-      stepperMotor->move(0);
-      //Reset Position
-      //positionSteps = 0;
+      if(movDir == -1){
+        stepperMotor->move(0);
+      }
       limitSwitchActivated = true;
     }
-    else
+    else{
       limitSwitchActivated = switchState;
+    }
   }
 }
 
@@ -115,27 +119,31 @@ void Joint::moveTo(float targetPosition){
 }
 
 bool Joint::calibrate(){
+
+  int initialSpeed = minSpeed;
   
-  setSpeed(minSpeed);
+  setMinSpeed(10);
+  
   int maxSteps = maxRotation * stepsPerDegree;
     
   movDir = -1;
   positionSteps = maxSteps;
   
   if(!limitSwitchActivated){ 
-    stepperMotor->move(maxSteps);
+    stepperMotor->move(-maxSteps);
   }
   
-  calibrating = true;
-  while(!limitSwitchActivated || (positionSteps > 0)){
+  while(!limitSwitchActivated && (positionSteps > 0)){
   }
   
   stepperMotor->move(0);
   positionSteps = 0;
-  setSpeed(speed);
+  setMinSpeed(initialSpeed);
   
   if(limitSwitchActivated) {
+    calibrating = true;
     isCalibrated = true;
+    movDir = 1;
     stepperMotor->move(maxSteps/2);
   }
   else{

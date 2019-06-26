@@ -239,30 +239,37 @@ void calibrate(char *command){
   }
 }
 
-void printSwitchStates(){
-  String outputString = "STATUS: SWITCH: ";
+void printMovemetStates(){
+  String outputString = "STATUS: MOVEMENT";
   for(int i = 0; i < TOTAL_JOINTS; i++) {
-    outputString += (String)(joints[i].checkLimitSwitch())+",";
+    outputString += ","+(String)(joints[i].checkMovement());
+  }
+  Serial.println(outputString);
+}
+
+void printSwitchStates(){
+  String outputString = "STATUS: SWITCH";
+  for(int i = 0; i < TOTAL_JOINTS; i++) {
+    outputString += ","+(String)(joints[i].checkLimitSwitch());
   }
   Serial.println(outputString);
 }
 
 void printPositions(){
-  String outputString = "STATUS: POSITION:";
+  String outputString = "STATUS: POSITION";
   for(int i = 0; i < TOTAL_JOINTS; i++) {
-    outputString += (String)(joints[i].getPosDegrees())+",";
+    outputString += ","+(String)(joints[i].getPosDegrees());
   }
   Serial.println(outputString);
 }
 
 void printCalibration(){
-  String outputString = "STATUS: CALIBRATION:";
+  String outputString = "STATUS: CALIBRATION";
   for(int i = 0; i < TOTAL_JOINTS; i++) {
-    outputString += (String)(joints[i].checkCalibration())+",";
+    outputString += ","+(String)(joints[i].checkCalibration());
   }
   Serial.println(outputString);
 }
-
 
 void savePositions(){
   for(int i = 0; i < TOTAL_JOINTS; i++) {
@@ -310,7 +317,7 @@ void moveJoint(int jointIndex, int value){
 
 void moveJointTo(int jointIndex, int value){
   if(!eStopActivated){
-    if(armCalibrated){
+    if(joints[jointIndex].checkCalibration()){
       Serial.print("INFO: Moving motor ");
       Serial.print(jointIndex);
       Serial.print(" to position ");
@@ -319,7 +326,11 @@ void moveJointTo(int jointIndex, int value){
       joints[jointIndex].moveTo(value);
     } 
     else
-      Serial.println("WARNING: Motors are not calibrated. Calibrate with 'c' command.");
+      Serial.print("WARNING: Joint ");
+      Serial.print(jointIndex);
+      Serial.print(" is not calibrated. Calibrate with 'c");
+      Serial.print(jointIndex);
+      Serial.println("' command.");
   }
   else
     Serial.println("WARNING: Movement Disabled. Reset with 'r' to continue.");
@@ -330,6 +341,7 @@ void sendStatus(){
   printPositions();
   printSwitchStates();
   printCalibration();
+  printMovemetStates();
   statusTime = millis();
 }
 

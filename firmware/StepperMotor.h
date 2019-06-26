@@ -7,7 +7,7 @@ class StepperMotor{
     StepperMotor(int stepPin, int dirPin, int enablePin, int speed, int minSpeed, int accelRate, bool enableHIGH, bool motorInvert);
     void move(int stepsToMove);
     bool step(unsigned long elapsedMicros, bool contMove);
-  
+ 
     //setters
     void setSpeed(int speed);
     void setMinSpeed(int minSpeed);
@@ -16,6 +16,7 @@ class StepperMotor{
 
     //getters
     int getSpeed(){ return speed; };
+    int getSteps(){ return steps; };
 
   private:
     int stepPin, dirPin, enablePin, speed, minSpeed, accelRate;

@@ -17,7 +17,7 @@
 #define J1_SPEED 10
 #define J1_MIN_SPEED 5
 #define J1_ACCEL_RATE 10
-#define J1_MAX_ROT_DEG 142
+#define J1_MAX_ROT_DEG 160
 #define J1_ENABLE_HIGH 0
 #define J1_MOTOR_INVERT 0
 
@@ -34,9 +34,9 @@
 // Joint 3 Elbow Roll
 #define J3_JOINT_NUMBER 3
 #define J3_STEPS_PER_DEG 46
-#define J3_SPEED 15
+#define J3_SPEED 10
 #define J3_MIN_SPEED 5
-#define J3_ACCEL_RATE 10
+#define J3_ACCEL_RATE 20
 #define J3_MAX_ROT_DEG 330
 #define J3_ENABLE_HIGH 1
 #define J3_MOTOR_INVERT 0

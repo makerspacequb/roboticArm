@@ -15,6 +15,7 @@ class Joint{
     bool calibrate();
     void update(unsigned long elapsedMicros);
     bool checkLimitSwitch(){ return limitSwitchActivated; };
+    bool checkMovement() { return movementFlag; };
     bool checkCalibration(){ return isCalibrated; };
     void resetLimitSwitch(){ limitSwitchActivated = false; };
     float getPosDegrees(){ return positionSteps/stepsPerDegree; };
@@ -28,6 +29,7 @@ class Joint{
     
   private:
     volatile int bufferPos = 0;
+    volatile bool movementFlag = false;
     volatile bool switchState = false;
     volatile bool switchBuffer = true;
     volatile bool calibrating = false;
@@ -65,6 +67,13 @@ void Joint::begin(){
 
 void Joint::update(unsigned long elapsedMicros){
 
+  if(stepperMotor->getSteps() > 0){
+    movementFlag = true;
+  }
+  else{
+    movementFlag = false;
+  }
+  
   //Step Motors and track steps
   if (stepperMotor->step(elapsedMicros, contMoveFlag)){
     positionSteps += movDir;

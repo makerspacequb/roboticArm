@@ -134,9 +134,9 @@ class Arm:
     
     def lieDown(self):
         moveTo(0,180)
-        moveTo(1,42)
-        moveTo(2,150)
-        moveTo(3,170)
+        moveTo(1,150)
+        moveTo(2,170)
+        moveTo(3,165)
         moveTo(4,90)
         moveTo(5,155)
 
@@ -145,10 +145,15 @@ class Arm:
         self.sendCommand(command)
         self.log("INFO: Joint "+str(motor)+" speed adjusted to "+str(speed)+" degrees per second.")
      
-    def calibrate(self):
-        command = "c"
+    def calibrateArm(self):
+        command = "ca"
         self.sendCommand(command)
         self.log("INFO: Arm is Currently Calibrating.")
+             
+    def calibrateJoint(self, joint):
+        command = "c"+joint
+        self.sendCommand(command)
+        self.log("INFO: Joint "+str(joint)+" is currently calibrating.")
 
     def stop(self):
         self.sendCommand("q")

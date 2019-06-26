@@ -90,7 +90,12 @@ class Arm:
                 response = self.session.get(message,timeout=self.timeout)
             
                 status = response.content.decode("utf-8").split("\n")
-                #self.log("INFO: " + status)
+                self.log(status)
+                
+                #Extract Joint Positions
+                if(status.find("STATUS:")>0):
+                    
+
             except:
                 self.log("ERROR: No status response. No Connection.")
                 self.connected = False
@@ -98,10 +103,11 @@ class Arm:
             time.sleep(delay)
     
     def moveTo(self,motor,position):
-        #Determine how to move to get to position
-        degrees = position - self.jointPosition[motor]
-        #Make the move
-        self.move(motor,degrees)
+
+        if position > 0:
+            command = "p"+str(motor)+str(position)
+            self.sendCommand(command)
+
         #Log the move
         self.log("INFO: Joint "+str(motor)+" moved to "+str(degrees)+" degrees.")
 
@@ -118,15 +124,40 @@ class Arm:
 
         self.log("INFO: Joint "+str(motor)+" adjusted "+str(degrees)+" degrees.")
 
+    def standUp(self):
+        moveTo(0,180)
+        moveTo(1,42)
+        moveTo(2,150)
+        moveTo(3,170)
+        moveTo(4,90)
+        moveTo(5,155)
+    
+    def lieDown(self):
+        moveTo(0,180)
+        moveTo(1,150)
+        moveTo(2,170)
+        moveTo(3,165)
+        moveTo(4,90)
+        moveTo(5,155)
+
     def speed(self,motor,speed):
-        command = "S"+str(motor)+str(speed)
+        command = "s"+str(motor)+str(speed)
         self.sendCommand(command)
         self.log("INFO: Joint "+str(motor)+" speed adjusted to "+str(speed)+" degrees per second.")
-    
+     
+    def calibrateArm(self):
+        command = "ca"
+        self.sendCommand(command)
+        self.log("INFO: Arm is Currently Calibrating.")
+             
+    def calibrateJoint(self, joint):
+        command = "c"+joint
+        self.sendCommand(command)
+        self.log("INFO: Joint "+str(joint)+" is currently calibrating.")
+
     def stop(self):
         self.sendCommand("q")
         self.log("INFO: Arm Emergency Stopped.")
-    
 
     def checkConnection(self):
         self.sendCommand("test")

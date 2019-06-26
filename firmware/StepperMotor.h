@@ -4,39 +4,46 @@
 class StepperMotor{
   public:
     StepperMotor();
-    StepperMotor(int stepPin, int dirPin, int enablePin, int speed, int minSpeed, int accelRate, bool enableHIGH);
+    StepperMotor(int stepPin, int dirPin, int enablePin, int speed, int minSpeed, int accelRate, bool enableHIGH, bool motorInvert);
     void move(int stepsToMove);
     bool step(unsigned long elapsedMicros, bool contMove);
-  
+ 
     //setters
     void setSpeed(int speed);
     void setMinSpeed(int minSpeed);
     void setAccelRate(int rate);
+    void begin();
 
     //getters
     int getSpeed(){ return speed; };
+    int getSteps(){ return steps; };
 
   private:
     int stepPin, dirPin, enablePin, speed, minSpeed, accelRate;
     volatile int steps, currentStepDelayDuration, maxStepDelayDuration, stepDelayDuration;
     unsigned long stepRunTime;
-    bool stepDelay, enableHIGH;
+    bool stepDelay, enableHIGH, motorInvert;
     void updateAcceleration();
 };
 
 StepperMotor::StepperMotor(int stepPin, int dirPin, int enablePin, int speed,
-      int minSpeed, int accelRate, bool enableHIGH){
+      int minSpeed, int accelRate, bool enableHIGH, bool motorInvert){
   this->stepPin = stepPin;
   this->dirPin = dirPin;
   this->enablePin = enablePin;
   this->accelRate = accelRate;
   this->enableHIGH = enableHIGH;
+  this->motorInvert = motorInvert;
   setSpeed(speed);
   setMinSpeed(minSpeed);
   steps = 0;
   stepDelay = false;
   currentStepDelayDuration = maxStepDelayDuration;
   
+}
+
+//Needs to be called in setup to initialise pins
+void StepperMotor::begin(){
   pinMode(enablePin,OUTPUT);
   pinMode(stepPin,OUTPUT);
   pinMode(dirPin,OUTPUT);
@@ -47,20 +54,11 @@ bool StepperMotor::step(unsigned long elapsedMicros, bool contMove){
   stepRunTime += elapsedMicros;
   if (steps > 0) {
     if(!stepDelay) {
-      //if (!enableHIGH) {
-      digitalWrite(stepPin, HIGH);
-      // digital write is slow enough to not need a delay.
+      // TODO replace these with port manipulation
       // digital write will take about 6us
+      digitalWrite(stepPin, HIGH);
       delayMicroseconds(5);
       digitalWrite(stepPin, LOW);
-      //}
-      /*else {
-      digitalWrite(stepPin, LOW);
-      // digital write is slow enough to not need a delay.
-      // digital write will take about 6us
-      digitalWrite(stepPin, HIGH);
-        
-      }*/
       if (!contMove)
         steps--;
       stepDelay = true;
@@ -77,12 +75,13 @@ bool StepperMotor::step(unsigned long elapsedMicros, bool contMove){
   return false;
 }
 
+//TODO - Needs Rework to prevent sawtooth behavior
 void StepperMotor::updateAcceleration(){
   //update acceleration
   if(steps * currentStepDelayDuration / accelRate < maxStepDelayDuration - currentStepDelayDuration){
     //deceleration
     if(currentStepDelayDuration < maxStepDelayDuration){
-      currentStepDelayDuration += currentStepDelayDuration / accelRate;
+      //currentStepDelayDuration += currentStepDelayDuration / accelRate;
     }
   }else if(currentStepDelayDuration > stepDelayDuration){
     //acceleration  
@@ -98,7 +97,7 @@ void StepperMotor::updateAcceleration(){
 
 void StepperMotor::move(int stepsToMove){
   steps = abs(stepsToMove);
-  digitalWrite(dirPin, stepsToMove > 0);
+  digitalWrite(dirPin, (stepsToMove > 0) ^ motorInvert);
   currentStepDelayDuration = maxStepDelayDuration;
 }
 

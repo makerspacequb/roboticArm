@@ -7,7 +7,7 @@
 from arm import Arm
 import time
 
-ip_address = "192.168.0.101"
+ip_address = "192.168.0.105"
 arm = Arm(ip_address)
 
 angle = 45
@@ -21,21 +21,19 @@ arm.speed(5,50)
 
 arm.calibrateArm()
 
+while(arm.armCalibrated() == False):
+    time.sleep(1)
+
 while arm.connected:
-    arm.move(0,angle)
-    arm.move(1,angle)
-    arm.move(2,angle)
-    arm.move(3,angle)
-    arm.move(4,angle)
-    arm.move(5,angle)
     
-    time.sleep(3)
-    arm.move(0,-angle)
-    arm.move(1,-angle)
-    arm.move(2,-angle)
-    arm.move(3,-angle)
-    arm.move(4,-angle)
-    arm.move(5,-angle)
-    time.sleep(3)
+    arm.standUp()
+
+    while(arm.checkMovement()):
+        time.sleep(1)
+
+    arm.lieDown()
+
+    while(arm.checkMovement()):
+        time.sleep(1)
     
 arm.stop()

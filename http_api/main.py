@@ -10,7 +10,7 @@ import serial
 import time
 import os
 
-SerialPort = '/dev/ttyACM0'
+SerialPort = '/dev/ttyUSB0'
 Baudrate = 115200
 SerialMonitorLines = 20
 
@@ -28,6 +28,8 @@ try:
 
         connected = False
         serialMonitorData = ["-,-"]*SerialMonitorLines
+        latestMessage = ""
+        previousMessage = ""
 
         @cherrypy.expose
         def index(self):
@@ -110,6 +112,7 @@ try:
                     
                         response = response.strip()
                         logLine = currentDateTime+","+str(response)
+                        self.latestMessage = response
 
                         #Add response to receive log
                         with open ("http_api/public/receiveLog.csv", "a+") as log:
@@ -141,10 +144,20 @@ try:
             return table
 
         @cherrypy.expose
-        def getLine(self):
+        def getLast(self):
+            return self.latestMessage
 
-            line = self.serialMonitorData[SerialMonitorLines-1]
-            return line
+        @cherrypy.expose
+        def getLatest(self):
+
+            if self.previousMessage == self.latestMessage:
+                message = "" 
+            else:
+                message = self.latestMessage
+
+            self.previousMessage = self.latestMessage
+
+            return message
 
         @cherrypy.expose
         def connect(self):
@@ -154,7 +167,6 @@ try:
 
             if(self.connected == False):
                 
-
                 try:
                     #Open Serial Connection
                     self.serial = serial.Serial(

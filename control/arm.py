@@ -28,8 +28,13 @@ class Arm:
         self.baseURL = "http://"+ipAddress+":8080/"
         self.error = False
         self.timeout = 4 #Seconds
-        self.jointPosition = [0,0,0,0,0,0]
         self.jointPositionMax = [350,190,190,350,180,350]
+
+        #Status Flags
+        self.jointPosition = [0,0,0,0,0,0]
+        self.switchState = [0,0,0,0,0,0]
+        self.calibrationState = [0,0,0,0,0,0]
+        self.movementFlag = [0,0,0,0,0,0]
 
         try:
             self.session = requests.session()
@@ -81,27 +86,37 @@ class Arm:
 
     @threaded
     def getStatus(self):
-        
-        delay = 0.25 #Seconds
+
+        delay = 0.1 #Seconds
         while self.connected:
 
             try:
-                message = self.baseURL + "getLine"
+                message = self.baseURL + "getLatest"
                 response = self.session.get(message,timeout=self.timeout)
-            
-                status = response.content.decode("utf-8").split("\n")
-                self.log(status)
+                status = response.content.split("\n")
                 
                 #Extract Joint Positions
-                if(status.find("STATUS:")>0):
-                    
+                if(status[0].find("STATUS:")!=-1):  
+                    if(status.find("MOVEMENT") != -1):
+                        data = status.split(",")
+                        self.movementFlag = data[0:]
+                    elif(status.find("CALIBRATION") != -1):
+                        data = status.split(",")
+                        self.calibrationState = data[0:]
+                    elif(status.find("POSITION") != -1):
+                        data = status.split(",")
+                        self.jointPosition = data[0:]
+                    elif(status.find("SWITCH") != -1):
+                        data = status.split(",")
+                        self.switchState = data[0:]
+                    else:
+                        self.log("FAILED TO PARSE: "+status[0])
+                elif(status[0] !=""):
+                    self.log(status[0])
 
-            except:
-                self.log("ERROR: No status response. No Connection.")
-                self.connected = False
-        
-            time.sleep(delay)
-    
+            except:     
+                time.sleep(delay)
+
     def moveTo(self,motor,position):
 
         if position > 0:
@@ -109,7 +124,7 @@ class Arm:
             self.sendCommand(command)
 
         #Log the move
-        self.log("INFO: Joint "+str(motor)+" moved to "+str(degrees)+" degrees.")
+        self.log("INFO: Joint "+str(motor)+" moved to "+str(position)+" degrees.")
 
     def move(self,motor,degrees):      
         #Check movement is within range allowed
@@ -125,20 +140,20 @@ class Arm:
         self.log("INFO: Joint "+str(motor)+" adjusted "+str(degrees)+" degrees.")
 
     def standUp(self):
-        moveTo(0,180)
-        moveTo(1,42)
-        moveTo(2,150)
-        moveTo(3,170)
-        moveTo(4,90)
-        moveTo(5,155)
+        self.moveTo(0,180)
+        self.moveTo(1,42)
+        self.moveTo(2,150)
+        self.moveTo(3,170)
+        self.moveTo(4,90)
+        self.moveTo(5,155)
     
     def lieDown(self):
-        moveTo(0,180)
-        moveTo(1,150)
-        moveTo(2,170)
-        moveTo(3,165)
-        moveTo(4,90)
-        moveTo(5,155)
+        self.moveTo(0,180)
+        self.moveTo(1,150)
+        self.moveTo(2,170)
+        self.moveTo(3,165)
+        self.moveTo(4,90)
+        self.moveTo(5,155)
 
     def speed(self,motor,speed):
         command = "s"+str(motor)+str(speed)
@@ -162,4 +177,15 @@ class Arm:
     def checkConnection(self):
         self.sendCommand("test")
         self.log("INFO: Testing the connection.")
-        
+  
+    def checkMovement(self):
+        movement = True
+        for joint in self.movementFlag:
+            movement &= self.movementFlag[joint]
+        return movement
+
+    def armCalibrated(self):
+        armCalibrated = True
+        for joint in self.movementFlag:
+            armCalibrated &= self.calibrationState[joint]
+        return armCalibrated

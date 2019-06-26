@@ -16,17 +16,17 @@ int instIndex = 0;
 //motor & servo objects
 Joint joints[TOTAL_JOINTS] = {
    Joint(J0_STEP,J0_DIR,J0_ENABLE,J0_STEPS_PER_DEG,J0_SPEED,J0_MIN_SPEED,J0_ACCEL_RATE, 
-          J0_ENABLE_HIGH, J0_L_SWITCH, J0_SWITCH_PORT, J0_SWITCH_BYTE, J0_MAX_ROT_DEG, J0_MOTOR_INVERT),
+          J0_ENABLE_HIGH, J0_L_SWITCH, &J0_SWITCH_PORT, J0_SWITCH_BYTE, J0_MAX_ROT_DEG, J0_MOTOR_INVERT),
    Joint(J1_STEP,J1_DIR,J1_ENABLE,J1_STEPS_PER_DEG,J1_SPEED,J1_MIN_SPEED,J1_ACCEL_RATE, 
-          J1_ENABLE_HIGH, J1_L_SWITCH, J1_SWITCH_PORT, J1_SWITCH_BYTE, J1_MAX_ROT_DEG, J1_MOTOR_INVERT),
+          J1_ENABLE_HIGH, J1_L_SWITCH, &J1_SWITCH_PORT, J1_SWITCH_BYTE, J1_MAX_ROT_DEG, J1_MOTOR_INVERT),
    Joint(J2_STEP,J2_DIR,J2_ENABLE,J2_STEPS_PER_DEG,J2_SPEED,J2_MIN_SPEED,J2_ACCEL_RATE, 
-          J2_ENABLE_HIGH, J2_L_SWITCH, J2_SWITCH_PORT, J2_SWITCH_BYTE, J2_MAX_ROT_DEG, J2_MOTOR_INVERT),
+          J2_ENABLE_HIGH, J2_L_SWITCH, &J2_SWITCH_PORT, J2_SWITCH_BYTE, J2_MAX_ROT_DEG, J2_MOTOR_INVERT),
    Joint(J3_STEP,J3_DIR,J3_ENABLE,J3_STEPS_PER_DEG,J3_SPEED,J3_MIN_SPEED,J3_ACCEL_RATE, 
-          J3_ENABLE_HIGH, J3_L_SWITCH, J3_SWITCH_PORT, J3_SWITCH_BYTE, J3_MAX_ROT_DEG, J3_MOTOR_INVERT),
+          J3_ENABLE_HIGH, J3_L_SWITCH, &J3_SWITCH_PORT, J3_SWITCH_BYTE, J3_MAX_ROT_DEG, J3_MOTOR_INVERT),
    Joint(J4_STEP,J4_DIR,J4_ENABLE,J4_STEPS_PER_DEG,J4_SPEED,J4_MIN_SPEED,J4_ACCEL_RATE, 
-          J4_ENABLE_HIGH, J4_L_SWITCH, J4_SWITCH_PORT, J4_SWITCH_BYTE, J4_MAX_ROT_DEG, J4_MOTOR_INVERT),
+          J4_ENABLE_HIGH, J4_L_SWITCH, &J4_SWITCH_PORT, J4_SWITCH_BYTE, J4_MAX_ROT_DEG, J4_MOTOR_INVERT),
    Joint(J5_STEP,J5_DIR,J5_ENABLE,J5_STEPS_PER_DEG,J5_SPEED,J5_MIN_SPEED,J5_ACCEL_RATE, 
-          J5_ENABLE_HIGH, J5_L_SWITCH, J5_SWITCH_PORT, J5_SWITCH_BYTE, J5_MAX_ROT_DEG, J5_MOTOR_INVERT)
+          J5_ENABLE_HIGH, J5_L_SWITCH, &J5_SWITCH_PORT, J5_SWITCH_BYTE, J5_MAX_ROT_DEG, J5_MOTOR_INVERT)
 };
 
 Servo hand;
@@ -112,11 +112,8 @@ void readSerial(){
 void processInstruction(char *input){
   //check first byte
   switch(toLowerCase(input[0])){
-    case 'c': 
-      //Calibrate whole arm
-      calibrateArm(); 
-      //Calibrate Individual Joints
-      //calibrate(atol(input+1));
+    case 'c':  
+      calibrate(input+1);
       break;
     case 'p': 
       moveJointTo(input[1] - '0', atol(input+2));  
@@ -127,7 +124,7 @@ void processInstruction(char *input){
     case 'x': 
       //continuousMovement = atol(input+1);
       break;
-    case 'd': 
+    case 's': 
       joints[input[1] - '0'].setSpeed(atol(input+2));
       Serial.print("INFO: Set motor: ");
       Serial.print(input[1]);
@@ -135,7 +132,7 @@ void processInstruction(char *input){
       Serial.print(atol(input+2));
       Serial.println("deg/s");
       break;
-    case 's': 
+    case 'd': 
       joints[input[1] - '0'].setMinSpeed(atol(input+2));
       Serial.print("INFO: Set motor: ");
       Serial.print(input[1]);
@@ -166,7 +163,7 @@ void processInstruction(char *input){
     case 'i':
       //Return information about positions
       printPositions();
-      //savePositions();
+      savePositions();
       break;
     case 't':
       //Send Message to Tool
@@ -181,52 +178,65 @@ void processInstruction(char *input){
   }
 }
 
-void calibrateArm(){
-  armCalibrated = true;
-
-  if(!eStopActivated){
-    for(int i = TOTAL_JOINTS-1; i >= 0; i--){
-      Serial.print("INFO: Calibrating joint: ");
-      Serial.println(i);
-      bool isCalibrated = joints[i].calibrate();     
+void calibrate(char *command){
     
-      if(!isCalibrated){
-        Serial.print("ERROR: Calibration of joint ");
+  if(!eStopActivated){  
+    //Calibrate Whole Arm
+    if(*command == 'a'){
+      Serial.println("INFO: Whole arm calibration beginning.");
+      for(int i = TOTAL_JOINTS-1; i >= 0; i--){
+        Serial.print("INFO: Calibrating joint ");
         Serial.print(i);
+        Serial.println(".");
+          
+        if(!joints[i].calibrate()){
+          Serial.print("ERROR: Calibration of joint ");
+          Serial.print(i);
+          Serial.println(" failed.");
+          }
+        else{
+          Serial.print("INFO: Calibration of joint ");
+          Serial.print(i);
+          Serial.println(" complete.");
+        }
+      }
+    }
+    //Calibrate an Individual Joint
+    else{
+      int jointNum = atol(command);
+      Serial.print("INFO: Calibrating joint ");
+      Serial.print(jointNum);
+      Serial.println(".");
+
+      if(!joints[jointNum].calibrate()){
+        Serial.print("ERROR: Calibration of joint ");
+        Serial.print(jointNum);
         Serial.println(" failed.");
         }
-      //Overall calibration for arm
-      armCalibrated = armCalibrated & isCalibrated;
+     else{
+        Serial.print("INFO: Calibration of joint ");
+        Serial.print(jointNum);
+        Serial.println(" complete.");
+        }
     }
-    if(!armCalibrated)
-      Serial.println("ERROR: Arm Calibration Failed.");
-    else
-      Serial.println("INFO: Arm Calibration Succesful.");
-  }
-  else
-    Serial.println("WARNING: Calibration Disabled. Reset with 'r' to continue.");
-}
 
-void calibrate(int jointNum){
-  if(!eStopActivated){
-    Serial.print("INFO: Calibrating joint: ");
-    Serial.println(jointNum);
-    //TODO 
-    armCalibrated = joints[jointNum].calibrate();
-  
-    if(armCalibrated){
-      Serial.print("INFO: Calibration of joint ");
-      Serial.print(jointNum);
-      Serial.println(" complete.");
+    //Check Arm Calibration Status
+    armCalibrated = true;
+    for(int i = TOTAL_JOINTS-1; i >= 0; i--){
+        armCalibrated &= joints[i].checkCalibration();
     }
-    else {
-      Serial.print("ERROR: Calibration of joint ");
-      Serial.print(jointNum);
-      Serial.println(" failed.");
+     
+    //Return Arm Calibration Status Message
+    if(!armCalibrated){
+      Serial.println("INFO: Arm not fully calibrated.");
     }
+    else{
+      Serial.println("INFO: Arm fully calibrated.");
+    }  
   }
-  else
+  else{
     Serial.println("WARNING: Calibration Disabled. Reset with 'r' to continue.");
+  }
 }
 
 void printSwitchStates(){
@@ -245,7 +255,16 @@ void printPositions(){
   Serial.println(outputString);
 }
 
-/*void savePositions(){
+void printCalibration(){
+  String outputString = "STATUS: CALIBRATION:";
+  for(int i = 0; i < TOTAL_JOINTS; i++) {
+    outputString += (String)(joints[i].checkCalibration())+",";
+  }
+  Serial.println(outputString);
+}
+
+
+void savePositions(){
   for(int i = 0; i < TOTAL_JOINTS; i++) {
     EEPROM.update(i,joints[i].positionSteps);
   }
@@ -258,7 +277,7 @@ void loadPositions(){
     Serial.print(i);
     Serial.println(" from EEPROM.");
   }
-}*/
+}
 
 void moveHand(int value) {
   if(value > 100){
@@ -307,9 +326,10 @@ void moveJointTo(int jointIndex, int value){
 }
 
 void sendStatus(){
-  //savePositions();
+  savePositions();
   printPositions();
   printSwitchStates();
+  printCalibration();
   statusTime = millis();
 }
 
@@ -317,8 +337,8 @@ void eStop(){
   for (int i = 0; i < TOTAL_JOINTS; i++){
     joints[i].move(0);
   }
-  //if(!eStopActivated){
-  //  Serial.println("INFO: Emergency Stop Pressed. Release button and reset with 'r' to continue.");
-  eStopActivated = true;
-  //}
+  if(!eStopActivated){
+    eStopActivated = true;
+    Serial.println("INFO: Emergency Stop Pressed. Release button and reset with 'r' to continue.");
+  }
 }

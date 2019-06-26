@@ -74,12 +74,13 @@ bool StepperMotor::step(unsigned long elapsedMicros, bool contMove){
   return false;
 }
 
+//TODO - Needs Rework to prevent sawtooth behavior
 void StepperMotor::updateAcceleration(){
   //update acceleration
   if(steps * currentStepDelayDuration / accelRate < maxStepDelayDuration - currentStepDelayDuration){
     //deceleration
     if(currentStepDelayDuration < maxStepDelayDuration){
-      currentStepDelayDuration += currentStepDelayDuration / accelRate;
+      //currentStepDelayDuration += currentStepDelayDuration / accelRate;
     }
   }else if(currentStepDelayDuration > stepDelayDuration){
     //acceleration  

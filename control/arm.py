@@ -28,6 +28,7 @@ class Arm:
         self.baseURL = "http://"+ipAddress+":8080/"
         self.error = False
         self.timeout = 4 #Seconds
+        self.pollingStatus = False
         self.jointPositionMax = [350,190,190,350,180,350]
 
         #Status Flags
@@ -68,47 +69,51 @@ class Arm:
 
         #combine with host address
         message = self.baseURL + "send?command=" + command
-    
-        try:
-            response = self.session.get(message,timeout=self.timeout)
-            status = response.content.decode("utf-8").split("\n")
+        
+        if self.pollingStatus == False:
+            self.getStatus()
 
+        try:
             if self.debug == True:
+                response = self.session.get(message,timeout=self.timeout)
+                status = response.content.decode("utf-8").split("\n")
                 self.log("INFO = Transmission response code is "+str(response.status_code))
                 end = time.time()
                 print("STATUS: Sending '",command,"' took %.2f seconds." % round((end-start),2))
-                self.log(status)
+                self.log(status[0])
+            else:
+                self.session.get(message,timeout=self.timeout)
             self.connected = True
-
         except:
             self.log("ERROR = Could not access API")
             self.connected = False
 
     @threaded
     def getStatus(self):
-
         delay = 0.1 #Seconds
+        self.pollingStatus = True
+
         while self.connected:
 
             try:
                 message = self.baseURL + "getLatest"
                 response = self.session.get(message,timeout=self.timeout)
                 status = response.content.split("\n")
-                
+            
                 #Extract Joint Positions
-                if(status[0].find("STATUS:")!=-1):  
-                    if(status.find("MOVEMENT") != -1):
-                        data = status.split(",")
-                        self.movementFlag = data[0:]
-                    elif(status.find("CALIBRATION") != -1):
-                        data = status.split(",")
-                        self.calibrationState = data[0:]
-                    elif(status.find("POSITION") != -1):
-                        data = status.split(",")
-                        self.jointPosition = data[0:]
-                    elif(status.find("SWITCH") != -1):
-                        data = status.split(",")
-                        self.switchState = data[0:]
+                if(status[0].find("STATUS:")!=-1):
+                    if(status[0].find("MOVEMENT") != -1):
+                        data = status[0].split(",")
+                        self.movementFlag = data[1:]
+                    elif(status[0].find("CALIBRATION") != -1):
+                        data = status[0].split(",")
+                        self.calibrationState = data[1:]
+                    elif(status[0].find("POSITION") != -1):
+                        data = status[0].split(",")
+                        self.jointPosition = data[1:]
+                    elif(status[0].find("SWITCH") != -1):
+                        data = status[0].split(",")
+                        self.switchState = data[1:]
                     else:
                         self.log("FAILED TO PARSE: "+status[0])
                 elif(status[0] !=""):
@@ -116,6 +121,8 @@ class Arm:
 
             except:     
                 time.sleep(delay)
+        
+        self.pollingStatus = False
 
     def moveTo(self,motor,position):
 
@@ -179,13 +186,28 @@ class Arm:
         self.log("INFO: Testing the connection.")
   
     def checkMovement(self):
-        movement = True
-        for joint in self.movementFlag:
-            movement &= self.movementFlag[joint]
-        return movement
+        moving = True
+        for jointMoving in self.movementFlag:
+            moving &= int(jointMoving)
+        return moving
+
+    def reset(self):
+
+        messages = ["disconnect","connect"]
+
+        for message in messages:
+            url = self.baseURL + message
+            response = self.session.get(url,timeout=self.timeout)
+            if response.content.decode("utf-8"):
+                self.log(response.content.decode("utf-8"))
+
+        time.sleep(2)
+        self.log("INFO: Arm Reset.")
 
     def armCalibrated(self):
-        armCalibrated = True
-        for joint in self.movementFlag:
-            armCalibrated &= self.calibrationState[joint]
-        return armCalibrated
+        calibrated = True
+        for jointCalibrated in self.calibrationState:
+            calibrated &= int(jointCalibrated)
+        if(calibrated):
+            self.log("INFO: Arm is fully calibrated.")
+        return calibrated

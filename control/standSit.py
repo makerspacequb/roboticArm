@@ -7,10 +7,13 @@
 from arm import Arm
 import time
 
+#Clear Log File
+open('control/log.txt', 'w').close()
+
+#Create instance of Arm class
 ip_address = "192.168.0.105"
 arm = Arm(ip_address)
-
-angle = 45
+arm.reset()
 
 arm.speed(0,50)
 arm.speed(1,50)

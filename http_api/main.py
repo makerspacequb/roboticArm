@@ -179,12 +179,25 @@ try:
                         )
                     self.connected = True
                     self.receive()
-                    status = currentDateTime + " - INFO: Motor control box connected to "+self.serial.name+".\n"
+                    status = "INFO: Motor control box connected to "+self.serial.name+"."
                 except:
-                    status = currentDateTime + " - ERROR: Could not establish a connection with motor control box.\n"
+                    status = "ERROR: Could not establish a connection with motor control box."
       
             print(status)
 
+            return status   
+
+        @cherrypy.expose
+        def disconnect(self):
+
+            status = "INFO: Motor control box is not connected."
+
+            if(self.connected == True):
+                self.serial.close()
+                self.connected = False
+                status = "INFO: Motor control box disconnected."
+
+            print(status)
             return status   
 
         @cherrypy.expose
@@ -193,6 +206,7 @@ try:
             image = "NOT YET OPERATIONAL"
             
             return image
+
     if __name__ == '__main__':
 
         cherrypy.config.update(

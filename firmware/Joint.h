@@ -9,7 +9,7 @@
 class Joint{
   public:
     Joint(int stepPin, int dirPin, int enablePin, int stepsPerDegree, int speed, int minSpeed, 
-          int accelRate, bool enableHIGH, int switchPin, volatile uint8_t *switchPort, uint8_t switchByte, int maxRotation, bool motorInvert);
+          int accelRate, bool enableHIGH, int switchPin, volatile uint8_t *switchPort, uint8_t switchByte, int maxRotation, bool motorInvert, int defaultPos);
     void move(float degrees);
     void moveTo(float targetPosition);
     bool calibrate();
@@ -33,7 +33,7 @@ class Joint{
     volatile bool switchState = false;
     volatile bool switchBuffer = true;
     volatile bool calibrating = false;
-    int switchPin, maxRotation, stepsPerDegree, minSpeed, speed;
+    int switchPin, maxRotation, stepsPerDegree, defaultPos, minSpeed, speed;
     StepperMotor* stepperMotor;
     bool isCalibrated = false;
     volatile bool limitSwitchActivated = false, contMoveFlag = false;
@@ -43,7 +43,7 @@ class Joint{
 };
 
 Joint::Joint(int stepPin, int dirPin, int enablePin, int stepsPerDegree, int speed, int minSpeed, 
-             int accelRate, bool enableHIGH, int switchPin, volatile uint8_t *switchPort, uint8_t switchByte, int maxRotation, bool motorInvert){
+             int accelRate, bool enableHIGH, int switchPin, volatile uint8_t *switchPort, uint8_t switchByte, int maxRotation, bool motorInvert, int defaultPos){
   int speedStepsPerSec = speed * stepsPerDegree;
   int minSpeedStepsPerSec = minSpeed * stepsPerDegree;
 	stepperMotor = new StepperMotor(stepPin, dirPin, enablePin, speedStepsPerSec, minSpeedStepsPerSec, accelRate, enableHIGH, motorInvert);
@@ -52,6 +52,7 @@ Joint::Joint(int stepPin, int dirPin, int enablePin, int stepsPerDegree, int spe
   this->stepsPerDegree = stepsPerDegree;
   this->minSpeed = minSpeed;
   this->speed = speed;
+  this->defaultPos = defaultPos;
   contMoveFlag = false;
   limitSwitchActivated = false;
   movDir = 1;
@@ -154,7 +155,7 @@ bool Joint::calibrate(){
     calibrating = true;
     isCalibrated = true;
     movDir = 1;
-    stepperMotor->move(maxSteps/2);
+    moveTo(defaultPos);
   }
   else{
     isCalibrated = false;

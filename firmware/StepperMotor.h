@@ -20,7 +20,7 @@ class StepperMotor{
 
   private:
     int stepPin, dirPin, enablePin, speed, minSpeed, accelRate;
-    volatile int steps, currentStepDelayDuration, maxStepDelayDuration, stepDelayDuration;
+    volatile int steps, currentSpeed, stepsTarget, currentStepDelayDuration, maxStepDelayDuration;
     unsigned long stepRunTime;
     bool stepDelay, enableHIGH, motorInvert;
     void updateAcceleration();
@@ -37,7 +37,6 @@ StepperMotor::StepperMotor(int stepPin, int dirPin, int enablePin, int speed,
   setSpeed(speed);
   setMinSpeed(minSpeed);
   steps = 0;
-  stepDelay = false;
   currentStepDelayDuration = maxStepDelayDuration;
   
 }
@@ -53,65 +52,60 @@ void StepperMotor::begin(){
 bool StepperMotor::step(unsigned long elapsedMicros, bool contMove){
   stepRunTime += elapsedMicros;
   if (steps > 0) {
-    if(!stepDelay) {
-      // TODO replace these with port manipulation
-      // digital write will take about 6us
       digitalWrite(stepPin, HIGH);
       delayMicroseconds(5);
       digitalWrite(stepPin, LOW);
-      if (!contMove)
+      if (!contMove){
         steps--;
-      stepDelay = true;
+      }
+      updateAcceleration();
+      delayMicroseconds(currentStepDelayDuration);
       return true;
     }
     else {
-      if(currentStepDelayDuration < stepRunTime){
-        stepRunTime = 0;
-        updateAcceleration();
-        stepDelay = false;
-      }
+      return false;
     }
-  }
-  return false;
 }
 
-//TODO - Needs Rework to prevent sawtooth behavior
 void StepperMotor::updateAcceleration(){
-  //update acceleration
-  if(steps * currentStepDelayDuration / accelRate < maxStepDelayDuration - currentStepDelayDuration){
-    //deceleration
-    if(currentStepDelayDuration < maxStepDelayDuration){
-      //currentStepDelayDuration += currentStepDelayDuration / accelRate;
-    }
-  }else if(currentStepDelayDuration > stepDelayDuration){
-    //acceleration  
-    currentStepDelayDuration -= (-(currentStepDelayDuration - maxStepDelayDuration) + stepDelayDuration) / accelRate;
+
+  int accelLength = (speed-minSpeed)/accelRate;
+  //If not going to reach top speed
+  if((stepsTarget-accelLength)<0){
+    accelLength = (stepsTarget/2);
   }
   
-  //constrain step delay
-  if(currentStepDelayDuration < stepDelayDuration) 
-    currentStepDelayDuration = stepDelayDuration;
-  else if (currentStepDelayDuration > maxStepDelayDuration)
-    currentStepDelayDuration = maxStepDelayDuration;
+  //Acceleration Region
+  if(steps > (stepsTarget-accelLength)){
+    currentSpeed += accelRate;
+  }
+  //Deceleration Region
+  else if(steps < accelLength){
+    currentSpeed -= accelRate;
+  }
+
+  currentStepDelayDuration = (long)1000000 / (long) currentSpeed;    
 }
 
 void StepperMotor::move(int stepsToMove){
-  steps = abs(stepsToMove);
+  steps = stepsTarget = abs(stepsToMove);
+  
+  //Set Direction of Motor
   digitalWrite(dirPin, (stepsToMove > 0) ^ motorInvert);
-  currentStepDelayDuration = maxStepDelayDuration;
+  //Set speed to min
+  currentSpeed = minSpeed;
 }
 
 //setters
 void StepperMotor::setSpeed(int speed){
   //speed in steps per second
   this->speed = speed;
-  stepDelayDuration = (long)1000000 / (long) speed;
 }
 
 void StepperMotor::setMinSpeed(int minSpeed){
   //speed in steps per second
   this->minSpeed = minSpeed;
-  maxStepDelayDuration = (long)1000000 / (long)minSpeed;
+  maxStepDelayDuration = (long)1000000 / (long) speed;
 }
 
 void StepperMotor::setAccelRate(int rate){

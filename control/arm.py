@@ -6,6 +6,7 @@
 
 import threading
 import time
+import json
 import requests
 from requests import Session
 
@@ -21,15 +22,24 @@ class Arm:
 
     debug = False
     logFilePath = "control/log.txt"
+    jointMaxRoation =[]
+    jointMaxSpeed = []
+    jointPosDefault = []
 
-    def __init__(self,ipAddress):
+    def __init__(self,ipAddress,config):
 
+        self.joints = 6
         self.logging = True
         self.baseURL = "http://"+ipAddress+":8080/"
         self.error = False
         self.timeout = 4 #Seconds
         self.pollingStatus = False
-        self.jointPositionMax = [350,190,190,350,180,350]
+
+        #Values loaded from 'config.json'
+        for joint in config["joints"]:
+            self.jointMaxRoation.append(joint["maxRotation"])
+            self.jointMaxSpeed.append(joint["defualtPosition"])
+            self.jointPosDefault.append(joint["maxSpeed"])
 
         #Status Flags
         self.jointPosition = [0,0,0,0,0,0]
@@ -135,8 +145,8 @@ class Arm:
 
     def move(self,motor,degrees):      
         #Check movement is within range allowed
-        if (self.jointPosition[motor]+degrees) > self.jointPositionMax[motor]:
-            degrees = self.jointPositionMax[motor] - (self.jointPosition[motor]+degrees)
+        if (self.jointMaxRoation[motor]+degrees) > self.jointMaxRoation[motor]:
+            degrees = self.jointMaxRoation[motor] - (self.jointMaxRoation[motor]+degrees)
 
         command = "m"+str(motor)+str(degrees)
         self.sendCommand(command)
@@ -155,12 +165,8 @@ class Arm:
         self.moveTo(5,155)
     
     def lieDown(self):
-        self.moveTo(0,180)
-        self.moveTo(1,150)
-        self.moveTo(2,170)
-        self.moveTo(3,165)
-        self.moveTo(4,90)
-        self.moveTo(5,155)
+        for i in range(0,self.joints):
+            self.moveTo(i,self.jointPosDefault[i])
 
     def speed(self,motor,speed):
         command = "s"+str(motor)+str(speed)

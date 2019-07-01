@@ -6,21 +6,20 @@
 
 from arm import Arm
 import time
+import json
+
+global config
 
 #Clear Log File
 open('control/log.txt', 'w').close()
 
+with open('control/config.json') as json_file:  
+    config = json.load(json_file)
+
 #Create instance of Arm class
 ip_address = "192.168.0.105"
-arm = Arm(ip_address)
+arm = Arm(ip_address,config)
 arm.reset()
-
-arm.speed(0,50)
-arm.speed(1,50)
-arm.speed(2,50)
-arm.speed(3,50)
-arm.speed(4,50)
-arm.speed(5,50)
 
 arm.calibrateArm()
 

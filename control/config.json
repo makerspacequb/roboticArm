@@ -1,0 +1,34 @@
+{
+    "joints":[
+        {
+            "maxRotation":350,
+            "defualtPosition":175,
+            "maxSpeed":500
+        },
+        {
+            "maxRotation":155,
+            "defualtPosition":44,
+            "maxSpeed":500
+        },
+        {
+            "maxRotation":255,
+            "defualtPosition":150,
+            "maxSpeed":500
+        },
+        {
+            "maxRotation":325,
+            "defualtPosition":162,
+            "maxSpeed":500
+        },
+        {
+            "maxRotation":210,
+            "defualtPosition":80,
+            "maxSpeed":500
+        },
+        {
+            "maxRotation":355,
+            "defualtPosition":178,
+            "maxSpeed":500
+        }
+    ]
+}

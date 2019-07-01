@@ -68,7 +68,7 @@
 #define J5_DEFAULT_POS 178
 
 //other constants
-#define STATUS_FREQ 1
+#define STATUS_FREQ 10
 #define TOTAL_JOINTS 6
 #define SWITCH_DEBOUNCE_LEN 5 // length of the debounce buffer
 #define BAUD_RATE 115200

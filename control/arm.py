@@ -156,15 +156,15 @@ class Arm:
 
         self.log("INFO: Joint "+str(motor)+" adjusted "+str(degrees)+" degrees.")
 
-    def standUp(self):
-        self.moveTo(0,180)
-        self.moveTo(1,42)
-        self.moveTo(2,150)
-        self.moveTo(3,170)
-        self.moveTo(4,90)
-        self.moveTo(5,155)
-    
     def lieDown(self):
+        self.moveTo(0,self.jointPosDefault[0])
+        self.moveTo(1,154)
+        self.moveTo(2,175)
+        self.moveTo(3,self.jointPosDefault[3])
+        self.moveTo(4,self.jointPosDefault[4])
+        self.moveTo(5,self.jointPosDefault[5])
+    
+    def standUp(self):
         for i in range(0,self.joints):
             self.moveTo(i,self.jointPosDefault[i])
 

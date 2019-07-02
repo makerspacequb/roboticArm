@@ -132,8 +132,11 @@ void Joint::moveTo(float targetPosition){
 bool Joint::calibrate(){
 
   int initialSpeed = speed;
+  int initialMinSpeed = minSpeed;
+  int speedDelta = 10;
   
   setSpeed(minSpeed);
+  setSpeed(minSpeed-speedDelta);
   
   int maxSteps = maxRotation * stepsPerDegree;
     
@@ -150,6 +153,7 @@ bool Joint::calibrate(){
   stepperMotor->move(0);
   positionSteps = 0;
   setSpeed(initialSpeed);
+  setMinSpeed(initialMinSpeed);
   
   if(limitSwitchActivated) {
     calibrating = true;

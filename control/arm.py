@@ -38,8 +38,8 @@ class Arm:
         #Values loaded from 'config.json'
         for joint in config["joints"]:
             self.jointMaxRoation.append(joint["maxRotation"])
-            self.jointMaxSpeed.append(joint["defualtPosition"])
-            self.jointPosDefault.append(joint["maxSpeed"])
+            self.jointMaxSpeed.append(joint["maxSpeed"])
+            self.jointPosDefault.append(joint["defaultPosition"])
 
         #Status Flags
         self.jointPosition = [0,0,0,0,0,0]
@@ -71,7 +71,6 @@ class Arm:
         print(logEntry)
     
     #Send and Receive Messages with implemented logging
-    @threaded
     def sendCommand(self, command):
 
         #Start Timing
@@ -101,10 +100,9 @@ class Arm:
     @threaded
     def getStatus(self):
         delay = 0.1 #Seconds
-        self.pollingStatus = True
-
+        
         while self.connected:
-
+            self.pollingStatus = True
             try:
                 message = self.baseURL + "getLatest"
                 response = self.session.get(message,timeout=self.timeout)
@@ -136,7 +134,7 @@ class Arm:
 
     def moveTo(self,motor,position):
 
-        if position > 0:
+        if (position > 0) and (position < self.jointMaxRoation[motor]):
             command = "p"+str(motor)+str(position)
             self.sendCommand(command)
 
@@ -157,16 +155,20 @@ class Arm:
         self.log("INFO: Joint "+str(motor)+" adjusted "+str(degrees)+" degrees.")
 
     def lieDown(self):
-        self.moveTo(0,self.jointPosDefault[0])
-        self.moveTo(1,154)
-        self.moveTo(2,175)
-        self.moveTo(3,self.jointPosDefault[3])
-        self.moveTo(4,self.jointPosDefault[4])
-        self.moveTo(5,self.jointPosDefault[5])
+        if self.armCalibrated:
+            self.log("INFO: Arm lying down.")
+            #self.moveTo(0,self.jointPosDefault[0])
+            self.moveTo(1,154)
+            self.moveTo(2,175)
+            #self.moveTo(3,self.jointPosDefault[3])
+            #self.moveTo(4,self.jointPosDefault[4])
+            #self.moveTo(5,self.jointPosDefault[5])
     
     def standUp(self):
-        for i in range(0,self.joints):
-            self.moveTo(i,self.jointPosDefault[i])
+        if self.armCalibrated:
+            self.log("INFO: Arm standing up.")
+            for i in range(0,self.joints):
+                self.moveTo(i,self.jointPosDefault[i])
 
     def speed(self,motor,speed):
         command = "s"+str(motor)+str(speed)
@@ -215,5 +217,5 @@ class Arm:
         for jointCalibrated in self.calibrationState:
             calibrated &= int(jointCalibrated)
         if(calibrated):
-            self.log("INFO: Arm is fully calibrated.")
+            self.log("INFO: Python recognises that arm is fully calibrated.")
         return calibrated

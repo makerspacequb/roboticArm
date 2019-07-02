@@ -1,0 +1,13 @@
+01/07/2019 18:00:28: INFO: Motor control box is not connected.
+01/07/2019 18:00:29: INFO: Motor control box connected to /dev/ttyUSB0.
+01/07/2019 18:00:31: INFO: Arm Reset.
+01/07/2019 18:00:31: 0,0,0,0,0
+01/07/2019 18:00:31: INFO: Arm is Currently Calibrating.
+01/07/2019 18:00:31: INFO: Calibrating joint 5.
+01/07/2019 18:00:31: INFO: Calibrating joint 4.
+01/07/2019 18:00:33: INFO: Calibration of joint 4 complete.
+01/07/2019 18:00:33: INFO: Calibrating joint 3.
+01/07/2019 18:00:39: INFO: Calibrating joint 2.
+01/07/2019 18:00:44: INFO: Calibrating joint 1.
+01/07/2019 18:00:45: INFO: Calibrating joint 0.
+01/07/2019 18:00:52: INFO: Arm not fully calibrated.

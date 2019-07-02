@@ -304,15 +304,16 @@ void moveJoint(int jointIndex, int value){
   if(!eStopActivated){
     if(!armCalibrated)
       Serial.println("WARNING: Motors are not calibrated. Calibrate with 'c' command.");
-    Serial.print("INFO: Moving motor ");
-    Serial.print(jointIndex);
-    Serial.print(", ");
-    Serial.print(value);
-    Serial.println(" degrees");
-    joints[jointIndex].move(value);
-  }
-  else
+      Serial.print("INFO: Moving motor ");
+      Serial.print(jointIndex);
+      Serial.print(", ");
+      Serial.print(value);
+      Serial.println(" degrees");
+      joints[jointIndex].move(value);
+    }
+  else{
     Serial.println("WARNING: Movement Disabled. Reset with 'r' to continue.");
+  }
 }
 
 void moveJointTo(int jointIndex, int value){
@@ -325,15 +326,17 @@ void moveJointTo(int jointIndex, int value){
       Serial.println(" degrees");
       joints[jointIndex].moveTo(value);
     } 
-    else
+    else{
       Serial.print("WARNING: Joint ");
       Serial.print(jointIndex);
       Serial.print(" is not calibrated. Calibrate with 'c");
       Serial.print(jointIndex);
       Serial.println("' command.");
+    }
   }
-  else
+  else{
     Serial.println("WARNING: Movement Disabled. Reset with 'r' to continue.");
+  }
 }
 
 void sendStatus(){

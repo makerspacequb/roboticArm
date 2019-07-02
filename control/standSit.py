@@ -22,20 +22,23 @@ arm = Arm(ip_address,config)
 arm.reset()
 
 arm.calibrateArm()
+time.sleep(30)
 
 while(arm.armCalibrated() == False):
     time.sleep(1)
 
 while arm.connected:
-    
-    arm.standUp()
+        
+    while(arm.checkMovement()):
+        time.sleep(1)
 
+    arm.standUp()
+    time.sleep(10)
+    
     while(arm.checkMovement()):
         time.sleep(1)
 
     arm.lieDown()
-
-    while(arm.checkMovement()):
-        time.sleep(1)
+    time.sleep(10)
     
 arm.stop()

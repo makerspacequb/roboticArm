@@ -37,6 +37,7 @@ StepperMotor::StepperMotor(int stepPin, int dirPin, int enablePin, int speed,
   setSpeed(speed);
   setMinSpeed(minSpeed);
   steps = 0;
+  stepRunTime = 0;
   currentStepDelayDuration = maxStepDelayDuration;
   
 }
@@ -50,21 +51,32 @@ void StepperMotor::begin(){
 }
 
 bool StepperMotor::step(unsigned long elapsedMicros, bool contMove){
+  bool stepped = false;
   stepRunTime += elapsedMicros;
-  if (steps > 0) {
+  if (steps > 0){
+    if(!stepDelay){
       digitalWrite(stepPin, HIGH);
       delayMicroseconds(5);
       digitalWrite(stepPin, LOW);
-      if (!contMove){
+      if(!contMove){
+        stepDelay = true;
         steps--;
+        }
+      stepped = true;
+    }
+    else{
+      if((stepRunTime-18) > currentStepDelayDuration){
+        stepRunTime = 0;
+        updateAcceleration();  
+        stepDelay = false;
       }
-      updateAcceleration();
-      delayMicroseconds(currentStepDelayDuration);
-      return true;
+      stepped = false;
+      }
+  }
+  else {
+    stepped = false;
     }
-    else {
-      return false;
-    }
+  return stepped;
 }
 
 void StepperMotor::updateAcceleration(){

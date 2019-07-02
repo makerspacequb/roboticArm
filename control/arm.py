@@ -72,10 +72,11 @@ class Arm:
     
     #Send and Receive Messages with implemented logging
     def sendCommand(self, command):
-
+        
+        #Clean Input
+        command = command.replace(' ','')
         #Start Timing
         start = time.time()
-
         #combine with host address
         message = self.baseURL + "send?command=" + command
         
@@ -94,12 +95,12 @@ class Arm:
                 self.session.get(message,timeout=self.timeout)
             self.connected = True
         except:
-            self.log("ERROR = Could not access API")
+            self.log("ERROR: Could not access API")
             self.connected = False
 
     @threaded
     def getStatus(self):
-        delay = 0.1 #Seconds
+        delay = 0.2 #Seconds
         
         while self.connected:
             self.pollingStatus = True
@@ -128,7 +129,8 @@ class Arm:
                     self.log(status[0])
 
             except:     
-                time.sleep(delay)
+                self.log("INFO: Did not receive status response from API.")
+            time.sleep(delay)
         
         self.pollingStatus = False
 
@@ -138,8 +140,10 @@ class Arm:
             command = "p"+str(motor)+str(position)
             self.sendCommand(command)
 
-        #Log the move
-        self.log("INFO: Joint "+str(motor)+" moved to "+str(position)+" degrees.")
+            #Log the move
+            self.log("INFO: Joint "+str(motor)+" moved to "+str(position)+" degrees.")
+        else:
+            self.log("ERROR: Positon out of range.")
 
     def move(self,motor,degrees):      
         #Check movement is within range allowed
@@ -149,20 +153,17 @@ class Arm:
         command = "m"+str(motor)+str(degrees)
         self.sendCommand(command)
 
-        #Update joint positions
-        self.jointPosition[motor] = self.jointPosition[motor]+degrees
-
-        self.log("INFO: Joint "+str(motor)+" adjusted "+str(degrees)+" degrees.")
+        self.log("INFO: Command sent to adjust motor "+str(motor)+" "+str(degrees)+" degrees.")
 
     def lieDown(self):
         if self.armCalibrated:
             self.log("INFO: Arm lying down.")
-            #self.moveTo(0,self.jointPosDefault[0])
+            self.moveTo(0,self.jointPosDefault[0])
             self.moveTo(1,154)
             self.moveTo(2,175)
-            #self.moveTo(3,self.jointPosDefault[3])
-            #self.moveTo(4,self.jointPosDefault[4])
-            #self.moveTo(5,self.jointPosDefault[5])
+            self.moveTo(3,self.jointPosDefault[3])
+            self.moveTo(4,self.jointPosDefault[4])
+            self.moveTo(5,self.jointPosDefault[5])
     
     def standUp(self):
         if self.armCalibrated:

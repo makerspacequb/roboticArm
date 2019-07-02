@@ -10,7 +10,7 @@ import serial
 import time
 import os
 
-SerialPort = '/dev/ttyUSB0'
+SerialPort = /dev/ttyUSB0'
 Baudrate = 115200
 SerialMonitorLines = 20
 
@@ -80,10 +80,11 @@ try:
                     log.write(currentDateTime+","+command+"\n")
 
                 #Write Command Passed to Serial Port
-                self.serial.reset_output_buffer()
-                payload = (str(command)+"\n").encode()
+                #self.serial.reset_output_buffer()
+                payload = (command+"\n").encode('utf-8')
+                print("DEBUG: "+payload)
                 self.serial.write(payload)
-                
+
                 status = currentDateTime + " - INFO: '" + command + "' sent succesfully."
 
             except:
@@ -122,7 +123,7 @@ try:
                         self.serialMonitorData.pop(0)
                         self.serialMonitorData.append(logLine)        
 
-                        print(logLine)
+                        #print(logLine)
                 except:
                     self.connected = False
                     currentDateTime = time.strftime("%d/%m/%Y %H:%M:%S")

@@ -1,13 +1,121 @@
-01/07/2019 18:00:28: INFO: Motor control box is not connected.
-01/07/2019 18:00:29: INFO: Motor control box connected to /dev/ttyUSB0.
-01/07/2019 18:00:31: INFO: Arm Reset.
-01/07/2019 18:00:31: 0,0,0,0,0
-01/07/2019 18:00:31: INFO: Arm is Currently Calibrating.
-01/07/2019 18:00:31: INFO: Calibrating joint 5.
-01/07/2019 18:00:31: INFO: Calibrating joint 4.
-01/07/2019 18:00:33: INFO: Calibration of joint 4 complete.
-01/07/2019 18:00:33: INFO: Calibrating joint 3.
-01/07/2019 18:00:39: INFO: Calibrating joint 2.
-01/07/2019 18:00:44: INFO: Calibrating joint 1.
-01/07/2019 18:00:45: INFO: Calibrating joint 0.
-01/07/2019 18:00:52: INFO: Arm not fully calibrated.
+02/07/2019 19:23:49: INFO: Motor control box disconnected.
+02/07/2019 19:23:49: INFO: Motor control box connected to /dev/ttyUSB0.
+02/07/2019 19:23:50: INFO: Setup Complete.
+02/07/2019 19:23:51: INFO: Arm Reset.
+02/07/2019 19:23:51: INFO: Arm is Currently Calibrating.
+02/07/2019 19:23:51: INFO: Calibrating joint 5.
+02/07/2019 19:23:53: INFO: Calibrating joint 4.
+02/07/2019 19:23:55: INFO: Calibrating joint 3.
+02/07/2019 19:23:57: INFO: Calibrating joint 2.
+02/07/2019 19:24:04: INFO: Calibrating joint 1.
+02/07/2019 19:24:06: INFO: Calibrating joint 0.
+02/07/2019 19:24:21: INFO: Python recognises that arm is fully calibrated.
+02/07/2019 19:24:21: INFO: Arm standing up.
+02/07/2019 19:24:21: INFO: Joint 0 moved to 175 degrees.
+02/07/2019 19:24:21: INFO: Joint 1 moved to 44 degrees.
+02/07/2019 19:24:21: INFO: Joint 2 moved to 150 degrees.
+02/07/2019 19:24:21: INFO: Joint 3 moved to 162 degrees.
+02/07/2019 19:24:21: INFO: Joint 4 moved to 80 degrees.
+02/07/2019 19:24:21: INFO: Joint 5 moved to 178 degrees.
+02/07/2019 19:24:31: INFO: Arm lying down.
+02/07/2019 19:24:31: INFO: Joint 0 moved to 175 degrees.
+02/07/2019 19:24:31: INFO: Joint 1 moved to 154 degrees.
+02/07/2019 19:24:31: INFO: Joint 2 moved to 175 degrees.
+02/07/2019 19:24:31: INFO: Joint 3 moved to 162 degrees.
+02/07/2019 19:24:31: INFO: Joint 4 moved to 80 degrees.
+02/07/2019 19:24:31: INFO: Joint 5 moved to 178 degrees.
+02/07/2019 19:24:42: INFO: Arm standing up.
+02/07/2019 19:24:42: INFO: Joint 0 moved to 175 degrees.
+02/07/2019 19:24:42: INFO: Joint 1 moved to 44 degrees.
+02/07/2019 19:24:42: INFO: Joint 2 moved to 150 degrees.
+02/07/2019 19:24:42: INFO: Joint 3 moved to 162 degrees.
+02/07/2019 19:24:42: INFO: Joint 4 moved to 80 degrees.
+02/07/2019 19:24:42: INFO: Joint 5 moved to 178 degrees.
+02/07/2019 19:24:52: INFO: Arm lying down.
+02/07/2019 19:24:52: INFO: Joint 0 moved to 175 degrees.
+02/07/2019 19:24:52: INFO: Joint 1 moved to 154 degrees.
+02/07/2019 19:24:52: INFO: Joint 2 moved to 175 degrees.
+02/07/2019 19:24:52: INFO: Joint 3 moved to 162 degrees.
+02/07/2019 19:24:52: INFO: Joint 4 moved to 80 degrees.
+02/07/2019 19:24:52: INFO: Moving motor 2 to position 175 degrees
+02/07/2019 19:24:52: INFO: Joint 5 moved to 178 degrees.
+02/07/2019 19:24:54: INFO: Moving motor 5 to position 178 degrees
+02/07/2019 19:25:02: INFO: Arm standing up.
+02/07/2019 19:25:02: INFO: Joint 0 moved to 175 degrees.
+02/07/2019 19:25:02: INFO: Joint 1 moved to 44 degrees.
+02/07/2019 19:25:02: INFO: Joint 2 moved to 150 degrees.
+02/07/2019 19:25:02: INFO: Joint 3 moved to 162 degrees.
+02/07/2019 19:25:02: INFO: Joint 4 moved to 80 degrees.
+02/07/2019 19:25:02: INFO: Joint 5 moved to 178 degrees.
+02/07/2019 19:25:02: INFO: Moving motor 2 to position 150 degrees
+02/07/2019 19:25:03: INFO: Moving motor 4 to position 0 degrees
+02/07/2019 19:25:04: INFO: Moving motor 5 to position 78 degrees
+02/07/2019 19:25:12: INFO: Arm lying down.
+02/07/2019 19:25:12: INFO: Joint 0 moved to 175 degrees.
+02/07/2019 19:25:12: INFO: Joint 1 moved to 154 degrees.
+02/07/2019 19:25:12: INFO: Joint 2 moved to 175 degrees.
+02/07/2019 19:25:12: INFO: Joint 3 moved to 162 degrees.
+02/07/2019 19:25:12: INFO: Joint 4 moved to 80 degrees.
+02/07/2019 19:25:13: INFO: Joint 5 moved to 178 degrees.
+02/07/2019 19:25:14: INFO: Moving motor 5 to position 0 degrees
+02/07/2019 19:25:23: INFO: Arm standing up.
+02/07/2019 19:25:23: INFO: Joint 0 moved to 175 degrees.
+02/07/2019 19:25:23: INFO: Joint 1 moved to 44 degrees.
+02/07/2019 19:25:23: INFO: Joint 2 moved to 150 degrees.
+02/07/2019 19:25:23: INFO: Joint 3 moved to 162 degrees.
+02/07/2019 19:25:23: INFO: Joint 4 moved to 80 degrees.
+02/07/2019 19:25:23: INFO: Joint 5 moved to 178 degrees.
+02/07/2019 19:25:25: INFO: Moving motor 4 to position 0 degrees
+02/07/2019 19:25:33: INFO: Arm lying down.
+02/07/2019 19:25:33: INFO: Joint 0 moved to 175 degrees.
+02/07/2019 19:25:33: INFO: Joint 1 moved to 154 degrees.
+02/07/2019 19:25:33: INFO: Joint 2 moved to 175 degrees.
+02/07/2019 19:25:33: INFO: Joint 3 moved to 162 degrees.
+02/07/2019 19:25:33: INFO: Joint 4 moved to 80 degrees.
+02/07/2019 19:25:33: INFO: Joint 5 moved to 178 degrees.
+02/07/2019 19:25:43: INFO: Arm standing up.
+02/07/2019 19:25:43: INFO: Joint 0 moved to 175 degrees.
+02/07/2019 19:25:43: INFO: Joint 1 moved to 44 degrees.
+02/07/2019 19:25:43: INFO: Joint 2 moved to 150 degrees.
+02/07/2019 19:25:43: INFO: Joint 3 moved to 162 degrees.
+02/07/2019 19:25:43: INFO: Joint 4 moved to 80 degrees.
+02/07/2019 19:25:43: INFO: Joint 5 moved to 178 degrees.
+02/07/2019 19:25:44: INFO: Moving motor 3 to position 2 degrees
+02/07/2019 19:25:53: INFO: Arm lying down.
+02/07/2019 19:25:53: INFO: Joint 0 moved to 175 degrees.
+02/07/2019 19:25:53: INFO: Joint 1 moved to 154 degrees.
+02/07/2019 19:25:53: INFO: Joint 2 moved to 175 degrees.
+02/07/2019 19:25:53: INFO: Joint 3 moved to 162 degrees.
+02/07/2019 19:25:53: INFO: Joint 4 moved to 80 degrees.
+02/07/2019 19:25:53: INFO: Joint 5 moved to 178 degrees.
+02/07/2019 19:25:54: INFO: Moving motor 3 to position 162 degrees
+02/07/2019 19:25:55: INFO: Moving motor 4 to position 8 degrees
+02/07/2019 19:26:03: INFO: Arm standing up.
+02/07/2019 19:26:03: INFO: Joint 0 moved to 175 degrees.
+02/07/2019 19:26:04: INFO: Joint 1 moved to 44 degrees.
+02/07/2019 19:26:04: INFO: Joint 2 moved to 150 degrees.
+02/07/2019 19:26:04: INFO: Joint 3 moved to 162 degrees.
+02/07/2019 19:26:04: INFO: Joint 4 moved to 80 degrees.
+02/07/2019 19:26:04: INFO: Joint 5 moved to 178 degrees.
+02/07/2019 19:26:04: INFO: Moving motor 3 to position 162 degrees
+02/07/2019 19:26:05: INFO: Moving motor 5 to position 78 degrees
+02/07/2019 19:26:14: INFO: Arm lying down.
+02/07/2019 19:26:14: INFO: Joint 0 moved to 175 degrees.
+02/07/2019 19:26:14: INFO: Joint 1 moved to 154 degrees.
+02/07/2019 19:26:14: INFO: Joint 2 moved to 175 degrees.
+02/07/2019 19:26:14: INFO: Joint 3 moved to 162 degrees.
+02/07/2019 19:26:14: INFO: Joint 4 moved to 80 degrees.
+02/07/2019 19:26:14: INFO: Joint 5 moved to 178 degrees.
+02/07/2019 19:26:15: INFO: Moving motor 3 to position 16 degrees
+02/07/2019 19:26:24: INFO: Arm standing up.
+02/07/2019 19:26:24: INFO: Joint 0 moved to 175 degrees.
+02/07/2019 19:26:24: INFO: Joint 1 moved to 44 degrees.
+02/07/2019 19:26:24: INFO: Joint 2 moved to 150 degrees.
+02/07/2019 19:26:24: WARNING: Movement Disabled. Reset with 'r' to continue.
+02/07/2019 19:26:24: INFO: Joint 3 moved to 162 degrees.
+02/07/2019 19:26:24: INFO: Joint 4 moved to 80 degrees.
+02/07/2019 19:26:24: INFO: Joint 5 moved to 178 degrees.
+02/07/2019 19:26:34: INFO: Arm lying down.
+02/07/2019 19:26:37: INFO: Did not receive status response from API.
+02/07/2019 19:26:38: ERROR: Could not access API
+02/07/2019 19:26:38: INFO: Joint 0 moved to 175 degrees.

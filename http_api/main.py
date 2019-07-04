@@ -80,19 +80,12 @@ try:
                     log.write(currentDateTime+","+command+"\n")
 
                 #Write Command Passed to Serial Port
-<<<<<<< HEAD
                 self.serial.reset_output_buffer()
                 #payload = (str(command)+"\n").encode()
                 payload = str(command+"\n")
                 self.serial.write(payload)
                 self.serial.flush()
                 
-=======
-                #self.serial.reset_output_buffer()
-                payload = (command+"\n").encode('utf-8')
-                self.serial.write(payload)
-
->>>>>>> 83affc80762cadc208b560546b3a0cefd5531b2c
                 status = currentDateTime + " - INFO: '" + command + "' sent succesfully."
 
             except:

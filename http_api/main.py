@@ -80,12 +80,19 @@ try:
                     log.write(currentDateTime+","+command+"\n")
 
                 #Write Command Passed to Serial Port
+<<<<<<< HEAD
                 self.serial.reset_output_buffer()
                 #payload = (str(command)+"\n").encode()
                 payload = str(command+"\n")
                 self.serial.write(payload)
                 self.serial.flush()
                 
+=======
+                #self.serial.reset_output_buffer()
+                payload = (command+"\n").encode('utf-8')
+                self.serial.write(payload)
+
+>>>>>>> 83affc80762cadc208b560546b3a0cefd5531b2c
                 status = currentDateTime + " - INFO: '" + command + "' sent succesfully."
 
             except:
@@ -124,7 +131,7 @@ try:
                         self.serialMonitorData.pop(0)
                         self.serialMonitorData.append(logLine)        
 
-                        print(logLine)
+                        #print(logLine)
                 except:
                     self.connected = False
                     currentDateTime = time.strftime("%d/%m/%Y %H:%M:%S")
@@ -177,7 +184,9 @@ try:
                         parity=serial.PARITY_NONE,
                         stopbits=serial.STOPBITS_ONE,
                         bytesize=serial.EIGHTBITS,
-                        timeout=0.1
+                        write_timeout = 0.05,
+                        timeout=0.05,
+                        inter_byte_timeout = 0.1
                         )
                     self.connected = True
                     self.receive()

@@ -76,7 +76,6 @@ void setup() {
 
 void loop() {
   readSerial();
-
   //Send Status Message at Configured Frequency
   if((millis()-statusTime) > statusDelay){
     sendStatus();

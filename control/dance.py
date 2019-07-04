@@ -6,9 +6,20 @@
 
 from arm import Arm
 import time
+import json
 
-ip_address = "192.168.0.101"
-arm = Arm(ip_address)
+#Clear Log File
+open('control/log.txt', 'w').close()
+
+with open('control/config.json') as json_file:  
+    config = json.load(json_file)
+
+ip_address = "192.168.0.105"
+arm = Arm(ip_address,config)
+
+arm.calibrateArm()
+while(arm.armCalibrated() == False):
+    time.sleep(1)
 
 angle = 45
 
@@ -27,13 +38,15 @@ while arm.connected:
     arm.move(4,angle)
     arm.move(5,angle)
     
-    time.sleep(3)
+    time.sleep(5)
+
     arm.move(0,-angle)
     arm.move(1,-angle)
     arm.move(2,-angle)
     arm.move(3,-angle)
     arm.move(4,-angle)
     arm.move(5,-angle)
-    time.sleep(3)
+
+    time.sleep(5)
     
 arm.stop()

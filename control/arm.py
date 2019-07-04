@@ -8,6 +8,7 @@ import threading
 import time
 import json
 import requests
+import random
 from requests import Session
 
 #define threading wrapper
@@ -72,10 +73,11 @@ class Arm:
     
     #Send and Receive Messages with implemented logging
     def sendCommand(self, command):
-
+        
+        #Clean Input
+        command = command.replace(' ','')
         #Start Timing
         start = time.time()
-
         #combine with host address
         message = self.baseURL + "send?command=" + command
         
@@ -94,12 +96,12 @@ class Arm:
                 self.session.get(message,timeout=self.timeout)
             self.connected = True
         except:
-            self.log("ERROR = Could not access API")
+            self.log("ERROR: Could not access API")
             self.connected = False
 
     @threaded
     def getStatus(self):
-        delay = 0.1 #Seconds
+        delay = 0.2 #Seconds
         
         while self.connected:
             self.pollingStatus = True
@@ -128,20 +130,23 @@ class Arm:
                     self.log(status[0])
 
             except:     
-                time.sleep(delay)
+                self.log("INFO: Did not receive status response from API.")
+            time.sleep(delay)
         
         self.pollingStatus = False
 
-    def moveTo(self,motor,position):
+    def moveJointTo(self,motor,position):
 
         if (position > 0) and (position < self.jointMaxRoation[motor]):
             command = "p"+str(motor)+str(position)
             self.sendCommand(command)
 
-        #Log the move
-        self.log("INFO: Joint "+str(motor)+" moved to "+str(position)+" degrees.")
+            #Log the move
+            self.log("INFO: Joint "+str(motor)+" moved to "+str(position)+" degrees.")
+        else:
+            self.log("ERROR: Positon out of range.")
 
-    def move(self,motor,degrees):      
+    def moveJoint(self,motor,degrees):      
         #Check movement is within range allowed
         if (self.jointMaxRoation[motor]+degrees) > self.jointMaxRoation[motor]:
             degrees = self.jointMaxRoation[motor] - (self.jointMaxRoation[motor]+degrees)
@@ -149,26 +154,32 @@ class Arm:
         command = "m"+str(motor)+str(degrees)
         self.sendCommand(command)
 
-        #Update joint positions
-        self.jointPosition[motor] = self.jointPosition[motor]+degrees
+        self.log("INFO: Command sent to adjust motor "+str(motor)+" "+str(degrees)+" degrees.")
+    
+    def positionJoints(self,positions):
+        
+        if len(positions) == self.joints:
+            motor = 0
+            for position in positions:
+                self.moveJoint(motor,position)
+                motor += 1
+        else:
+            self.log("ERROR: Invalid Joint Positions.")
 
-        self.log("INFO: Joint "+str(motor)+" adjusted "+str(degrees)+" degrees.")
-
-    def lieDown(self):
+    def rest(self):
         if self.armCalibrated:
             self.log("INFO: Arm lying down.")
-            #self.moveTo(0,self.jointPosDefault[0])
-            self.moveTo(1,154)
-            self.moveTo(2,175)
-            #self.moveTo(3,self.jointPosDefault[3])
-            #self.moveTo(4,self.jointPosDefault[4])
-            #self.moveTo(5,self.jointPosDefault[5])
+            self.moveJointTo(0,self.jointPosDefault[0])
+            self.moveJointTo(1,154)
+            self.moveJointTo(2,175)
+            self.moveJointTo(3,self.jointPosDefault[3])
+            self.moveJointTo(4,self.jointPosDefault[4])
+            self.moveJointTo(5,self.jointPosDefault[5])
     
     def standUp(self):
         if self.armCalibrated:
             self.log("INFO: Arm standing up.")
-            for i in range(0,self.joints):
-                self.moveTo(i,self.jointPosDefault[i])
+            self.positionJoints(self.jointPosDefault)
 
     def speed(self,motor,speed):
         command = "s"+str(motor)+str(speed)
@@ -192,7 +203,11 @@ class Arm:
     def checkConnection(self):
         self.sendCommand("test")
         self.log("INFO: Testing the connection.")
-  
+    
+    def selectRandomPosition(self,motor):
+        randomPosition = random.randint(0,self.jointMaxRoation[motor])
+        return randomPosition
+
     def checkMovement(self):
         moving = True
         for jointMoving in self.movementFlag:

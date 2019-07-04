@@ -1,4 +1,4 @@
-#NAME: standSit.py
+#NAME: test.py
 #DATE: 14/06/2019
 #AUTH: Ryan McCartney
 #DESC: Python script moving the AR2 between upright and resting
@@ -28,16 +28,11 @@ while((not arm.armCalibrated()) or(arm.checkMovement())):
 
 while arm.connected:
         
-    while(arm.checkMovement()):
-        time.sleep(2)
-
-    arm.standUp()
-    time.sleep(20)
+    arm.moveJointTo(0,300)
 
     while(arm.checkMovement()):
-        time.sleep(20)
+        time.sleep(1)
 
-    arm.rest()
-    time.sleep(2)
+    arm.moveJointTo(0,320)
     
 arm.stop()

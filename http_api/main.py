@@ -81,8 +81,10 @@ try:
 
                 #Write Command Passed to Serial Port
                 self.serial.reset_output_buffer()
-                payload = (str(command)+"\n").encode()
+                #payload = (str(command)+"\n").encode()
+                payload = str(command+"\n")
                 self.serial.write(payload)
+                self.serial.flush()
                 
                 status = currentDateTime + " - INFO: '" + command + "' sent succesfully."
 

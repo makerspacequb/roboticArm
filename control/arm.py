@@ -8,6 +8,7 @@ import threading
 import time
 import json
 import requests
+import random
 from requests import Session
 
 #define threading wrapper
@@ -134,7 +135,7 @@ class Arm:
         
         self.pollingStatus = False
 
-    def moveTo(self,motor,position):
+    def moveJointTo(self,motor,position):
 
         if (position > 0) and (position < self.jointMaxRoation[motor]):
             command = "p"+str(motor)+str(position)
@@ -145,7 +146,7 @@ class Arm:
         else:
             self.log("ERROR: Positon out of range.")
 
-    def move(self,motor,degrees):      
+    def moveJoint(self,motor,degrees):      
         #Check movement is within range allowed
         if (self.jointMaxRoation[motor]+degrees) > self.jointMaxRoation[motor]:
             degrees = self.jointMaxRoation[motor] - (self.jointMaxRoation[motor]+degrees)
@@ -154,22 +155,31 @@ class Arm:
         self.sendCommand(command)
 
         self.log("INFO: Command sent to adjust motor "+str(motor)+" "+str(degrees)+" degrees.")
+    
+    def positionJoints(self,positions):
+        
+        if len(positions) == self.joints:
+            motor = 0
+            for position in positions:
+                self.moveJoint(motor,position)
+                motor += 1
+        else:
+            self.log("ERROR: Invalid Joint Positions.")
 
-    def lieDown(self):
+    def rest(self):
         if self.armCalibrated:
             self.log("INFO: Arm lying down.")
-            self.moveTo(0,self.jointPosDefault[0])
-            self.moveTo(1,154)
-            self.moveTo(2,175)
-            self.moveTo(3,self.jointPosDefault[3])
-            self.moveTo(4,self.jointPosDefault[4])
-            self.moveTo(5,self.jointPosDefault[5])
+            self.moveJointTo(0,self.jointPosDefault[0])
+            self.moveJointTo(1,154)
+            self.moveJointTo(2,175)
+            self.moveJointTo(3,self.jointPosDefault[3])
+            self.moveJointTo(4,self.jointPosDefault[4])
+            self.moveJointTo(5,self.jointPosDefault[5])
     
     def standUp(self):
         if self.armCalibrated:
             self.log("INFO: Arm standing up.")
-            for i in range(0,self.joints):
-                self.moveTo(i,self.jointPosDefault[i])
+            self.positionJoints(self.jointPosDefault)
 
     def speed(self,motor,speed):
         command = "s"+str(motor)+str(speed)
@@ -193,7 +203,11 @@ class Arm:
     def checkConnection(self):
         self.sendCommand("test")
         self.log("INFO: Testing the connection.")
-  
+    
+    def selectRandomPosition(self,motor):
+        randomPosition = random.randint(0,self.jointMaxRoation[motor])
+        return randomPosition
+
     def checkMovement(self):
         moving = True
         for jointMoving in self.movementFlag:

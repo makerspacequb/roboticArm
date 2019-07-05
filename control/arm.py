@@ -10,6 +10,7 @@ import json
 import requests
 import random
 from requests import Session
+from kinematics import Kinematic
 
 #define threading wrapper
 def threaded(fn):
@@ -22,7 +23,7 @@ def threaded(fn):
 class Arm:
 
     debug = False
-    logFilePath = "control/log.txt"
+    logFilePath = "logs/log.txt"
     header = {'User-Agent':'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2272.101 Safari/537.36'}
     jointMaxRoation =[]
     jointMaxSpeed = []
@@ -55,6 +56,9 @@ class Arm:
         except:
             self.log("ERROR: Cannot create a session.")
             self.connected = False
+
+        #Open a solver for kinematics
+        self.kin = Kinematic()
         #Start capturing status packets
         self.getStatus()
 
@@ -120,7 +124,10 @@ class Arm:
                         self.calibrationState = list(map(int,data[1:]))
                     elif(status[0].find("POSITION") != -1):
                         data = status[0].split(",")
-                        self.jointPosition = data[1:]
+                        try:
+                            self.jointPosition = list(map(float,data[1:]))
+                        except:
+                            pass
                     elif(status[0].find("SWITCH") != -1):
                         data = status[0].split(",")
                         self.switchState = list(map(int,data[1:]))
@@ -155,7 +162,14 @@ class Arm:
 
         self.log("INFO: Command sent to adjust motor "+str(motor)+" "+str(degrees)+" degrees.")
 
-    def getPosition(self,motor):
+    def getPose(self):
+        pose = self.kin.forwardKinematics(self.jointPosition)
+        return pose
+
+    def getPositions(self):
+        return self.jointPosition 
+
+    def getJointPosition(self,motor):
         position = float(self.jointPosition[motor])
         return position 
 
@@ -173,7 +187,7 @@ class Arm:
         if self.armCalibrated:
             self.log("INFO: Arm lying down.")
             self.moveJointTo(0,self.jointPosDefault[0])
-            self.moveJointTo(1,154)
+            self.moveJointTo(1,150)
             self.moveJointTo(2,175)
             self.moveJointTo(3,self.jointPosDefault[3])
             self.moveJointTo(4,self.jointPosDefault[4])

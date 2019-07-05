@@ -8,15 +8,16 @@
 
 class Joint{
   public:
-    Joint(int stepPin, int dirPin, int enablePin, int stepsPerDegree, int speed, int minSpeed, 
+    Joint(int stepPin, volatile uint8_t *stepPort, uint8_t stepByte, int dirPin, int enablePin, int stepsPerDegree, int speed, int minSpeed, 
           int accelRate, bool enableHIGH, int switchPin, volatile uint8_t *switchPort, uint8_t switchByte, int maxRotation, bool motorInvert, int defaultPos);
     void move(float degrees);
     void moveTo(float targetPosition);
     bool calibrate();
-    void update(unsigned long elapsedMicros);
+    void update(unsigned int elapsedMicros);
     bool checkLimitSwitch(){ return limitSwitchActivated; };
     bool checkMovement() { return movementFlag; };
     bool checkCalibration(){ return isCalibrated; };
+    void resetCalibration(){ isCalibrated = false; };
     void resetLimitSwitch(){ limitSwitchActivated = false; };
     float getPosDegrees(){ return positionSteps/stepsPerDegree; };
     volatile int positionSteps = 0; 
@@ -42,11 +43,11 @@ class Joint{
     uint8_t switchByte;
 };
 
-Joint::Joint(int stepPin, int dirPin, int enablePin, int stepsPerDegree, int speed, int minSpeed, 
+Joint::Joint(int stepPin, volatile uint8_t *stepPort, uint8_t stepByte, int dirPin, int enablePin, int stepsPerDegree, int speed, int minSpeed, 
              int accelRate, bool enableHIGH, int switchPin, volatile uint8_t *switchPort, uint8_t switchByte, int maxRotation, bool motorInvert, int defaultPos){
   int speedStepsPerSec = speed * stepsPerDegree;
   int minSpeedStepsPerSec = minSpeed * stepsPerDegree;
-	stepperMotor = new StepperMotor(stepPin, dirPin, enablePin, speedStepsPerSec, minSpeedStepsPerSec, accelRate, enableHIGH, motorInvert);
+	stepperMotor = new StepperMotor(stepPin, stepPort, stepByte, dirPin, enablePin, speedStepsPerSec, minSpeedStepsPerSec, accelRate, enableHIGH, motorInvert);
 	this->switchPin = switchPin;
   this->maxRotation = maxRotation;
   this->stepsPerDegree = stepsPerDegree;
@@ -66,7 +67,7 @@ void Joint::begin(){
   stepperMotor->begin();
 }
 
-void Joint::update(unsigned long elapsedMicros){
+void Joint::update(unsigned int elapsedMicros){
 
   if(stepperMotor->getSteps() > 0){
     movementFlag = true;
@@ -79,9 +80,8 @@ void Joint::update(unsigned long elapsedMicros){
   if (stepperMotor->step(elapsedMicros, contMoveFlag)){
     positionSteps += movDir;
   }
-  
+
   //Poll switch
-  // TODO change to port manipulation for better performance
   switchBuffer &= !(*switchPort & switchByte);
   bufferPos++;
 
@@ -90,7 +90,7 @@ void Joint::update(unsigned long elapsedMicros){
     switchState = switchBuffer;
     switchBuffer = true;
     bufferPos = 0;
-
+  
     //First Time Switch Detected Activated
     if(switchState && !limitSwitchActivated && !calibrating){
       //Stop movement 
@@ -115,7 +115,6 @@ void Joint::move(float degrees){
 
   int steps = degrees * stepsPerDegree;
 
-  // TODO consider effect of calibration
   if(((positionSteps + steps) >= 0) && ((positionSteps + steps) <= (maxRotation*stepsPerDegree)))
     stepperMotor->move(steps);
   else {

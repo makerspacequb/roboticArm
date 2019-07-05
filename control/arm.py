@@ -23,6 +23,7 @@ class Arm:
 
     debug = False
     logFilePath = "control/log.txt"
+    header = {'User-Agent':'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2272.101 Safari/537.36'}
     jointMaxRoation =[]
     jointMaxSpeed = []
     jointPosDefault = []
@@ -33,7 +34,7 @@ class Arm:
         self.logging = True
         self.baseURL = "http://"+ipAddress+":8080/"
         self.error = False
-        self.timeout = 4 #Seconds
+        self.timeout = 2 #Seconds
         self.pollingStatus = False
 
         #Values loaded from 'config.json'
@@ -74,13 +75,11 @@ class Arm:
     #Send and Receive Messages with implemented logging
     def sendCommand(self, command):
         
-        #Clean Input
-        command = command.replace(' ','')
         #Start Timing
         start = time.time()
         #combine with host address
         message = self.baseURL + "send?command=" + command
-        
+        message = message.encode('ascii')
         if self.pollingStatus == False:
             self.getStatus()
 
@@ -99,10 +98,11 @@ class Arm:
             self.log("ERROR: Could not access API")
             self.connected = False
 
+        time.sleep(0.5)
+
     @threaded
     def getStatus(self):
-        delay = 0.2 #Seconds
-        
+          
         while self.connected:
             self.pollingStatus = True
             try:
@@ -114,16 +114,16 @@ class Arm:
                 if(status[0].find("STATUS:")!=-1):
                     if(status[0].find("MOVEMENT") != -1):
                         data = status[0].split(",")
-                        self.movementFlag = data[1:]
+                        self.movementFlag = list(map(int,data[1:]))
                     elif(status[0].find("CALIBRATION") != -1):
                         data = status[0].split(",")
-                        self.calibrationState = data[1:]
+                        self.calibrationState = list(map(int,data[1:]))
                     elif(status[0].find("POSITION") != -1):
                         data = status[0].split(",")
                         self.jointPosition = data[1:]
                     elif(status[0].find("SWITCH") != -1):
                         data = status[0].split(",")
-                        self.switchState = data[1:]
+                        self.switchState = list(map(int,data[1:]))
                     else:
                         self.log("FAILED TO PARSE: "+status[0])
                 elif(status[0] !=""):
@@ -131,7 +131,6 @@ class Arm:
 
             except:     
                 self.log("INFO: Did not receive status response from API.")
-            time.sleep(delay)
         
         self.pollingStatus = False
 
@@ -155,13 +154,17 @@ class Arm:
         self.sendCommand(command)
 
         self.log("INFO: Command sent to adjust motor "+str(motor)+" "+str(degrees)+" degrees.")
-    
+
+    def getPosition(self,motor):
+        position = float(self.jointPosition[motor])
+        return position 
+
     def positionJoints(self,positions):
         
         if len(positions) == self.joints:
             motor = 0
             for position in positions:
-                self.moveJoint(motor,position)
+                self.moveJointTo(motor,position)
                 motor += 1
         else:
             self.log("ERROR: Invalid Joint Positions.")
@@ -209,9 +212,11 @@ class Arm:
         return randomPosition
 
     def checkMovement(self):
-        moving = True
+        time.sleep(0.2)
+        moving = False
         for jointMoving in self.movementFlag:
-            moving &= int(jointMoving)
+            if bool(jointMoving):
+                moving = jointMoving
         return moving
 
     def reset(self):

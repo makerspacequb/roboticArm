@@ -4,9 +4,9 @@
 class StepperMotor{
   public:
     StepperMotor();
-    StepperMotor(int stepPin, int dirPin, int enablePin, int speed, int minSpeed, int accelRate, bool enableHIGH, bool motorInvert);
+    StepperMotor(int stepPin, volatile uint8_t *stepPort, uint8_t stepByte, int dirPin, int enablePin, int speed, int minSpeed, int accelRate, bool enableHIGH, bool motorInvert);
     void move(int stepsToMove);
-    bool step(unsigned long elapsedMicros, bool contMove);
+    bool step(unsigned int elapsedMicros, bool contMove);
  
     //setters
     void setSpeed(int speed);
@@ -21,12 +21,14 @@ class StepperMotor{
   private:
     int stepPin, dirPin, enablePin, speed, minSpeed, accelRate;
     volatile int steps, currentSpeed, stepsTarget, currentStepDelayDuration, maxStepDelayDuration;
-    unsigned long stepRunTime;
+    unsigned int stepRunTime;
     bool stepDelay, enableHIGH, motorInvert;
+    volatile uint8_t *stepPort;
+    uint8_t stepByte;
     void updateAcceleration();
 };
 
-StepperMotor::StepperMotor(int stepPin, int dirPin, int enablePin, int speed,
+StepperMotor::StepperMotor(int stepPin, volatile uint8_t *stepPort, uint8_t stepByte, int dirPin, int enablePin, int speed,
       int minSpeed, int accelRate, bool enableHIGH, bool motorInvert){
   this->stepPin = stepPin;
   this->dirPin = dirPin;
@@ -34,6 +36,8 @@ StepperMotor::StepperMotor(int stepPin, int dirPin, int enablePin, int speed,
   this->accelRate = accelRate;
   this->enableHIGH = enableHIGH;
   this->motorInvert = motorInvert;
+  this->stepPort = stepPort;
+  this->stepByte = stepByte;
   setSpeed(speed);
   setMinSpeed(minSpeed);
   steps = 0;
@@ -50,32 +54,28 @@ void StepperMotor::begin(){
   digitalWrite(enablePin,enableHIGH);
 }
 
-bool StepperMotor::step(unsigned long elapsedMicros, bool contMove){
+bool StepperMotor::step(unsigned int elapsedMicros, bool contMove){
   bool stepped = false;
   stepRunTime += elapsedMicros;
   if (steps > 0){
     if(!stepDelay){
-      digitalWrite(stepPin, HIGH);
-      delayMicroseconds(5);
-      digitalWrite(stepPin, LOW);
+      *stepPort = *stepPort & (~stepByte);
+      delayMicroseconds(3);
+      *stepPort = *stepPort | stepByte;
+      stepped = true;
+      stepDelay = true;
       if(!contMove){
-        stepDelay = true;
         steps--;
         }
-      stepped = true;
     }
     else{
-      if((stepRunTime-18) > currentStepDelayDuration){
+      if(stepRunTime > currentStepDelayDuration){
         stepRunTime = 0;
         updateAcceleration();  
         stepDelay = false;
       }
-      stepped = false;
-      }
+   }
   }
-  else {
-    stepped = false;
-    }
   return stepped;
 }
 

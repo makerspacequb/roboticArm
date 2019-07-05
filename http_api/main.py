@@ -80,12 +80,10 @@ try:
                     log.write(currentDateTime+","+command+"\n")
 
                 #Write Command Passed to Serial Port
-                self.serial.reset_output_buffer()
-                #payload = (str(command)+"\n").encode()
-                payload = str(command+"\n")
+                payload = (command+'\n').encode('ascii')
                 self.serial.write(payload)
-                self.serial.flush()
-                
+                time.sleep(0.008)
+
                 status = currentDateTime + " - INFO: '" + command + "' sent succesfully."
 
             except:
@@ -110,6 +108,7 @@ try:
                 
                 try:
                     if self.serial.in_waiting > 0:
+
                         response = self.serial.readline().decode('utf-8')
                     
                         response = response.strip()
@@ -123,7 +122,6 @@ try:
                         #Add received data to serial monitor array
                         self.serialMonitorData.pop(0)
                         self.serialMonitorData.append(logLine)        
-
                         #print(logLine)
                 except:
                     self.connected = False
@@ -177,10 +175,8 @@ try:
                         parity=serial.PARITY_NONE,
                         stopbits=serial.STOPBITS_ONE,
                         bytesize=serial.EIGHTBITS,
-                        write_timeout = 0.05,
-                        timeout=0.05,
-                        inter_byte_timeout = 0.1
                         )
+                    time.sleep(1)
                     self.connected = True
                     self.receive()
                     status = "INFO: Motor control box connected to "+self.serial.name+"."

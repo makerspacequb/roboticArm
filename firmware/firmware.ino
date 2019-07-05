@@ -15,17 +15,17 @@ int instIndex = 0;
 
 //motor & servo objects
 Joint joints[TOTAL_JOINTS] = {
-   Joint(J0_STEP,J0_DIR,J0_ENABLE,J0_STEPS_PER_DEG,J0_SPEED,J0_MIN_SPEED,J0_ACCEL_RATE, 
+   Joint(J0_STEP, &J0_STEP_PORT, J0_STEP_BYTE, J0_DIR,J0_ENABLE,J0_STEPS_PER_DEG,J0_SPEED,J0_MIN_SPEED,J0_ACCEL_RATE, 
           J0_ENABLE_HIGH, J0_L_SWITCH, &J0_SWITCH_PORT, J0_SWITCH_BYTE, J0_MAX_ROT_DEG, J0_MOTOR_INVERT,J0_DEFAULT_POS),
-   Joint(J1_STEP,J1_DIR,J1_ENABLE,J1_STEPS_PER_DEG,J1_SPEED,J1_MIN_SPEED,J1_ACCEL_RATE, 
+   Joint(J1_STEP, &J1_STEP_PORT, J1_STEP_BYTE, J1_DIR,J1_ENABLE,J1_STEPS_PER_DEG,J1_SPEED,J1_MIN_SPEED,J1_ACCEL_RATE, 
           J1_ENABLE_HIGH, J1_L_SWITCH, &J1_SWITCH_PORT, J1_SWITCH_BYTE, J1_MAX_ROT_DEG, J1_MOTOR_INVERT,J1_DEFAULT_POS),
-   Joint(J2_STEP,J2_DIR,J2_ENABLE,J2_STEPS_PER_DEG,J2_SPEED,J2_MIN_SPEED,J2_ACCEL_RATE, 
+   Joint(J2_STEP, &J2_STEP_PORT, J2_STEP_BYTE, J2_DIR,J2_ENABLE,J2_STEPS_PER_DEG,J2_SPEED,J2_MIN_SPEED,J2_ACCEL_RATE, 
           J2_ENABLE_HIGH, J2_L_SWITCH, &J2_SWITCH_PORT, J2_SWITCH_BYTE, J2_MAX_ROT_DEG, J2_MOTOR_INVERT,J2_DEFAULT_POS),
-   Joint(J3_STEP,J3_DIR,J3_ENABLE,J3_STEPS_PER_DEG,J3_SPEED,J3_MIN_SPEED,J3_ACCEL_RATE, 
+   Joint(J3_STEP, &J3_STEP_PORT, J3_STEP_BYTE, J3_DIR,J3_ENABLE,J3_STEPS_PER_DEG,J3_SPEED,J3_MIN_SPEED,J3_ACCEL_RATE, 
           J3_ENABLE_HIGH, J3_L_SWITCH, &J3_SWITCH_PORT, J3_SWITCH_BYTE, J3_MAX_ROT_DEG, J3_MOTOR_INVERT,J3_DEFAULT_POS),
-   Joint(J4_STEP,J4_DIR,J4_ENABLE,J4_STEPS_PER_DEG,J4_SPEED,J4_MIN_SPEED,J4_ACCEL_RATE, 
+   Joint(J4_STEP, &J4_STEP_PORT, J4_STEP_BYTE, J4_DIR,J4_ENABLE,J4_STEPS_PER_DEG,J4_SPEED,J4_MIN_SPEED,J4_ACCEL_RATE, 
           J4_ENABLE_HIGH, J4_L_SWITCH, &J4_SWITCH_PORT, J4_SWITCH_BYTE, J4_MAX_ROT_DEG, J4_MOTOR_INVERT,J4_DEFAULT_POS),
-   Joint(J5_STEP,J5_DIR,J5_ENABLE,J5_STEPS_PER_DEG,J5_SPEED,J5_MIN_SPEED,J5_ACCEL_RATE, 
+   Joint(J5_STEP, &J5_STEP_PORT, J5_STEP_BYTE, J5_DIR,J5_ENABLE,J5_STEPS_PER_DEG,J5_SPEED,J5_MIN_SPEED,J5_ACCEL_RATE, 
           J5_ENABLE_HIGH, J5_L_SWITCH, &J5_SWITCH_PORT, J5_SWITCH_BYTE, J5_MAX_ROT_DEG, J5_MOTOR_INVERT,J5_DEFAULT_POS)
 };
 
@@ -36,11 +36,9 @@ void interrupt(void){
   if(!interruptBusy){
     interruptBusy = true;
     //handle motor movement by interrupt
-    //step motors
     for (int i = 0; i < TOTAL_JOINTS; i++)
       joints[i].update(INTERRUPT_TIME);
-      
-    interruptBusy = false;
+      interruptBusy = false;
   }
 }
 
@@ -61,7 +59,7 @@ void setup() {
   Serial1.println("INFO: Arm Setup Complete.");
 
   //Load data from EEPROM
-  //loadPositions();
+  loadPositions();
 
   //set timer interrupt for motor and encoder control
   Timer1.attachInterrupt(interrupt);
@@ -184,6 +182,8 @@ void calibrate(char *command){
     if(*command == 'a'){
       Serial.println("INFO: Whole arm calibration beginning.");
       for(int i = TOTAL_JOINTS-1; i >= 0; i--){
+        joints[i].resetCalibration();
+        sendStatus();
         Serial.print("INFO: Calibrating joint ");
         Serial.print(i);
         Serial.println(".");
@@ -203,6 +203,8 @@ void calibrate(char *command){
     //Calibrate an Individual Joint
     else{
       int jointNum = atol(command);
+      joints[jointNum].resetCalibration();
+      sendStatus();
       Serial.print("INFO: Calibrating joint ");
       Serial.print(jointNum);
       Serial.println(".");

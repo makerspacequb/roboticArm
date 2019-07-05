@@ -31,10 +31,11 @@ while((not arm.armCalibrated()) or(arm.checkMovement())):
 
 while arm.connected:
 
-    arm.positionJoints(fixedPosition)
+    #arm.positionJoints(fixedPosition)
+    arm.standUp()
 
     while(arm.checkMovement()):
-        time.sleep(1)
+        time.sleep(0.5)
 
     #Select Random position for each joint
     randomPosition = [0]*arm.joints
@@ -45,6 +46,6 @@ while arm.connected:
     arm.positionJoints(randomPosition)
     
     while(arm.checkMovement()):
-        time.sleep(1)
+        time.sleep(0.5)
     
 arm.stop()

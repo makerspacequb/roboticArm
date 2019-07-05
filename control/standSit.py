@@ -29,15 +29,13 @@ while((not arm.armCalibrated()) or(arm.checkMovement())):
 while arm.connected:
         
     while(arm.checkMovement()):
-        time.sleep(2)
+        time.sleep(0.5)
 
     arm.standUp()
-    time.sleep(20)
 
     while(arm.checkMovement()):
-        time.sleep(20)
+        time.sleep(0.5)
 
     arm.rest()
-    time.sleep(2)
     
 arm.stop()

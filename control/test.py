@@ -23,16 +23,19 @@ arm.reset()
 
 arm.calibrateArm()
 
-while((not arm.armCalibrated()) or(arm.checkMovement())):
+while((not arm.armCalibrated()) or (arm.checkMovement())):
     time.sleep(1)
 
 while arm.connected:
-        
-    arm.moveJointTo(0,300)
+     
+    while(arm.checkMovement()):
+        time.sleep(1) 
 
+    arm.moveJointTo(0,100)
+      
     while(arm.checkMovement()):
         time.sleep(1)
-
-    arm.moveJointTo(0,320)
-    
+        
+    arm.moveJointTo(0,180)
+  
 arm.stop()

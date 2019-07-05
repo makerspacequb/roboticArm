@@ -4,6 +4,8 @@
 #DESC: Python function to randomly move the AR2. Then return to a predefined point
 #COPY: Copyright 2019, All Rights Reserved, Ryan McCartney
 
+import sys
+sys.path.append('control/')
 from arm import Arm
 import time
 import json
@@ -13,10 +15,10 @@ ip_address = "192.168.0.105"
 fixedPosition = [170,40,40,40,40,180]
 
 #Clear Log File
-open('control/log.txt', 'w').close()
+open('logs/log.txt', 'w').close()
 
 #Collect Config
-with open('control/config.json') as json_file:  
+with open('config/config.json') as json_file:  
     config = json.load(json_file)
 
 #Create instance of Arm class

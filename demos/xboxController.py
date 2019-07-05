@@ -4,11 +4,13 @@
 #DESC: Python function to control a 6DOF robotic arm with an xbox controller.
 #COPY: Copyright 2019, All Rights Reserved, Ryan McCartney
 
+import sys
+sys.path.append('control/')
 from arm import Arm
 import pygame
 import time
 
-ip_address = "roboticArm.local"
+ip_address = "192.168.0.105"
 arm = Arm(ip_address)
 gamepadConnected = False
 

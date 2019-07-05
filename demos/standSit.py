@@ -4,6 +4,8 @@
 #DESC: Python script moving the AR2 between upright and resting
 #COPY: Copyright 2019, All Rights Reserved, Ryan McCartney
 
+import sys
+sys.path.append('control/')
 from arm import Arm
 import time
 import json
@@ -11,9 +13,9 @@ import json
 global config
 
 #Clear Log File
-open('control/log.txt', 'w').close()
+open('logs/log.txt', 'w').close()
 
-with open('control/config.json') as json_file:  
+with open('config/config.json') as json_file:  
     config = json.load(json_file)
 
 #Create instance of Arm class

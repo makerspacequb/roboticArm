@@ -123,6 +123,12 @@ try:
                         self.serialMonitorData.pop(0)
                         self.serialMonitorData.append(logLine)        
                         #print(logLine)
+                    if self.serial.in_waiting > 200:
+                        self.serial.reset_input_buffer()
+                        dump = self.serial.readline().decode('utf-8')
+                        currentDateTime = time.strftime("%d/%m/%Y %H:%M:%S")
+                        status = currentDateTime + " - ERROR: Buffer full dumping '"+str(dump)+"'."
+                        print(status)
                 except:
                     self.connected = False
                     currentDateTime = time.strftime("%d/%m/%Y %H:%M:%S")

@@ -46,9 +46,9 @@ class Arm:
 
         #Status Flags
         self.jointPosition = [None]*self.joints
-        self.switchState = [None]*self.joints
-        self.calibrationState = [None]*self.joints
-        self.movementFlag = [None]*self.joints
+        self.switchState = [0]*self.joints
+        self.calibrationState = [0]*self.joints
+        self.movementFlag = [0]*self.joints
 
         try:
             self.session = requests.session()

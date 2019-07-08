@@ -1,24 +1,17 @@
-08/07/2019 11:06:28: INFO: Motor control box disconnected.
-08/07/2019 11:06:29: INFO: Motor control box connected to /dev/ttyUSB0.
-08/07/2019 11:06:31: INFO: Arm Reset.
-08/07/2019 11:06:33: ,0,0,0
-08/07/2019 11:06:33: INFO: Arm is Currently Calibrating.
-08/07/2019 11:06:34: INFO: Calibrating joint 5.
-08/07/2019 11:06:35: INFO: Calibrating joint 4.
-08/07/2019 11:06:36: INFO: Calibrating joint 3.
-08/07/2019 11:06:40: INFO: Calibrating joint 2.
-08/07/2019 11:06:47: INFO: Calibrating joint 1.
-08/07/2019 11:06:53: INFO: Calibrating joint 0.
-08/07/2019 11:06:59: INFO: Python recognises that arm is fully calibrated.
-08/07/2019 11:07:00: INFO: Python recognises that arm is fully calibrated.
-08/07/2019 11:07:01: INFO: Python recognises that arm is fully calibrated.
-08/07/2019 11:07:02: INFO: Python recognises that arm is fully calibrated.
-08/07/2019 11:07:04: INFO: Arm standing up.
-08/07/2019 11:07:04: INFO: Joint 0 moved to 175 degrees.
-08/07/2019 11:07:04: INFO: Joint 1 moved to 44 degrees.
-08/07/2019 11:07:04: INFO: Joint 2 moved to 150 degrees.
-08/07/2019 11:07:04: INFO: Joint 3 moved to 162 degrees.
-08/07/2019 11:07:04: INFO: Joint 4 moved to 80 degrees.
-08/07/2019 11:07:04: INFO: Joint 5 moved to 178 degrees.
-08/07/2019 11:07:05: INFO: Moving motor 3 to position 162 degrees
-08/07/2019 11:07:05: INFO: Arm lying down.
+08/07/2019 13:32:39: INFO: Motor control box disconnected.
+08/07/2019 13:32:40: INFO: Motor control box connected to /dev/ttyUSB0.
+08/07/2019 13:32:40: :INFO: Starting up...
+08/07/2019 13:32:42: INFO: Arm Reset.
+08/07/2019 13:32:43: INFO: Arm is Currently Calibrating.
+08/07/2019 13:32:43: INFO: Whole arm calibration beginning.
+08/07/2019 13:32:43: INFO: Calibrating joint 5.
+08/07/2019 13:32:44: INFO: Calibrating joint 4.
+08/07/2019 13:32:46: INFO: Calibration of joint 4 complete.
+08/07/2019 13:32:46: INFO: Calibrating joint 3.
+08/07/2019 13:32:50: INFO: Calibrating joint 2.
+08/07/2019 13:32:56: INFO: Calibrating joint 1.
+08/07/2019 13:32:58: INFO: Calibration of joint 1 complete.
+08/07/2019 13:32:58: INFO: Calibrating joint 0.
+08/07/2019 13:33:05: INFO: Python recognises that arm is fully calibrated.
+08/07/2019 13:33:06: INFO: Python recognises that arm is fully calibrated.
+08/07/2019 13:33:07: INFO: Python recognises that arm is fully calibrated.

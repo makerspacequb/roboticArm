@@ -1,5 +1,5 @@
 {
-    "python.pythonPath": "C:\\Users\\makerspacestaff\\Anaconda3\\envs\\roboticArm\\python.exe",
+    "python.pythonPath": "C:\\Python27\\python.exe",
     "python.linting.pylintEnabled": true,
     "python.linting.enabled": true
 }

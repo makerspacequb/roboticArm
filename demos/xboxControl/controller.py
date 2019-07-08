@@ -64,7 +64,7 @@ class Controller:
             #Capture Button States
             for i in range(0,self.axisTotal):
                 self.axisPositions[i] = self.gamepad.get_axis(i)
-            self.mapJoystick(self.axisPositions[0],self.axisPositions[1],self.leftJoint)
+            self.mapJoystick(self.axisPositions[1],self.axisPositions[0],self.leftJoint)
             self.mapJoystick(self.axisPositions[3],self.axisPositions[4],self.rightJoint)
 
         except:
@@ -147,17 +147,21 @@ class Controller:
 
         #Select Direction
         if rawPosition > self.deadzone:
+            #Select and Set a Speed
+            mappedSpeed = self.mapToRange(abs(rawPosition),self.deadzone,1,minSpeed,maxSpeed)
+            self.arm.minSpeed(joint,mappedSpeed)
+            self.arm.speed(joint,mappedSpeed)
+            #Move the arm
             self.arm.moveJointTo(joint,maxRotation)
-            #Select and Set a Speed
-            mappedSpeed = self.mapToRange(abs(rawPosition),self.deadzone,1,minSpeed,maxSpeed)
-            self.arm.speed(joint,mappedSpeed)
         elif rawPosition < -self.deadzone:
-            self.arm.moveJointTo(joint,0)
             #Select and Set a Speed
             mappedSpeed = self.mapToRange(abs(rawPosition),self.deadzone,1,minSpeed,maxSpeed)
+            self.arm.minSpeed(joint,mappedSpeed)
             self.arm.speed(joint,mappedSpeed)
+            #Move the arm
+            self.arm.moveJointTo(joint,0)
         else:
-            self.arm.stop
+            self.arm.stop()
     
     @staticmethod
     def mapToRange(raw,rawMin,rawMax,mapMin,mapMax):

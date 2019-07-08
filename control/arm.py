@@ -209,10 +209,15 @@ class Arm:
         else:
             self.log("ERROR: Calibrate arm before trying to stand.")
 
-    def speed(self,motor,speed):
-        command = "s"+str(motor)+str(int(speed))
+    def speed(self,joint,speed):
+        command = "s"+str(joint)+str(int(speed))
         self.sendCommand(command)
-        self.log("INFO: Joint "+str(motor)+" speed adjusted to "+str(int(speed))+" degrees per second.")
+        self.log("INFO: Joint "+str(joint)+" speed adjusted to "+str(int(speed))+" degrees per second.")
+    
+    def minSpeed(self,joint,minSpeed):
+        command = "d"+str(joint)+str(int(minSpeed))
+        self.sendCommand(command)
+        self.log("INFO: Joint "+str(joint)+" speed adjusted to "+str(int(minSpeed))+" degrees per second.")
      
     def calibrateArm(self):
         command = "ca"
@@ -260,6 +265,11 @@ class Arm:
 
         time.sleep(1.5)
         self.log("INFO: Arm Reset.")
+    
+    def eStopReset(self):
+        self.sendCommand("r")
+        time.sleep(1)
+        self.log("INFO: Emergency Stop Latch Reset.")
 
     def armCalibrated(self):
         calibrated = True

@@ -3,37 +3,37 @@
         {
             "maxRotation":350,
             "defaultPosition":175,
-            "maxSpeed":500,
+            "maxSpeed":200,
             "minSpeed":10
         },
         {
             "maxRotation":155,
             "defaultPosition":44,
-            "maxSpeed":500,
+            "maxSpeed":200,
             "minSpeed":10
         },
         {
             "maxRotation":255,
             "defaultPosition":150,
-            "maxSpeed":500,
+            "maxSpeed":200,
             "minSpeed":10
         },
         {
             "maxRotation":325,
             "defaultPosition":162,
-            "maxSpeed":500,
+            "maxSpeed":200,
             "minSpeed":10
         },
         {
             "maxRotation":210,
             "defaultPosition":80,
-            "maxSpeed":500,
+            "maxSpeed":200,
             "minSpeed":10
         },
         {
             "maxRotation":355,
             "defaultPosition":178,
-            "maxSpeed":500,
+            "maxSpeed":200,
             "minSpeed":10
         }
     ]

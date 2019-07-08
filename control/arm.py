@@ -102,8 +102,6 @@ class Arm:
             self.log("ERROR: Could not access API.")
             self.connected = False
 
-        #time.sleep(0.1)
-
     @threaded
     def getStatus(self):
           
@@ -228,7 +226,7 @@ class Arm:
         return randomPosition
 
     def waitToStationary(self):
-        time.sleep(1)
+        time.sleep(0.2)
         while(self.checkMovement()):
             pass
             
@@ -250,7 +248,7 @@ class Arm:
             if response.content.decode("utf-8"):
                 self.log(response.content.decode("utf-8"))
 
-        time.sleep(2)
+        time.sleep(1.5)
         self.log("INFO: Arm Reset.")
 
     def armCalibrated(self):

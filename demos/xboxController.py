@@ -10,14 +10,25 @@ from arm import Arm
 import pygame
 import time
 
-ip_address = "192.168.0.105"
-arm = Arm(ip_address)
+global config
 gamepadConnected = False
+ip_address = "192.168.0.105"
+gamepad = 0
+
+#Clear Log File
+open('logs/log.txt', 'w').close()
+
+with open('config/config.json') as json_file:  
+    config = json.load(json_file)
+
+#Create instance of Arm class
+arm = Arm(ip_address,config)
+arm.reset()
+arm.calibrateArm()
 
 #Start Pygame
 pygame.init()
 pygame.joystick.init()
-gamepad = 0
 
 def mapCommands(leftAnalogue, rightAnalogue, aButton, bButton):
 
@@ -43,7 +54,7 @@ while 1:
                 print("INFO: Controller connected.")
 
                 while 1:
-                              #Get Current Data
+                    #Get Current Data
                     pygame.event.get()
 
                     xAxisLeft = j.get_axis(0)
@@ -62,10 +73,10 @@ while 1:
 
         #Check for an xbox controller
         gamepads = pygame.joystick.get_count()
-        time.delay(1)
+        time.sleep(1)
         
     if arm.connected == False:
         #Poll connecion
         arm.checkConnection()
         print("ERROR: Connection lost with robotic arm. Waiting for reconnect...")
-        time.delay(1)
+        time.sleep(1)

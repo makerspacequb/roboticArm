@@ -25,8 +25,11 @@ class Arm:
     debug = False
     logFilePath = "logs/log.txt"
     header = {'User-Agent':'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2272.101 Safari/537.36'}
-    jointMaxRoation =[]
+    
+    #Config Variable Initialise
+    jointMaxRotation = []
     jointMaxSpeed = []
+    jointMinSpeed = []
     jointPosDefault = []
 
     def __init__(self,ipAddress,config):
@@ -40,8 +43,9 @@ class Arm:
 
         #Values loaded from 'config.json'
         for joint in config["joints"]:
-            self.jointMaxRoation.append(joint["maxRotation"])
+            self.jointMaxRotation.append(joint["maxRotation"])
             self.jointMaxSpeed.append(joint["maxSpeed"])
+            self.jointMinSpeed.append(joint["minSpeed"])
             self.jointPosDefault.append(joint["defaultPosition"])
 
         #Status Flags
@@ -139,21 +143,21 @@ class Arm:
         
         self.pollingStatus = False
 
-    def moveJointTo(self,motor,position):
-
-        if (position > 0) and (position < self.jointMaxRoation[motor]):
-            command = "p"+str(motor)+str(position)
-            self.sendCommand(command)
-
-            #Log the move
-            self.log("INFO: Joint "+str(motor)+" moved to "+str(position)+" degrees.")
+    def moveJointTo(self,joint,position):
+        if self.calibrationState[joint]:
+            if (position >= 0) and (position <= self.jointMaxRotation[joint]):
+                command = "p"+str(joint)+str(position)
+                self.sendCommand(command)
+                self.log("INFO: Joint "+str(joint)+" moved to "+str(position)+" degrees.")
+            else:
+                self.log("ERROR: Positon out of range.")
         else:
-            self.log("ERROR: Positon out of range.")
+            self.log("ERROR: Joint "+str(joint)+" not calibrated.")
 
     def moveJoint(self,motor,degrees):      
         #Check movement is within range allowed
-        if (self.jointMaxRoation[motor]+degrees) > self.jointMaxRoation[motor]:
-            degrees = self.jointMaxRoation[motor] - (self.jointMaxRoation[motor]+degrees)
+        if (self.jointMaxRotation[motor]+degrees) > self.jointMaxRotation[motor]:
+            degrees = self.jointMaxRotation[motor] - (self.jointMaxRotation[motor]+degrees)
 
         command = "m"+str(motor)+str(degrees)
         self.sendCommand(command)
@@ -173,17 +177,20 @@ class Arm:
 
     def positionJoints(self,positions):
         
-        if len(positions) == self.joints:
-            motor = 0
-            for position in positions:
-                self.moveJointTo(motor,position)
-                motor += 1
+        if self.armCalibrated():
+            if len(positions) == self.joints:
+                motor = 0
+                for position in positions:
+                    self.moveJointTo(motor,position)
+                    motor += 1
+            else:
+                self.log("ERROR: Invalid Joint Positions.")
         else:
-            self.log("ERROR: Invalid Joint Positions.")
+            self.log("ERROR: Calibrate arm before continuing.")
 
     def rest(self):
-        if self.armCalibrated:
-            self.log("INFO: Arm lying down.")
+        if self.armCalibrated():
+            self.log("INFO: Arm moving to a resting position.")
             restPosition = [None]*self.joints
             restPosition[0] = self.jointPosDefault[0]
             restPosition[1] = 150
@@ -192,16 +199,20 @@ class Arm:
             restPosition[4] = self.jointPosDefault[4]
             restPosition[5] = self.jointPosDefault[5]
             self.positionJoints(restPosition)
+        else:
+            self.log("ERROR: Calibrate arm before trying to rest.")
 
     def standUp(self):
-        if self.armCalibrated:
-            self.log("INFO: Arm standing up.")
+        if self.armCalibrated():
+            self.log("INFO: Arm standing upright.")
             self.positionJoints(self.jointPosDefault)
+        else:
+            self.log("ERROR: Calibrate arm before trying to stand.")
 
     def speed(self,motor,speed):
-        command = "s"+str(motor)+str(speed)
+        command = "s"+str(motor)+str(int(speed))
         self.sendCommand(command)
-        self.log("INFO: Joint "+str(motor)+" speed adjusted to "+str(speed)+" degrees per second.")
+        self.log("INFO: Joint "+str(motor)+" speed adjusted to "+str(int(speed))+" degrees per second.")
      
     def calibrateArm(self):
         command = "ca"
@@ -222,7 +233,7 @@ class Arm:
         self.log("INFO: Testing the connection.")
     
     def selectRandomPosition(self,motor):
-        randomPosition = random.randint(0,self.jointMaxRoation[motor])
+        randomPosition = random.randint(0,self.jointMaxRotation[motor])
         return randomPosition
 
     def waitToStationary(self):
@@ -241,7 +252,6 @@ class Arm:
     def reset(self):
 
         messages = ["disconnect","connect"]
-
         for message in messages:
             url = self.baseURL + message
             response = self.session.get(url,timeout=self.timeout)

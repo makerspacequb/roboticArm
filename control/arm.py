@@ -91,18 +91,18 @@ class Arm:
             if self.debug == True:
                 response = self.session.get(message,timeout=self.timeout)
                 status = response.content.decode("utf-8").split("\n")
-                self.log("INFO = Transmission response code is "+str(response.status_code))
+                self.log("INFO: Transmission response code is "+str(response.status_code))
                 end = time.time()
-                print("STATUS: Sending '",command,"' took %.2f seconds." % round((end-start),2))
+                self.log("STATUS: Sending '"+str(command)+"' took "+str(round((end-start),2))+" seconds.")
                 self.log(status[0])
             else:
                 self.session.get(message,timeout=self.timeout)
             self.connected = True
         except:
-            self.log("ERROR: Could not access API")
+            self.log("ERROR: Could not access API.")
             self.connected = False
 
-        time.sleep(0.5)
+        #time.sleep(0.1)
 
     @threaded
     def getStatus(self):
@@ -186,13 +186,15 @@ class Arm:
     def rest(self):
         if self.armCalibrated:
             self.log("INFO: Arm lying down.")
-            self.moveJointTo(0,self.jointPosDefault[0])
-            self.moveJointTo(1,150)
-            self.moveJointTo(2,175)
-            self.moveJointTo(3,self.jointPosDefault[3])
-            self.moveJointTo(4,self.jointPosDefault[4])
-            self.moveJointTo(5,self.jointPosDefault[5])
-    
+            restPosition[] = [self.joints]*0
+            restPosition[0] = self.jointPosDefault[0]
+            restPosition[1] = 150
+            restPosition[2] = 175
+            restPosition[3] = self.jointPosDefault[3]
+            restPosition[4] = self.jointPosDefault[4]
+            restPosition[5] = self.jointPosDefault[5]
+            self.positionJoints(restPosition)
+
     def standUp(self):
         if self.armCalibrated:
             self.log("INFO: Arm standing up.")
@@ -225,6 +227,11 @@ class Arm:
         randomPosition = random.randint(0,self.jointMaxRoation[motor])
         return randomPosition
 
+    def waitToStationary(self):
+        time.sleep(1)
+        while(self.checkMovement()):
+            pass
+            
     def checkMovement(self):
         time.sleep(0.2)
         moving = False

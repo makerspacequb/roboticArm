@@ -30,14 +30,12 @@ while((not arm.armCalibrated()) or(arm.checkMovement())):
 
 while arm.connected:
         
-    while(arm.checkMovement()):
-        time.sleep(0.5)
-
+    arm.waitToStationary()
     arm.standUp()
 
-    while(arm.checkMovement()):
-        time.sleep(0.5)
+    print(arm.jointPosDefault)
 
+    arm.waitToStationary()
     arm.rest()
     
 arm.stop()

@@ -33,8 +33,6 @@ while arm.connected:
     arm.waitToStationary()
     arm.standUp()
 
-    print(arm.jointPosDefault)
-
     arm.waitToStationary()
     arm.rest()
     

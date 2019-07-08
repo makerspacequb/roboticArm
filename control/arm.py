@@ -45,10 +45,10 @@ class Arm:
             self.jointPosDefault.append(joint["defaultPosition"])
 
         #Status Flags
-        self.jointPosition = [0,0,0,0,0,0]
-        self.switchState = [0,0,0,0,0,0]
-        self.calibrationState = [0,0,0,0,0,0]
-        self.movementFlag = [0,0,0,0,0,0]
+        self.jointPosition = [None]*self.joints
+        self.switchState = [None]*self.joints
+        self.calibrationState = [None]*self.joints
+        self.movementFlag = [None]*self.joints
 
         try:
             self.session = requests.session()
@@ -186,7 +186,7 @@ class Arm:
     def rest(self):
         if self.armCalibrated:
             self.log("INFO: Arm lying down.")
-            restPosition[] = [self.joints]*0
+            restPosition = [None]*self.joints
             restPosition[0] = self.jointPosDefault[0]
             restPosition[1] = 150
             restPosition[2] = 175

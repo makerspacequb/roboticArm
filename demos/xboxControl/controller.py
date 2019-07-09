@@ -92,13 +92,19 @@ class Controller:
                 self.arm.stop()
             #Y BUTTON - STANDUP
             if(self.buttonState[3] and (self.buttonStatePrevious[3] == 0)):
+                self.arm.setDefaults()
                 self.arm.standUp()
+                self.arm.waitToStationary()
             #X BUTTON - REST
             if(self.buttonState[2] and (self.buttonStatePrevious[2] == 0)):
+                self.arm.setDefaults()
                 self.arm.rest()
+                self.arm.waitToStationary()
             #START BUTTON - CALIBRATE ARM
             if((self.buttonState[7] != self.buttonStatePrevious[7])and(self.buttonState[7])):
+                self.arm.setDefaults()
                 self.arm.calibrateArm()
+                self.arm.waitToStationary()
             #LEFT THUMB BUTTON - CHANGE JOINT
             if((self.buttonState[8] != self.buttonStatePrevious[8])and(self.buttonState[8])):
                 if (self.leftJoint + 1)> 2:
@@ -149,20 +155,20 @@ class Controller:
         if rawPosition > self.deadzone:
             #Select and Set a Speed
             mappedSpeed = self.mapToRange(abs(rawPosition),self.deadzone,1,minSpeed,maxSpeed)
-            self.arm.minSpeed(joint,mappedSpeed)
-            self.arm.speed(joint,mappedSpeed)
+            self.arm.setMinSpeed(joint,mappedSpeed)
+            self.arm.setSpeed(joint,mappedSpeed)
             #Move the arm
             self.arm.moveJointTo(joint,maxRotation)
         elif rawPosition < -self.deadzone:
             #Select and Set a Speed
             mappedSpeed = self.mapToRange(abs(rawPosition),self.deadzone,1,minSpeed,maxSpeed)
-            self.arm.minSpeed(joint,mappedSpeed)
-            self.arm.speed(joint,mappedSpeed)
+            self.arm.setMinSpeed(joint,mappedSpeed)
+            self.arm.setSpeed(joint,mappedSpeed)
             #Move the arm
             self.arm.moveJointTo(joint,0)
         else:
             if self.arm.armCalibrated():
-                self.arm.stop()
+                self.arm.setSpeed(joint,0)
     
     @staticmethod
     def mapToRange(raw,rawMin,rawMax,mapMin,mapMax):

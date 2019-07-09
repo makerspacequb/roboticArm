@@ -31,6 +31,8 @@ class Arm:
     jointMaxSpeed = []
     jointMinSpeed = []
     jointPosDefault = []
+    jointSpeedDefault = []
+    jointAccelDefault = []
 
     def __init__(self,ipAddress,config):
 
@@ -47,6 +49,8 @@ class Arm:
             self.jointMaxSpeed.append(joint["maxSpeed"])
             self.jointMinSpeed.append(joint["minSpeed"])
             self.jointPosDefault.append(joint["defaultPosition"])
+            self.jointSpeedDefault.append(joint["defaultSpeed"])
+            self.jointAccelDefault.append(joint["defaultAccel"])
 
         #Status Flags
         self.jointPosition = [None]*self.joints
@@ -210,12 +214,17 @@ class Arm:
         else:
             self.log("ERROR: Calibrate arm before trying to stand.")
 
-    def speed(self,joint,speed):
+    def setAccel(self,joint,accel):
+        command = "z"+str(joint)+str(int(accel))
+        self.sendCommand(command)
+        self.log("INFO: Joint "+str(joint)+" acceleration rate adjusted to "+str(int(accel))+" degrees per second squared.")
+    
+    def setSpeed(self,joint,speed):
         command = "s"+str(joint)+str(int(speed))
         self.sendCommand(command)
         self.log("INFO: Joint "+str(joint)+" speed adjusted to "+str(int(speed))+" degrees per second.")
     
-    def minSpeed(self,joint,minSpeed):
+    def setMinSpeed(self,joint,minSpeed):
         command = "d"+str(joint)+str(int(minSpeed))
         self.sendCommand(command)
         self.log("INFO: Joint "+str(joint)+" speed adjusted to "+str(int(minSpeed))+" degrees per second.")
@@ -262,7 +271,6 @@ class Arm:
             self.log(response.content.decode("utf-8"))
 
     def reset(self):
-
         messages = ["disconnect","connect"]
         for message in messages:
             url = self.baseURL + message
@@ -285,3 +293,12 @@ class Arm:
         if(calibrated):
             self.log("INFO: Python recognises that arm is fully calibrated.")
         return calibrated
+    
+    def setDefaults(self):
+        i = 0 
+        for i in range(0,self.joints):
+            self.setSpeed(i,self.jointSpeedDefault[i])
+            self.setMinSpeed(i,self.jointMinSpeed[i])        
+            self.setAccel(i,self.jointAccelDefault[i])
+            self.log("INFO: Joint "+str(i)+" defaults set.")
+        

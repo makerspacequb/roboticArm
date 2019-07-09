@@ -1,4 +1,103 @@
-08/07/2019 18:34:49: INFO: Motor control box disconnected.
-08/07/2019 18:34:50: INFO: Motor control box connected to /dev/ttyUSB0.
-08/07/2019 18:34:52: INFO: Arm Reset.
-08/07/2019 18:34:52: INFO: Gamepad Connected Succesfully.
+09/07/2019 10:19:55: 29/06/2019 20:25:06 - INFO: Transmit and Receive Logs have been cleared.
+09/07/2019 10:19:55: INFO: Motor control box disconnected.
+09/07/2019 10:19:56: INFO: Motor control box connected to /dev/ttyUSB0.
+09/07/2019 10:19:58: INFO: Arm Reset.
+09/07/2019 10:19:58: INFO: Gamepad Connected Succesfully.
+09/07/2019 10:20:20: WITCH,0,0,0,0,0,0
+09/07/2019 10:20:20: INFO: Joint 1 speed adjusted to 10 degrees per second.
+09/07/2019 10:20:20: INFO: Joint 1 speed adjusted to 10 degrees per second.
+09/07/2019 10:20:20: ERROR: Joint 1 not calibrated.
+09/07/2019 10:20:20: INFO: Joint 1 speed adjusted to 199 degrees per second.
+09/07/2019 10:20:20: INFO: Joint 1 speed adjusted to 199 degrees per second.
+09/07/2019 10:20:20: ERROR: Joint 1 not calibrated.
+09/07/2019 10:20:20: INFO: Joint 1 speed adjusted to 14 degrees per second.
+09/07/2019 10:20:20: INFO: Joint 1 speed adjusted to 14 degrees per second.
+09/07/2019 10:20:20: ERROR: Joint 1 not calibrated.
+09/07/2019 10:20:20: INFO: Joint 1 speed adjusted to 88 degrees per second.
+09/07/2019 10:20:20: INFO: Joint 1 speed adjusted to 88 degrees per second.
+09/07/2019 10:20:20: ERROR: Joint 1 not calibrated.
+09/07/2019 10:20:21: INFO: Joint 1 speed adjusted to 21 degrees per second.
+09/07/2019 10:20:21: INFO: Joint 1 speed adjusted to 21 degrees per second.
+09/07/2019 10:20:21: ERROR: Joint 1 not calibrated.
+09/07/2019 10:20:21: INFO: Joint 1 speed adjusted to 118 degrees per second.
+09/07/2019 10:20:21: INFO: Joint 1 speed adjusted to 118 degrees per second.
+09/07/2019 10:20:21: ERROR: Joint 1 not calibrated.
+09/07/2019 10:20:21: INFO: Joint 1 speed adjusted to 150 degrees per second.
+09/07/2019 10:20:21: INFO: Set motor: 1 min speed to: 150deg/s
+09/07/2019 10:20:21: INFO: Joint 1 speed adjusted to 150 degrees per second.
+09/07/2019 10:20:21: ERROR: Joint 1 not calibrated.
+09/07/2019 10:20:21: INFO: Set motor: 1 to speed: 150deg/s
+09/07/2019 10:20:21: INFO: Joint 1 speed adjusted to 155 degrees per second.
+09/07/2019 10:20:21: INFO: Joint 1 speed adjusted to 155 degrees per second.
+09/07/2019 10:20:21: ERROR: Joint 1 not calibrated.
+09/07/2019 10:20:21: INFO: Joint 1 speed adjusted to 155 degrees per second.
+09/07/2019 10:20:21: INFO: Set motor: 1 min speed to: 155deg/s
+09/07/2019 10:20:21: INFO: Joint 1 speed adjusted to 155 degrees per second.
+09/07/2019 10:20:21: ERROR: Joint 1 not calibrated.
+09/07/2019 10:20:21: INFO: Joint 1 speed adjusted to 136 degrees per second.
+09/07/2019 10:20:21: INFO: Joint 1 speed adjusted to 136 degrees per second.
+09/07/2019 10:20:21: ERROR: Joint 1 not calibrated.
+09/07/2019 10:20:21: INFO: Set motor: 1 to speed: 136deg/s
+09/07/2019 10:20:21: INFO: Joint 0 speed adjusted to 24 degrees per second.
+09/07/2019 10:20:21: INFO: Joint 0 speed adjusted to 24 degrees per second.
+09/07/2019 10:20:21: ERROR: Joint 0 not calibrated.
+09/07/2019 10:20:21: INFO: Joint 0 speed adjusted to 200 degrees per second.
+09/07/2019 10:20:21: INFO: Joint 0 speed adjusted to 200 degrees per second.
+09/07/2019 10:20:21: ERROR: Joint 0 not calibrated.
+09/07/2019 10:20:21: INFO: Joint 0 speed adjusted to 200 degrees per second.
+09/07/2019 10:20:21: INFO: Set motor: 0 min speed to: 200deg/s
+09/07/2019 10:20:21: INFO: Joint 0 speed adjusted to 200 degrees per second.
+09/07/2019 10:20:21: ERROR: Joint 0 not calibrated.
+09/07/2019 10:20:21: INFO: Joint 0 speed adjusted to 69 degrees per second.
+09/07/2019 10:20:21: INFO: Joint 0 speed adjusted to 69 degrees per second.
+09/07/2019 10:20:21: ERROR: Joint 0 not calibrated.
+09/07/2019 10:20:22: INFO: Joint 1 speed adjusted to 199 degrees per second.
+09/07/2019 10:20:22: INFO: Joint 1 speed adjusted to 199 degrees per second.
+09/07/2019 10:20:22: ERROR: Joint 1 not calibrated.
+09/07/2019 10:20:22: INFO: Joint 3 speed adjusted to 10 degrees per second.
+09/07/2019 10:20:22: INFO: Joint 3 speed adjusted to 10 degrees per second.
+09/07/2019 10:20:22: ERROR: Joint 3 not calibrated.
+09/07/2019 10:20:22: INFO: Joint 3 speed adjusted to 117 degrees per second.
+09/07/2019 10:20:22: INFO: Joint 3 speed adjusted to 117 degrees per second.
+09/07/2019 10:20:22: ERROR: Joint 3 not calibrated.
+09/07/2019 10:20:22: INFO: Joint 3 speed adjusted to 121 degrees per second.
+09/07/2019 10:20:22: INFO: Joint 3 speed adjusted to 121 degrees per second.
+09/07/2019 10:20:22: ERROR: Joint 3 not calibrated.
+09/07/2019 10:20:22: INFO: Joint 3 speed adjusted to 155 degrees per second.
+09/07/2019 10:20:22: INFO: Joint 3 speed adjusted to 155 degrees per second.
+09/07/2019 10:20:22: ERROR: Joint 3 not calibrated.
+09/07/2019 10:20:22: INFO: Joint 3 speed adjusted to 199 degrees per second.
+09/07/2019 10:20:22: INFO: Set motor: 3 min speed to: 199deg/s
+09/07/2019 10:20:22: INFO: Joint 3 speed adjusted to 199 degrees per second.
+09/07/2019 10:20:22: ERROR: Joint 3 not calibrated.
+09/07/2019 10:20:22: INFO: Joint 2 speed adjusted to 44 degrees per second.
+09/07/2019 10:20:22: INFO: Joint 2 speed adjusted to 44 degrees per second.
+09/07/2019 10:20:22: ERROR: Joint 2 not calibrated.
+09/07/2019 10:20:22: INFO: Joint 3 speed adjusted to 200 degrees per second.
+09/07/2019 10:20:22: INFO: Set motor: 3 min speed to: 200deg/s
+09/07/2019 10:20:22: INFO: Joint 3 speed adjusted to 200 degrees per second.
+09/07/2019 10:20:22: ERROR: Joint 3 not calibrated.
+09/07/2019 10:20:22: INFO: Joint 3 speed adjusted to 200 degrees per second.
+09/07/2019 10:20:22: INFO: Joint 3 speed adjusted to 200 degrees per second.
+09/07/2019 10:20:22: ERROR: Joint 3 not calibrated.
+09/07/2019 10:20:22: INFO: Joint 2 speed adjusted to 200 degrees per second.
+09/07/2019 10:20:22: INFO: Set motor: 2 min speed to: 200deg/s
+09/07/2019 10:20:22: INFO: Joint 2 speed adjusted to 200 degrees per second.
+09/07/2019 10:20:22: ERROR: Joint 2 not calibrated.
+09/07/2019 10:20:22: INFO: Joint 3 speed adjusted to 34 degrees per second.
+09/07/2019 10:20:22: INFO: Joint 3 speed adjusted to 34 degrees per second.
+09/07/2019 10:20:22: ERROR: Joint 3 not calibrated.
+09/07/2019 10:20:23: INFO: Arm is Currently Calibrating.
+09/07/2019 10:20:23: INFO: Arm is Currently Calibrating.
+09/07/2019 10:20:23: INFO: Calibrating joint 5.
+09/07/2019 10:20:23: INFO: Arm is Currently Calibrating.
+09/07/2019 10:20:24: INFO: Arm Emergency Stopped.
+09/07/2019 10:20:24: INFO: Arm Emergency Stopped.
+09/07/2019 10:20:25: INFO: Calibrating joint 4.
+09/07/2019 10:20:27: INFO: Calibrating joint 3.
+09/07/2019 10:20:28: INFO: Arm Emergency Stopped.
+09/07/2019 10:20:29: INFO: Arm Emergency Stopped.
+09/07/2019 10:20:31: INFO: Motor control box disconnected.
+09/07/2019 10:20:32: INFO: Motor control box connected to /dev/ttyUSB0.
+09/07/2019 10:20:32: INFO: Starting up...
+09/07/2019 10:20:33: INFO: Arm Reset.

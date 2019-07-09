@@ -56,6 +56,7 @@ class Arm:
 
         try:
             self.session = requests.session()
+            self.clearLogs()
             self.connected = True
         except:
             self.log("ERROR: Cannot create a session.")
@@ -253,6 +254,12 @@ class Arm:
             if bool(jointMoving):
                 moving = jointMoving
         return moving
+
+    def clearLogs(self):
+        url = self.baseURL + "clearLogs"
+        response = self.session.get(url,timeout=self.timeout)
+        if response.content.decode("utf-8"):
+            self.log(response.content.decode("utf-8"))
 
     def reset(self):
 

@@ -161,7 +161,8 @@ class Controller:
             #Move the arm
             self.arm.moveJointTo(joint,0)
         else:
-            self.arm.stop()
+            if self.arm.armCalibrated():
+                self.arm.stop()
     
     @staticmethod
     def mapToRange(raw,rawMin,rawMax,mapMin,mapMax):

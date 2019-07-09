@@ -11,9 +11,15 @@
 
 ## Commands
 
-* `mNUMBERDEGREES`, moves motor `NUMBER` a set number of `DEGREES`
-* `pNUMBERDEGREES`, moves motor `NUMBER` to a set position within range using `DEGREES`
-* `r` resets the emergency stop after being pressed
-* `c` starts calibration routine
-* `q` quit, ceases all activity
-* `tMESSAGE` tool communication, passes `MESSAGE` to the end effector 
+* `mNUMBERDEGREES`, moves motor `NUMBER` a set number of `DEGREES`.
+* `pNUMBERDEGREES`, moves motor `NUMBER` to a set position within range using `DEGREES`.
+* `r` resets the emergency stop after being pressed.
+* `ca` starts calibration routine for entire arm.
+* `cNUMBER` starts calibration routine for motor `NUMBER`.
+* `q` quit, ceases all activity.
+* `tMESSAGE` tool communication, passes `MESSAGE` to the end effector.
+* `sNUMBERSPEED`, sets the motor `NUMBER` speed as `SPEED` in degrees per second
+* `dNUMBERSPEED`, sets the motor `NUMBER` minimum speed `SPEED` in degrees per second. This is the speed the acceleration profile begins at.
+* `zNUMBERACCEL`, sets the motor `NUMBER` acceleration `ACCEL` in degrees per second squared.
+* `i`, returns status update on the arm. Information includes claibration state of each motor, current positions, movement flags and limit switch states.
+* `hPERCENT`, when a servo hand tool is used. The percentage open the pincers are is given by a value `PERCENT`.

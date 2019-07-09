@@ -118,9 +118,6 @@ void processInstruction(char *input){
     case 'h': 
       moveHand(atol(input+1)); 
       break;
-    case 'x': 
-      //continuousMovement = atol(input+1);
-      break;
     case 's': 
       joints[input[1] - '0'].setSpeed(atol(input+2));
       Serial.print("INFO: Set motor: ");

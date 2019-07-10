@@ -5,7 +5,7 @@
             "defaultPosition":175,
             "maxSpeed":100,
             "minSpeed":1,
-            "defaultSpeed":80,
+            "defaultSpeed":40,
             "defaultAccel":5
         },
         {

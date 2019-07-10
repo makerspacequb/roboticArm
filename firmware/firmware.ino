@@ -67,6 +67,7 @@ void setup() {
   Timer1.start();
 
   //Set Hardware Interupt for EStop
+  pinMode(ESTOP, INPUT);
   attachInterrupt(digitalPinToInterrupt(ESTOP), eStop, FALLING);
   
   Serial.println("INFO: Setup Complete.");

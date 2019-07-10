@@ -227,7 +227,7 @@ class Arm:
     def setMinSpeed(self,joint,minSpeed):
         command = "d"+str(joint)+str(int(minSpeed))
         self.sendCommand(command)
-        self.log("INFO: Joint "+str(joint)+" speed adjusted to "+str(int(minSpeed))+" degrees per second.")
+        self.log("INFO: Joint "+str(joint)+" minimum speed adjusted to "+str(int(minSpeed))+" degrees per second.")
      
     def calibrateArm(self):
         command = "ca"
@@ -290,15 +290,12 @@ class Arm:
         calibrated = True
         for jointCalibrated in self.calibrationState:
             calibrated &= int(jointCalibrated)
-        if(calibrated):
-            self.log("INFO: Python recognises that arm is fully calibrated.")
         return calibrated
     
     def setDefaults(self):
         i = 0 
         for i in range(0,self.joints):
             self.setSpeed(i,self.jointSpeedDefault[i])
-            self.setMinSpeed(i,self.jointMinSpeed[i])        
+            self.setMinSpeed(i,(int(self.jointSpeedDefault[i])-10))      
             self.setAccel(i,self.jointAccelDefault[i])
             self.log("INFO: Joint "+str(i)+" defaults set.")
-        

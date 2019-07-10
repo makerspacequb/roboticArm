@@ -43,6 +43,7 @@ class Controller:
         self.leftJoint = 0
         self.rightJoint = 1
         self.axisPositions = [0]*self.axisTotal
+        self.setSpeed = [0]*self.axisTotal
     
     #Logging Function
     def log(self, entry):
@@ -147,6 +148,9 @@ class Controller:
     
     def mapJoint(self,joint,rawPosition):
         
+        #Converting to Discrete Speed Control
+        rawPosition = round(rawPosition,1)
+
         minSpeed = self.arm.jointMinSpeed[joint]
         maxSpeed = self.arm.jointMaxSpeed[joint]
         maxRotation = abs(self.arm.jointMaxRotation[joint])
@@ -155,20 +159,26 @@ class Controller:
         if rawPosition > self.deadzone:
             #Select and Set a Speed
             mappedSpeed = self.mapToRange(abs(rawPosition),self.deadzone,1,minSpeed,maxSpeed)
-            self.arm.setMinSpeed(joint,mappedSpeed)
-            self.arm.setSpeed(joint,mappedSpeed)
-            #Move the arm
-            self.arm.moveJointTo(joint,maxRotation)
+            if mappedSpeed != self.setSpeed[joint]:
+                self.arm.setMinSpeed(joint,mappedSpeed)
+                self.arm.setSpeed(joint,mappedSpeed)
+                self.setSpeed[joint] = mappedSpeed
+                #Move the arm
+                self.arm.moveJointTo(joint,maxRotation)
         elif rawPosition < -self.deadzone:
             #Select and Set a Speed
             mappedSpeed = self.mapToRange(abs(rawPosition),self.deadzone,1,minSpeed,maxSpeed)
-            self.arm.setMinSpeed(joint,mappedSpeed)
-            self.arm.setSpeed(joint,mappedSpeed)
-            #Move the arm
-            self.arm.moveJointTo(joint,0)
+            if mappedSpeed != self.setSpeed[joint]:
+                self.arm.setMinSpeed(joint,mappedSpeed)
+                self.arm.setSpeed(joint,mappedSpeed)
+                #Move the arm
+                self.setSpeed[joint] = mappedSpeed
+                self.arm.moveJointTo(joint,0)
         else:
             if self.arm.armCalibrated():
-                self.arm.setSpeed(joint,0)
+                if self.setSpeed[joint] != 0:
+                    self.arm.setSpeed(joint,0)
+                    self.setSpeed[joint] = 0
     
     @staticmethod
     def mapToRange(raw,rawMin,rawMax,mapMin,mapMax):

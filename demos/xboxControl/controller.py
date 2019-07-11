@@ -35,8 +35,7 @@ class Controller:
 
         #Setup Variables for Buttons
         self.buttonTotal = 10
-        self.buttonState = [0]*self.buttonTotal
-        self.buttonStatePrevious = [0]*self.buttonTotal
+        self.lastButtonState = [0]*self.buttonTotal
 
         #Setup Variables for Axis
         self.axisTotal = 5
@@ -78,42 +77,48 @@ class Controller:
         self.mapJoint(joint+1,yAxis)
 
     def mapButtons(self):
+        buttonState = [0]*self.buttonTotal
         status = True
         try:
             #Capture Button States
             for i in range(0,self.buttonTotal):
-                self.buttonState[i] = self.gamepad.get_button(i)
+                buttonState[i] = self.gamepad.get_button(i)
 
             #A BUTTON - STOP
-            if(self.buttonState[0] and (self.buttonStatePrevious[0] == 0)):
+            if(buttonState[0] and (self.lastButtonState[0] == 0)):
                 self.arm.reset()
             #B BUTTON - STOP
-            if(self.buttonState[1] and (self.buttonStatePrevious[1] == 0)):
+            if(buttonState[1] and (self.lastButtonState[1] == 0)):
                 self.arm.stop()
             #Y BUTTON - STANDUP
-            if(self.buttonState[3] and (self.buttonStatePrevious[3] == 0)):
+            if(buttonState[3] and (self.lastButtonState[3] == 0)):
                 self.arm.standUp()
             #X BUTTON - REST
-            if(self.buttonState[2] and (self.buttonStatePrevious[2] == 0)):
+            if(buttonState[2] and (self.lastButtonState[2] == 0)):
                 self.arm.rest()
             #START BUTTON - CALIBRATE ARM
-            if((self.buttonState[7] != self.buttonStatePrevious[7])and(self.buttonState[7])):
+            if(buttonState[7] and (self.lastButtonState[7] == 0)):
                 self.arm.calibrateArm()
             #LEFT THUMB BUTTON - CHANGE JOINT
-            if((self.buttonState[8] != self.buttonStatePrevious[8])and(self.buttonState[8])):
-                if (self.leftJoint + 1)> 2:
+            if(buttonState[8] and (self.lastButtonState[8] == 0)):
+                if (self.leftJoint + 1) == self.rightJoint:
+                    self.leftJoint += 2
+                if (self.leftJoint + 1) > 2:
                     self.leftJoint = 0
                 else:
                     self.leftJoint += 1
                 self.log("INFO: Joint set "+str(self.leftJoint)+" selected on left joystick.")
             #RIGHT THUMB BUTTON - CHANGE JOINT
-            if((self.buttonState[9] != self.buttonStatePrevious[9])and(self.buttonState[9])):  
-                if (self.rightJoint + 1)> 2:
+            if(buttonState[9] and (self.lastButtonState[9] == 0)):  
+                if (self.rightJoint + 1) == self.leftJoint:
+                    self.leftJoint += 2
+                if (self.rightJoint + 1) > 2:
                     self.rightJoint = 0
                 else:
                     self.rightJoint += 1
-                self.log("INFO: Joint set "+str(self.leftJoint)+" selected on right joystick.")
-            #self.buttonStatePrevious = self.buttonState
+                self.log("INFO: Joint set "+str(self.rightJoint)+" selected on right joystick.")
+            
+            self.lastButtonState = buttonState
         except:
             self.log("ERROR: Mapping Buttons Error.")
             status = False

@@ -3,38 +3,50 @@
         {
             "maxRotation":350,
             "defaultPosition":175,
-            "maxSpeed":200,
-            "minSpeed":10
+            "maxSpeed":100,
+            "minSpeed":1,
+            "defaultSpeed":40,
+            "defaultAccel":5
         },
         {
             "maxRotation":155,
             "defaultPosition":44,
-            "maxSpeed":200,
-            "minSpeed":10
+            "maxSpeed":80,
+            "minSpeed":5,
+            "defaultSpeed":40,
+            "defaultAccel":3
         },
         {
             "maxRotation":255,
             "defaultPosition":150,
-            "maxSpeed":200,
-            "minSpeed":10
+            "maxSpeed":80,
+            "minSpeed":5,
+            "defaultSpeed":50,
+            "defaultAccel":5
         },
         {
             "maxRotation":325,
             "defaultPosition":162,
-            "maxSpeed":200,
-            "minSpeed":10
+            "maxSpeed":90,
+            "minSpeed":1,
+            "defaultSpeed":60,
+            "defaultAccel":8
         },
         {
             "maxRotation":210,
             "defaultPosition":80,
             "maxSpeed":200,
-            "minSpeed":10
+            "minSpeed":1,
+            "defaultSpeed":100,
+            "defaultAccel":8
         },
         {
             "maxRotation":355,
             "defaultPosition":178,
-            "maxSpeed":200,
-            "minSpeed":10
+            "maxSpeed":500,
+            "minSpeed":1,
+            "defaultSpeed":300,
+            "defaultAccel":20
         }
     ]
 }

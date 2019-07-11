@@ -67,6 +67,7 @@ void setup() {
   Timer1.start();
 
   //Set Hardware Interupt for EStop
+  pinMode(ESTOP, INPUT);
   attachInterrupt(digitalPinToInterrupt(ESTOP), eStop, FALLING);
   
   Serial.println("INFO: Setup Complete.");
@@ -117,9 +118,6 @@ void processInstruction(char *input){
       break;
     case 'h': 
       moveHand(atol(input+1)); 
-      break;
-    case 'x': 
-      //continuousMovement = atol(input+1);
       break;
     case 's': 
       joints[input[1] - '0'].setSpeed(atol(input+2));

@@ -1,5 +1,6 @@
 {
-    "port": "COM8",
-    "board": "arduino:avr:megaADK",
-    "sketch": "firmware\\firmware.ino"
+    "port": "COM4",
+    "board": "arduino:avr:mega",
+    "sketch": "firmware\\firmware.ino",
+    "configuration": "cpu=atmega2560"
 }

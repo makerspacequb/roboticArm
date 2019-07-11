@@ -42,6 +42,7 @@ class Controller:
         self.leftJoint = 0
         self.rightJoint = 1
         self.axisPositions = [0]*self.axisTotal
+        self.setSpeed = [0]*self.arm.joints
     
     #Logging Function
     def log(self, entry):
@@ -63,7 +64,7 @@ class Controller:
             #Capture Button States
             for i in range(0,self.axisTotal):
                 self.axisPositions[i] = self.gamepad.get_axis(i)
-            self.mapJoystick(self.axisPositions[1],self.axisPositions[0],self.leftJoint)
+            self.mapJoystick(self.axisPositions[0],self.axisPositions[1],self.leftJoint)
             self.mapJoystick(self.axisPositions[3],self.axisPositions[4],self.rightJoint)
 
         except:
@@ -91,14 +92,20 @@ class Controller:
             if(buttonState[1] and (self.lastButtonState[1] == 0)):
                 self.arm.stop()
             #Y BUTTON - STANDUP
-            if(buttonState[3] and (self.lastButtonState[3] == 0)):
+            if(self.buttonState[3] and (self.buttonStatePrevious[3] == 0)):
+                self.arm.setDefaults()
                 self.arm.standUp()
+                self.arm.waitToStationary()
             #X BUTTON - REST
-            if(buttonState[2] and (self.lastButtonState[2] == 0)):
+            if(self.buttonState[2] and (self.buttonStatePrevious[2] == 0)):
+                self.arm.setDefaults()
                 self.arm.rest()
+                self.arm.waitToStationary()
             #START BUTTON - CALIBRATE ARM
             if(buttonState[7] and (self.lastButtonState[7] == 0)):
+                self.arm.setDefaults()
                 self.arm.calibrateArm()
+                self.arm.waitToStationary()
             #LEFT THUMB BUTTON - CHANGE JOINT
             if(buttonState[8] and (self.lastButtonState[8] == 0)):
                 if (self.leftJoint + 1) == self.rightJoint:
@@ -146,6 +153,9 @@ class Controller:
     
     def mapJoint(self,joint,rawPosition):
         
+        #Converting to Discrete Speed Control
+        rawPosition = round(rawPosition,1)
+
         minSpeed = self.arm.jointMinSpeed[joint]
         maxSpeed = self.arm.jointMaxSpeed[joint]
         maxRotation = abs(self.arm.jointMaxRotation[joint])
@@ -154,19 +164,26 @@ class Controller:
         if rawPosition > self.deadzone:
             #Select and Set a Speed
             mappedSpeed = self.mapToRange(abs(rawPosition),self.deadzone,1,minSpeed,maxSpeed)
-            self.arm.minSpeed(joint,mappedSpeed)
-            self.arm.speed(joint,mappedSpeed)
-            #Move the arm
-            self.arm.moveJointTo(joint,maxRotation)
+            if mappedSpeed != self.setSpeed[joint]:
+                self.arm.setMinSpeed(joint,mappedSpeed)
+                self.arm.setSpeed(joint,mappedSpeed)
+                self.setSpeed[joint] = mappedSpeed
+                #Move the arm
+                self.arm.moveJointTo(joint,maxRotation)
         elif rawPosition < -self.deadzone:
             #Select and Set a Speed
             mappedSpeed = self.mapToRange(abs(rawPosition),self.deadzone,1,minSpeed,maxSpeed)
-            self.arm.minSpeed(joint,mappedSpeed)
-            self.arm.speed(joint,mappedSpeed)
-            #Move the arm
-            self.arm.moveJointTo(joint,0)
+            if mappedSpeed != self.setSpeed[joint]:
+                self.arm.setMinSpeed(joint,mappedSpeed)
+                self.arm.setSpeed(joint,mappedSpeed)
+                #Move the arm
+                self.setSpeed[joint] = mappedSpeed
+                self.arm.moveJointTo(joint,0)
         else:
-            self.arm.stop()
+            if self.arm.armCalibrated():
+                if self.setSpeed[joint] != 0:
+                    self.arm.setSpeed(joint,0)
+                    self.setSpeed[joint] = 0
     
     @staticmethod
     def mapToRange(raw,rawMin,rawMax,mapMin,mapMax):

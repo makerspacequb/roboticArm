@@ -31,6 +31,8 @@ class Arm:
     jointMaxSpeed = []
     jointMinSpeed = []
     jointPosDefault = []
+    jointSpeedDefault = []
+    jointAccelDefault = []
 
     def __init__(self,ipAddress,config):
 
@@ -47,6 +49,8 @@ class Arm:
             self.jointMaxSpeed.append(joint["maxSpeed"])
             self.jointMinSpeed.append(joint["minSpeed"])
             self.jointPosDefault.append(joint["defaultPosition"])
+            self.jointSpeedDefault.append(joint["defaultSpeed"])
+            self.jointAccelDefault.append(joint["defaultAccel"])
 
         #Status Flags
         self.jointPosition = [None]*self.joints
@@ -56,6 +60,7 @@ class Arm:
 
         try:
             self.session = requests.session()
+            self.clearLogs()
             self.connected = True
         except:
             self.log("ERROR: Cannot create a session.")
@@ -209,15 +214,20 @@ class Arm:
         else:
             self.log("ERROR: Calibrate arm before trying to stand.")
 
-    def speed(self,joint,speed):
+    def setAccel(self,joint,accel):
+        command = "z"+str(joint)+str(int(accel))
+        self.sendCommand(command)
+        self.log("INFO: Joint "+str(joint)+" acceleration rate adjusted to "+str(int(accel))+" degrees per second squared.")
+    
+    def setSpeed(self,joint,speed):
         command = "s"+str(joint)+str(int(speed))
         self.sendCommand(command)
         self.log("INFO: Joint "+str(joint)+" speed adjusted to "+str(int(speed))+" degrees per second.")
     
-    def minSpeed(self,joint,minSpeed):
+    def setMinSpeed(self,joint,minSpeed):
         command = "d"+str(joint)+str(int(minSpeed))
         self.sendCommand(command)
-        self.log("INFO: Joint "+str(joint)+" speed adjusted to "+str(int(minSpeed))+" degrees per second.")
+        self.log("INFO: Joint "+str(joint)+" minimum speed adjusted to "+str(int(minSpeed))+" degrees per second.")
      
     def calibrateArm(self):
         command = "ca"
@@ -254,8 +264,13 @@ class Arm:
                 moving = jointMoving
         return moving
 
-    def reset(self):
+    def clearLogs(self):
+        url = self.baseURL + "clearLogs"
+        response = self.session.get(url,timeout=self.timeout)
+        if response.content.decode("utf-8"):
+            self.log(response.content.decode("utf-8"))
 
+    def reset(self):
         messages = ["disconnect","connect"]
         for message in messages:
             url = self.baseURL + message
@@ -275,6 +290,12 @@ class Arm:
         calibrated = True
         for jointCalibrated in self.calibrationState:
             calibrated &= int(jointCalibrated)
-        if(calibrated):
-            self.log("INFO: Python recognises that arm is fully calibrated.")
         return calibrated
+    
+    def setDefaults(self):
+        i = 0 
+        for i in range(0,self.joints):
+            self.setSpeed(i,self.jointSpeedDefault[i])
+            self.setMinSpeed(i,(int(self.jointSpeedDefault[i])-10))      
+            self.setAccel(i,self.jointAccelDefault[i])
+            self.log("INFO: Joint "+str(i)+" defaults set.")

@@ -43,7 +43,7 @@ class Controller:
         self.leftJoint = 0
         self.rightJoint = 1
         self.axisPositions = [0]*self.axisTotal
-        self.setSpeed = [0]*self.axisTotal
+        self.setSpeed = [0]*self.arm.joints
     
     #Logging Function
     def log(self, entry):
@@ -65,7 +65,7 @@ class Controller:
             #Capture Button States
             for i in range(0,self.axisTotal):
                 self.axisPositions[i] = self.gamepad.get_axis(i)
-            self.mapJoystick(self.axisPositions[1],self.axisPositions[0],self.leftJoint)
+            self.mapJoystick(self.axisPositions[0],self.axisPositions[1],self.leftJoint)
             self.mapJoystick(self.axisPositions[3],self.axisPositions[4],self.rightJoint)
 
         except:

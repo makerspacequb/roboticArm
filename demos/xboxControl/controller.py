@@ -15,7 +15,7 @@ class Controller:
 
     debug = False
     logFilePath = "logs/log.txt"
-    deadzone = 0.4
+    deadzone = 0.3
     #COPY: Copyright 2019, All Rights Reserved, Ryan McCartney
 
     def __init__(self,ipAddress,config):
@@ -92,12 +92,12 @@ class Controller:
             if(buttonState[1] and (self.lastButtonState[1] == 0)):
                 self.arm.stop()
             #Y BUTTON - STANDUP
-            if(self.buttonState[3] and (self.buttonStatePrevious[3] == 0)):
+            if(buttonState[3] and (self.lastButtonState[3] == 0)):
                 self.arm.setDefaults()
                 self.arm.standUp()
                 self.arm.waitToStationary()
             #X BUTTON - REST
-            if(self.buttonState[2] and (self.buttonStatePrevious[2] == 0)):
+            if(buttonState[2] and (self.lastButtonState[2] == 0)):
                 self.arm.setDefaults()
                 self.arm.rest()
                 self.arm.waitToStationary()
@@ -110,7 +110,7 @@ class Controller:
             if(buttonState[8] and (self.lastButtonState[8] == 0)):
                 if (self.leftJoint + 1) == self.rightJoint:
                     self.leftJoint += 2
-                if (self.leftJoint + 1) > 2:
+                elif (self.leftJoint) > 2:
                     self.leftJoint = 0
                 else:
                     self.leftJoint += 1
@@ -118,7 +118,7 @@ class Controller:
             #RIGHT THUMB BUTTON - CHANGE JOINT
             if(buttonState[9] and (self.lastButtonState[9] == 0)):  
                 if (self.rightJoint + 1) == self.leftJoint:
-                    self.leftJoint += 2
+                    self.rightJoint += 2
                 if (self.rightJoint + 1) > 2:
                     self.rightJoint = 0
                 else:
@@ -154,7 +154,7 @@ class Controller:
     def mapJoint(self,joint,rawPosition):
         
         #Converting to Discrete Speed Control
-        rawPosition = round(rawPosition,1)
+        rawPosition = round(rawPosition,2)
 
         minSpeed = self.arm.jointMinSpeed[joint]
         maxSpeed = self.arm.jointMaxSpeed[joint]
@@ -182,6 +182,7 @@ class Controller:
         else:
             if self.arm.armCalibrated():
                 if self.setSpeed[joint] != 0:
+                    self.arm.setMinSpeed(joint,0)
                     self.arm.setSpeed(joint,0)
                     self.setSpeed[joint] = 0
     

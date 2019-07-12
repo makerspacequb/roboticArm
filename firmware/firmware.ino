@@ -147,9 +147,7 @@ void processInstruction(char *input){
       moveJoint(input[1] - '0',atol(input+2)); 
       break;
     case 'q': 
-      for (int i = 0; i < TOTAL_JOINTS; i++)
-        joints[i].move(0);
-      Serial.println("INFO: Arm Stopped");
+      quit();
       break;
     case 'r':
       eStopActivated = false;
@@ -345,6 +343,13 @@ void sendStatus(){
   printCalibration();
   printMovemetStates();
   statusTime = millis();
+}
+
+void quit(){
+  for (int i = 0; i < TOTAL_JOINTS; i++){
+    joints[i].move(0);
+  }
+  Serial.println("INFO: Arm Stopped");
 }
 
 void eStop(){

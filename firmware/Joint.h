@@ -170,13 +170,17 @@ bool Joint::calibrate(){
 
 //setters
 void Joint::setSpeed(int speed){
-  this->speed = speed;
-  stepperMotor->setSpeed(speed * stepsPerDegree);
+  if(minSpeed <= speed){
+    this->speed = speed;
+    stepperMotor->setSpeed(speed * stepsPerDegree);
+  }
 }
 
-void Joint::setMinSpeed(int speed){
-  this->minSpeed = speed;
-  stepperMotor->setMinSpeed(speed * stepsPerDegree);
+void Joint::setMinSpeed(int minSpeed){
+  if(minSpeed <= speed){
+    this->minSpeed = minSpeed;
+    stepperMotor->setMinSpeed(minSpeed * stepsPerDegree);
+  }
 }
 
 void Joint::setAccelRate(int rate){

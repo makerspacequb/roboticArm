@@ -1,5 +1,5 @@
-#NAME: main.py
-#DATE: 14/06/2019
+#NAME: xboxControlJoints.py
+#DATE: 25/07/2019
 #AUTH: Ryan McCartney
 #DESC: Python function to control a 6DOF robotic arm with an xbox controller.
 #COPY: Copyright 2019, All Rights Reserved, Ryan McCartney

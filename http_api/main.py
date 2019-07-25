@@ -4,8 +4,10 @@
 #DESC:  A python script for running a cherrpi API as a serial passthrough
 #COPY:  Copyright 2018, All Rights Reserved, Ryan McCartney
 
+import subprocess
 import threading
 import cherrypy
+import signal
 import serial
 import time
 import os
@@ -30,6 +32,7 @@ try:
         serialMonitorData = ["-,-"]*SerialMonitorLines
         latestMessage = ""
         previousMessage = ""
+        pids = []
 
         @cherrypy.expose
         def index(self):  
@@ -51,20 +54,22 @@ try:
             try:
                 cwd = os.getcwd()
                 fullPath = cwd+demoPath
-                os.system("sudo python3 "+fullPath)
+                proc = subprocess.Popen(['python', fullPath], shell=True)
+                time.sleep(3)
+                self.pids.append(proc.pid)
             except:
                 status = "Failed to run '"+str(demoPath)+"'."
             return status
 
         @cherrypy.expose
-        def stopDemo(self,demoPath):
-            status = "Succefully Terminated Demo from '"+str(demoPath)+"'."
-            try:
-                cwd = os.getcwd()
-                fullPath = cwd+demoPath
-                os.system("sudo python3 "+fullPath)
+        def stopDemos(self):
+            status = "Succefully Terminated Demos."
+            try:   
+                while self.pids:
+                    pid = self.pids.pop()
+                    os.kill(pid, signal.SIGTERM)
             except:
-                status = "Failed to terminate '"+str(demoPath)+"'."
+                status = "Failed to terminate demo scripts."
             return status
 
         @cherrypy.expose

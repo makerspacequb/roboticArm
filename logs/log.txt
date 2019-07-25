@@ -1,6 +1,1 @@
-11/07/2019 16:43:31: 30/06/2019 13:22:46 - INFO: Transmit and Receive Logs have been cleared.
-11/07/2019 16:43:31: INFO: Motor control box disconnected.
-11/07/2019 16:43:32: INFO: Motor control box connected to /dev/ttyUSB0.
-11/07/2019 16:43:32: ,INFO: Starting up...
-11/07/2019 16:43:33: INFO: Arm Reset.
-11/07/2019 16:43:34: INFO: Gamepad Connected Succesfully.
+25/07/2019 12:20:17: ERROR: Cannot create a session.

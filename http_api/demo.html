@@ -19,24 +19,29 @@
         <h2>Xbox Control</h2>
         <p>This demo allows control of each joint via an Xbox Controller.</p>
         <p><b>NOTE: This demo currently runs on startup.</b></p>
-        <button class="button" onclick="demo('runDemo?demoPath=')">Run Demo</button>
-        <button class="button" onclick="demo('stopDemo?demoPath=')">Stop Demo</button>
+        <button class="button" onclick="demo('runDemo?demoPath=/demos/xboxControl/xboxControlJoints.py')">Run Demo</button>
+        <button class="button" onclick="demo('stopDemos')">Stop Demo</button>
         
         <h2>Xbox Control via Inverse Kinematics</h2>
         <p>This demo allows control of the end effector positions via an Xbox Controller.</p>
-        <button class="button" onclick="demo('runDemo?demoPath=')">Run Demo</button>
-        <button class="button" onclick="demo('stopDemo?demoPath=')">Stop Demo</button>
+        <button class="button" onclick="demo('runDemo?demoPath=/demos/xboxControl/xboxControlKinematics.py')">Run Demo</button>
+        <button class="button" onclick="demo('stopDemos')">Stop Demo</button>
         
         <h2>Standup and Sit Down</h2>
         <p>This demo calibrates the robot then the robot moves to an upright position before imediately returning to a lying down.</p>
-        <button class="button" onclick="demo('runDemo?demoPath=')">Run Demo</button>
-        <button class="button" onclick="demo('stopDemo?demoPath=')">Stop Demo</button>
+        <button class="button" onclick="demo('runDemo?demoPath=/demos/standSit.py')">Run Demo</button>
+        <button class="button" onclick="demo('stopDemos')">Stop Demo</button>
         
         <h2>Random Positioning</h2>
         <p>Calibrates the arm, move the arm to it's upright position and then selects a random combination of joints to move to.</p>
         <p><b>WARNING: This demo may not always operate safely. The combination of random joints may result in object collision.</b></p>
-        <button class="button" onclick="demo('runDemo?demoPath=')">Run Demo</button>
-        <button class="button" onclick="demo('stopDemo?demoPath=')">Stop Demo</button>
+        <button class="button" onclick="demo('runDemo?demoPath=/demos/randomMovement.py')">Run Demo</button>
+        <button class="button" onclick="demo('stopDemos')">Stop Demo</button>
+    
+        <h2>Move and Return</h2>
+        <p>Calibrates the arm, moves all joints by 45 degrees. The arm then returns to previous it original position.</p>
+        <button class="button" onclick="demo('runDemo?demoPath=/demos/moveReturn.py')">Run Demo</button>
+        <button class="button" onclick="demo('stopDemos')">Stop Demo</button>
     
     <h1>Status</h1>
 

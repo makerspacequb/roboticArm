@@ -44,14 +44,14 @@ body {
 	width:600px;
 	margin:0 auto;
 	font-family: helvetica, sans-serif;
-	font-size: 1vw;
+	font-size: 0.8vw;
 	text-align: center;
 }
 
 h1 {
 	font-family: helvetica, sans-serif;
 	width: 100%;
-	font-size: 2vw;
+	font-size: 1.8vw;
 	color: black;
 	clear: left;
 	text-align: center;
@@ -60,7 +60,7 @@ h1 {
 h2 {
 	font-family: helvetica, sans-serif;
 	width: 100%;
-	font-size: 1.6vw;
+	font-size: 1.4vw;
 	color: black;
 	clear: left;
 	text-align: center;
@@ -72,7 +72,7 @@ input[type=text] {
 	margin: auto;
 	border:1px solid #42d4f4;
 	width:60%;
-	font-size: 1vw;
+	font-size: 0.8vw;
 	font-family: helvetica, sans-serif;
 }	
 

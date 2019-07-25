@@ -25,19 +25,25 @@ def threaded(fn):
     return wrapper
 
 try:
-    
     class API(object):
 
-        connected = False
-        serialMonitorData = ["-,-"]*SerialMonitorLines
-        latestMessage = ""
-        previousMessage = ""
-        pids = []
+        def __init__(self):
+            
+            self.connected = False
+            self.serialMonitorData = ["-,-"]*SerialMonitorLines
+            self.latestMessage = ""
+            self.previousMessage = ""
+            self.pids = []
+
+            #On startup try to connect to serial
+            self.connect()
+
+            #RUN XBOX CONTROL ON STARTUP
+            xboxControlPath = "/demos/xboxControl/xboxControlJoints.py"
+            self.runDemo(xboxControlPath)
 
         @cherrypy.expose
         def index(self):  
-            #On index try to connect to serial
-            self.connect()
             with open ("http_api/index.html", "r") as webPage:
                 contents=webPage.readlines()
             return contents

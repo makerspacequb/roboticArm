@@ -1,1 +1,17 @@
-25/07/2019 12:20:17: ERROR: Cannot create a session.
+25/07/2019 12:39:29: 25/07/2019 12:39:29 - INFO: Transmit and Receive Logs have been cleared.
+25/07/2019 12:39:30: INFO: Motor control box is not connected.
+25/07/2019 12:39:32: INFO: Did not receive status response from API.
+25/07/2019 12:39:35: INFO: Did not receive status response from API.
+25/07/2019 12:39:53: INFO: Did not receive status response from API.
+25/07/2019 12:39:56: INFO: Did not receive status response from API.
+25/07/2019 12:39:59: INFO: Did not receive status response from API.
+25/07/2019 12:40:15: INFO: Did not receive status response from API.
+25/07/2019 12:40:17: INFO: Did not receive status response from API.
+25/07/2019 12:40:19: INFO: Did not receive status response from API.
+25/07/2019 12:40:21: INFO: Did not receive status response from API.
+25/07/2019 12:40:23: INFO: Did not receive status response from API.
+25/07/2019 12:40:25: INFO: Did not receive status response from API.
+25/07/2019 12:40:27: INFO: Did not receive status response from API.
+25/07/2019 12:40:29: INFO: Did not receive status response from API.
+25/07/2019 12:40:31: INFO: Did not receive status response from API.
+25/07/2019 12:40:33: INFO: Did not receive status response from API.

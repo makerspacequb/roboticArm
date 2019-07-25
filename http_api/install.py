@@ -1,0 +1,51 @@
+#NAME:  install.py
+#DATE:  Thursday 25th July 2019
+#AUTH:  Ryan McCartney
+#DESC:  A python script for installing robotic arm web server
+#COPY:  Copyright 2019, All Rights Reserved, Ryan McCartney
+
+import os
+import json
+
+hostname = "roboticArm"
+
+def getDependencies():
+    #Install Dependencies
+    os.system("sudo pip3 install --upgrade pip")
+    os.system("sudo pip3 install CherryPy")
+    os.system("sudo pip3 install pyserial")
+    os.system("sudo pip3 install pygame")
+
+def setupPythonStartup():
+    
+    cwd = os.getcwd()
+    startupFile = "/etc/rc.local"
+    startupFileContents = None
+    cdCommand ="cd "+str(cwd)
+    startCommand="sudo python3 "+str(cwd)+"/start.py"
+        
+    with open(startupFile, 'r') as file:
+        startupFileContents = file.readlines()
+    
+    lineNumber = len(startupFileContents)-1
+    startupFileContents.insert(lineNumber,cdCommand + "\n")
+    lineNumber = len(startupFileContents)-1
+    startupFileContents.insert(lineNumber,startCommand + "\n")
+    
+    with open(startupFile,'w') as file:
+        file.writelines(startupFileContents)
+        
+def changeHostname():
+    #Change Hostname
+    os.system("sudo hostname "+hostname)
+
+if __name__ == '__main__':
+    
+    print("INFO: Installing pyapi")
+    print("INFO: Getting dependencies for operation")
+    getDependencies()
+    print("INFO: Setting up Raspberry Pi to run pyapi on startup")
+    setupPythonStartup()
+    print("INFO: Changing hostname")
+    changeHostname()
+    print("INFO: Installation complete. Please reboot.")

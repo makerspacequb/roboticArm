@@ -16,7 +16,7 @@ open('logs/log.txt', 'w').close()
 with open('config/config.json') as json_file:  
     config = json.load(json_file)
 
-ip_address = "192.168.0.105"
+ip_address = "localhost"
 arm = Arm(ip_address,config)
 
 arm.calibrateArm()

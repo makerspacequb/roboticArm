@@ -9,7 +9,7 @@ import json
 import time
 
 status = True
-ip_address = "192.168.0.105"
+ip_address = "localhost"
 
 #Clear Log File
 open('logs/log.txt', 'w').close()

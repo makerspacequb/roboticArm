@@ -11,7 +11,7 @@ import time
 import json
 
 global config
-ip_address = "192.168.0.105"
+ip_address = "localhost"
 fixedPosition = [170,40,40,40,40,180]
 
 #Clear Log File

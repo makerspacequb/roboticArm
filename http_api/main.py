@@ -32,14 +32,40 @@ try:
         previousMessage = ""
 
         @cherrypy.expose
-        def index(self):
-            
+        def index(self):  
             #On index try to connect to serial
             self.connect()
-
             with open ("http_api/index.html", "r") as webPage:
                 contents=webPage.readlines()
             return contents
+        
+        @cherrypy.expose
+        def demos(self):
+            with open ("http_api/demo.html", "r") as webPage:
+                contents=webPage.readlines()
+            return contents
+
+        @cherrypy.expose
+        def runDemo(self,demoPath):
+            status = "Succefully Running Demo from '"+str(demoPath)+"'."
+            try:
+                cwd = os.getcwd()
+                fullPath = cwd+demoPath
+                os.system("sudo python3 "+fullPath)
+            except:
+                status = "Failed to run '"+str(demoPath)+"'."
+            return status
+
+        @cherrypy.expose
+        def stopDemo(self,demoPath):
+            status = "Succefully Terminated Demo from '"+str(demoPath)+"'."
+            try:
+                cwd = os.getcwd()
+                fullPath = cwd+demoPath
+                os.system("sudo python3 "+fullPath)
+            except:
+                status = "Failed to terminate '"+str(demoPath)+"'."
+            return status
 
         @cherrypy.expose
         def clearLogs(self):
@@ -180,7 +206,7 @@ try:
                         baudrate=Baudrate,
                         parity=serial.PARITY_NONE,
                         stopbits=serial.STOPBITS_ONE,
-                        bytesize=serial.EIGHTBITS,
+                         bytesize=serial.EIGHTBITS,
                         )
                     time.sleep(1)
                     self.connected = True

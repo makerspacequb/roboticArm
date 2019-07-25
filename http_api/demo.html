@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <title>Robotic Arm | Demos</title>
+    <link rel="icon" type="image/ico" href="public/favicon.ico" sizes="16x16">
+    <link rel="stylesheet" href="public/style.css">
+</head>
+        
+<body>
+
+    <img class="center" src="public/logo.png" width="150">
+
+    <h1>Robotic Arm Demos</h1>
+
+        <p>A Selection of demos for the robotic arm that run from the Raspberry Pi connected to the Arm.</p>
+
+        <h2>Xbox Control</h2>
+        <p>This demo allows control of each joint via an Xbox Controller.</p>
+        <p><b>NOTE: This demo currently runs on startup.</b></p>
+        <button class="button" onclick="demo('runDemo?demoPath=')">Run Demo</button>
+        <button class="button" onclick="demo('stopDemo?demoPath=')">Stop Demo</button>
+        
+        <h2>Xbox Control via Inverse Kinematics</h2>
+        <p>This demo allows control of the end effector positions via an Xbox Controller.</p>
+        <button class="button" onclick="demo('runDemo?demoPath=')">Run Demo</button>
+        <button class="button" onclick="demo('stopDemo?demoPath=')">Stop Demo</button>
+        
+        <h2>Standup and Sit Down</h2>
+        <p>This demo calibrates the robot then the robot moves to an upright position before imediately returning to a lying down.</p>
+        <button class="button" onclick="demo('runDemo?demoPath=')">Run Demo</button>
+        <button class="button" onclick="demo('stopDemo?demoPath=')">Stop Demo</button>
+        
+        <h2>Random Positioning</h2>
+        <p>Calibrates the arm, move the arm to it's upright position and then selects a random combination of joints to move to.</p>
+        <p><b>WARNING: This demo may not always operate safely. The combination of random joints may result in object collision.</b></p>
+        <button class="button" onclick="demo('runDemo?demoPath=')">Run Demo</button>
+        <button class="button" onclick="demo('stopDemo?demoPath=')">Stop Demo</button>
+    
+    <h1>Status</h1>
+
+      <p id="status">When commands are sent, their status is shown here.</p>
+
+    <script src="public/jquery.min.js"></script>
+    <script>
+        function demo(command){
+            
+            $.ajax({
+                type: "GET",
+                url: command,
+                datatype: "text",
+                success: function(status) {
+                    //Print Data to console
+                    console.log(status);
+                    //Print Status			
+                    statusElement = document.getElementById('status');
+                    statusElement.innerHTML = status;
+                }
+            });
+            return status;
+        } 
+    </script>
+</body>
+</html>

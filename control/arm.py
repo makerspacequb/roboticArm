@@ -40,7 +40,7 @@ class Arm:
         self.logging = True
         self.ipAddress = config["ipAddress"]
         self.port = config["port"]
-        self.baseURL = "http://"+self.ipAddress+":"+self.port+"/"
+        self.baseURL = "http://"+str(self.ipAddress)+":"+str(self.port)+"/"
         self.error = False
         self.timeout = 2 #Seconds
         self.pollingStatus = False

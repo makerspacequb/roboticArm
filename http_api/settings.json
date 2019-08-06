@@ -1,7 +1,7 @@
 {
     "serverName":"Robotic Arm",
     "serverPort":80,
-    "serialPort":"/dev/ttyACM0",
+    "serialPort":"/dev/ttyUSB0",
     "baudrate":115200,
     "serialMonitorLines":20,
     "hostname":"roboticarm",

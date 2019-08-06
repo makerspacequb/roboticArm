@@ -34,11 +34,13 @@ class Arm:
     jointSpeedDefault = []
     jointAccelDefault = []
 
-    def __init__(self,ipAddress,config):
+    def __init__(self,config):
 
         self.joints = 6
         self.logging = True
-        self.baseURL = "http://"+ipAddress+":8080/"
+        self.ipAddress = config["ipAddress"]
+        self.port = config["port"]
+        self.baseURL = "http://"+self.ipAddress+":"+self.port+"/"
         self.error = False
         self.timeout = 2 #Seconds
         self.pollingStatus = False

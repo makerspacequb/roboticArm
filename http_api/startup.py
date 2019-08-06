@@ -11,4 +11,4 @@ if __name__ == '__main__':
     print("Starting Robotic Arm API")
     cwd = os.getcwd()
     mainPath = cwd+"/http_api/main.py"
-    os.system("sudo python3 "+mainPath)
+    #os.system("sudo python3 "+mainPath)

@@ -18,15 +18,14 @@ class Controller:
     deadzone = 0.3
     #COPY: Copyright 2019, All Rights Reserved, Ryan McCartney
 
-    def __init__(self,ipAddress,config):
+    def __init__(self,config):
 
         self.logging = True
         self.gamepadConnected = False
-        self.ip_address = "192.168.0.105"
         self.gamepadToUse = 0
 
         #Create instance of Arm class
-        self.arm = Arm(ipAddress,config)
+        self.arm = Arm(config)
         self.arm.reset()
 
         #Start Pygame

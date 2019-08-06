@@ -89,20 +89,20 @@ try:
 
         @cherrypy.expose
         def runDemo(self,demoPath):
-            status = "Succefully Running Demo from '"+str(demoPath)+"'."
             try:
                 cwd = os.getcwd()
                 fullPath = cwd+demoPath
                 proc = subprocess.Popen(['python', fullPath], shell=True)
                 time.sleep(3)
                 self.pids.append(proc.pid)
+                status = "Successfully Running Demo from '"+str(demoPath)+"' with PID: "+str(proc.pid)+"."
             except:
                 status = "Failed to run '"+str(demoPath)+"'."
             return status
 
         @cherrypy.expose
         def stopDemos(self):
-            status = "Succefully Terminated Demos."
+            status = "Successfully Terminated Demos."
             try:   
                 while self.pids:
                     pid = self.pids.pop()
@@ -197,8 +197,8 @@ try:
                         self.serial.reset_input_buffer()
                         dump = self.serial.readline().decode('utf-8')
                         currentDateTime = time.strftime("%d/%m/%Y %H:%M:%S")
-                        status = currentDateTime + " - ERROR: Buffer full dumping '"+str(dump)+"'."
-                        print(status)
+                        #status = currentDateTime + " - ERROR: Buffer full dumping '"+str(dump)+"'."
+                        #print(status)
                 except:
                     self.connected = False
                     currentDateTime = time.strftime("%d/%m/%Y %H:%M:%S")

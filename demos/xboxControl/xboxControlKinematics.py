@@ -10,6 +10,7 @@ import time
 
 status = True
 ip_address = "localhost"
+port = 80
 
 #Clear Log File
 open('logs/log.txt', 'w').close()
@@ -18,7 +19,7 @@ with open('config/config.json') as json_file:
     config = json.load(json_file)
 
 #Create instance of Arm class
-control = Controller(ip_address,config)
+control = Controller(config)
 
 while 1:
     while control.arm.connected:

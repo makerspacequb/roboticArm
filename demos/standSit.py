@@ -19,8 +19,7 @@ with open('config/config.json') as json_file:
     config = json.load(json_file)
 
 #Create instance of Arm class
-ip_address = "192.168.0.105"
-arm = Arm(ip_address,config)
+arm = Arm(config)
 arm.reset()
 
 arm.calibrateArm()

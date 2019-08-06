@@ -18,7 +18,7 @@ with open('config/config.json') as json_file:
     config = json.load(json_file)
 
 #Create instance of Arm class
-control = Controller(ip_address,config)
+control = Controller(config)
 
 while 1:
     while control.arm.connected:

@@ -11,7 +11,6 @@ import time
 import json
 
 global config
-ip_address = "localhost"
 fixedPosition = [170,40,40,40,40,180]
 
 #Clear Log File
@@ -22,7 +21,7 @@ with open('config/config.json') as json_file:
     config = json.load(json_file)
 
 #Create instance of Arm class
-arm = Arm(ip_address,config)
+arm = Arm(config)
 arm.reset()
 
 #Calibrate Arm

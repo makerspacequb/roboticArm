@@ -6,14 +6,15 @@ Simple API with web interface using AJAX and direct HTTP commands to allow remot
 
 * `pip3 install cherrypy`
 * `pip3 install pyserial`
+* `pip3 install pygame`
 
 ## Installation and Run
 
 1. `cd /home/pi/Desktop/`
 2. `git clone https://github.com/makerspacequb/roboticArm`
 3. `cd ~/Desktop/roboticArm/http_api`
-4. `sudo chmod +x startServer.sh`
-5. `./startServer.sh`
+4. `sudo python3 install.py`
+5. `sudo reboot`
 
 ## Usage
 

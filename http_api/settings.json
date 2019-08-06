@@ -1,0 +1,10 @@
+{
+    "serverName":"Robotic Arm",
+    "serverPort":80,
+    "serialPort":"/dev/ttyACM0",
+    "baudrate":115200,
+    "serialMonitorLines":20,
+    "hostname":"roboticarm",
+    "repo":"https://github.com/makerspacequb/roboticArm",
+    "xboxScript":"/demos/xboxControl/xboxControlJoints.py"
+}

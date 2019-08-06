@@ -1,8 +1,8 @@
 #NAME:  main.py
-#DATE:  Wednesday 5th June 2019
+#DATE:  Tuesday 6th August 2019
 #AUTH:  Ryan McCartney, EEE Undergraduate, Queen's University Belfast
-#DESC:  A python script for running a cherrpi API as a serial passthrough
-#COPY:  Copyright 2018, All Rights Reserved, Ryan McCartney
+#DESC:  A python script for running a CherryPy API as a serial passthrough
+#COPY:  Copyright 2019, All Rights Reserved, Ryan McCartney
 
 import subprocess
 import threading
@@ -10,11 +10,10 @@ import cherrypy
 import signal
 import serial
 import time
+import json
 import os
 
-SerialPort = '/dev/ttyUSB0'
-Baudrate = 115200
-SerialMonitorLines = 20
+cofigFilePath =  "http_api/settings.json"
 
 #define threading wrapper
 def threaded(fn):
@@ -27,27 +26,61 @@ def threaded(fn):
 try:
     class API(object):
 
-        def __init__(self):
+        def __init__(self,configFilePath):
             
+
+            self.loadConfig(cofigFilePath)
+            
+            #Initiialise other Variables
+            self.headers = ["Timestamp","Info","Joint 0","Joint 1","Joint 2","Joint 3","Joint 4","Joint 5"]
+            self.serialMonitorData = ["-,-,-,-,-,-,-,-"]*self.serialMonitorLines
             self.connected = False
-            self.serialMonitorData = ["-,-"]*SerialMonitorLines
             self.latestMessage = ""
             self.previousMessage = ""
+            self.indexPrepared = False
             self.pids = []
 
+            #Update Server Port
+            cherrypy.config.update(
+                {'server.socket_host': '0.0.0.0',
+                 'server.socket_port': self.serverPort}
+            )   
+     
             #On startup try to connect to serial
             self.connect()
-
-            #RUN XBOX CONTROL ON STARTUP
-            xboxControlPath = "/demos/xboxControl/xboxControlJoints.py"
-            self.runDemo(xboxControlPath)
-
+            self.runDemo(self.xboxControlPath)
+        
+        def loadConfig(self,configFilePath):
+            with open(configFilePath) as configFile:  
+                config = json.load(configFile)
+                self.serverName  = config["serverName"]
+                self.serverPort  = config["serverPort"]
+                self.serialPort  = config["serialPort"]
+                self.baudrate  = config["baudrate"]
+                self.serialMonitorLines  = config["serialMonitorLines"]
+                self.hostname  = config["hostname"]
+                self.xboxControlPath = config["xboxScript"]
+       
         @cherrypy.expose
-        def index(self):  
+        def index(self):
+            if not self.indexPrepared:
+                self.prepareIndex()
+            #On index try to connect to serial
+            self.connect()
+
             with open ("http_api/index.html", "r") as webPage:
                 contents=webPage.readlines()
             return contents
         
+        def prepareIndex(self):
+            contents = ""
+            with open("http_api/baseIndex.html", "rt") as webPageIn:
+                for line in webPageIn:
+                    contents += line.replace('SERVERNAMEFEILD',self.serverName)
+            with open("http_api/index.html", "wt") as webPageOut:
+                    webPageOut.write(contents)
+                    self.indexPrepared = True
+
         @cherrypy.expose
         def demos(self):
             with open ("http_api/demo.html", "r") as webPage:
@@ -94,7 +127,7 @@ try:
             log.close()
             
             #Clear serial monitor
-            self.serialMonitorData = ["-,-"]*SerialMonitorLines
+            self.serialMonitorData = ["-,-,-,-,-,-,-,-"]*self.serialMonitorLines
 
             #Return Message
             status = currentDateTime + " - INFO: Transmit and Receive Logs have been cleared."
@@ -134,7 +167,7 @@ try:
         def receive(self):
             
             #Initialise array to store data serial monitor data
-            self.serialMonitorData = ["-,-"]*SerialMonitorLines
+            self.serialMonitorData = ["-,-"]*self.serialMonitorLines
 
             while self.connected == True:
                 
@@ -175,16 +208,26 @@ try:
         @cherrypy.expose
         def serialMonitor(self):
             
-            table = "<table><tr><th>Timestamp</th><th>Serial Data</th></tr>"
+            #Add Correct number of Headers
+            table =  "<table><tr>"
+            for header in self.headers:
+                table += "<th>"+header+"</th>"
+            table += "</tr>"
 
-            for row in self.serialMonitorData:
-
-                table += "<tr><td width='30%'>"
-                table += row.replace(",", "</td><td width='70%'>")
+            #Get table contents
+            rows = len(self.serialMonitorData)-1
+            for i in range(rows,0,-1):
+                row = self.serialMonitorData[i]
+                table += "<tr><td width='20%'>"
+                table += row.replace(",", "</td><td width='10%'>",len(self.headers))
+                if row.count(',') < len(self.headers):
+                    for i in range(row.count(','),len(self.headers)-1):
+                        table += "</td><td width='10%'>"
                 table += "</td></tr>"
-        
+    
             table +="</table>"
             return table
+
 
         @cherrypy.expose
         def getLast(self):
@@ -213,8 +256,8 @@ try:
                 try:
                     #Open Serial Connection
                     self.serial = serial.Serial(
-                        port= SerialPort,
-                        baudrate=Baudrate,
+                        port= self.serialPort,
+                        baudrate=self.baudrate,
                         parity=serial.PARITY_NONE,
                         stopbits=serial.STOPBITS_ONE,
                          bytesize=serial.EIGHTBITS,
@@ -255,7 +298,7 @@ try:
         cherrypy.config.update(
             {'server.socket_host': '0.0.0.0'}
         )     
-        cherrypy.quickstart(API(), '/',
+        cherrypy.quickstart(API(cofigFilePath), '/',
             {
                 'favicon.ico':
                 {

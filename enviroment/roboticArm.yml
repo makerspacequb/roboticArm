@@ -10,7 +10,7 @@ dependencies:
   - backports.functools_lru_cache=1.5=py_2
   - blas=1.0=mkl
   - ca-certificates=2019.5.15=0
-  - certifi=2019.6.16=py27_0
+  - certifi=2019.6.16=py27_1
   - cffi=1.12.3=py27hcfb25f9_0
   - chardet=3.0.4=py27_1
   - cheroot=6.5.5=py27_0
@@ -64,5 +64,5 @@ dependencies:
   - wincertstore=0.2=py27hf04cefb_0
   - wrapt=1.11.1=py27h0c8e037_0
   - zc.lockfile=1.4=py_0
-prefix: C:\Users\Ryan\.conda\envs\roboticArm
+prefix: C:\Users\makerspacestaff\Anaconda3\envs\roboticArm
 

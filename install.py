@@ -1,13 +1,12 @@
 #NAME:  install.py
-#DATE:  Thursday 25th July 2019
+#DATE:  Tuesday 6th August 2019
 #AUTH:  Ryan McCartney
-#DESC:  A python script for installing robotic arm web server
+#DESC:  A python script for installing the Robotic Arm utility
 #COPY:  Copyright 2019, All Rights Reserved, Ryan McCartney
 
 import os
 import json
-
-hostname = "roboticArm"
+settingFilePath = "http_api/settings.json"
 
 def getDependencies():
     #Install Dependencies
@@ -15,14 +14,14 @@ def getDependencies():
     os.system("sudo pip3 install CherryPy")
     os.system("sudo pip3 install pyserial")
     os.system("sudo pip3 install pygame")
-
+    
 def setupPythonStartup():
     
     cwd = os.getcwd()
     startupFile = "/etc/rc.local"
     startupFileContents = None
     cdCommand ="cd "+str(cwd)
-    startCommand="sudo python3 "+str(cwd)+"/start.py"
+    startCommand="sudo python3 "+str(cwd)+"/http_api/startup.py"
         
     with open(startupFile, 'r') as file:
         startupFileContents = file.readlines()
@@ -37,14 +36,20 @@ def setupPythonStartup():
         
 def changeHostname():
     #Change Hostname
+    hostname = settings["hostname"]
     os.system("sudo hostname "+hostname)
-
+  
 if __name__ == '__main__':
     
-    print("INFO: Installing pyapi")
+    #Load Settings File
+    settingsFile = open(settingFilePath,"r")
+    settings = json.load(settingsFile)
+    settingsFile.close()
+
+    print("INFO: Installing "+settings["serverName"])
     print("INFO: Getting dependencies for operation")
     getDependencies()
-    print("INFO: Setting up Raspberry Pi to run pyapi on startup")
+    print("INFO: Setting up Raspberry Pi to run the "+settings["serverName"]+" on startup")
     setupPythonStartup()
     print("INFO: Changing hostname")
     changeHostname()

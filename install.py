@@ -14,6 +14,7 @@ def getDependencies():
     os.system("sudo pip3 install CherryPy")
     os.system("sudo pip3 install pyserial")
     os.system("sudo pip3 install pygame")
+    os.system("sudo pip3 install requests")
     
 def setupPythonStartup():
     

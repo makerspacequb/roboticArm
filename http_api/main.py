@@ -90,6 +90,7 @@ try:
         @cherrypy.expose
         def runDemo(self,demoPath):
             try:
+                self.stopDemos()
                 cwd = os.getcwd()
                 fullPath = cwd+demoPath
                 proc = subprocess.Popen(['python', fullPath], shell=True)
@@ -107,6 +108,7 @@ try:
                 while self.pids:
                     pid = self.pids.pop()
                     os.kill(pid, signal.SIGTERM)
+                    print("INFO: Terminated Process: "+str(pid))
             except:
                 status = "Failed to terminate demo scripts."
             return status

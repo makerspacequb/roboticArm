@@ -121,29 +121,29 @@ class Arm:
             try:
                 message = self.baseURL + "getLatest"
                 response = self.session.get(message,timeout=self.timeout)
-                status = response.content.split("\n")
-            
+                status = str(response.text)
+                      
                 #Extract Joint Positions
-                if(status[0].find("STATUS:")!=-1):
-                    if(status[0].find("MOVEMENT") != -1):
-                        data = status[0].split(",")
+                if(status.find("STATUS:")!=-1):
+                    if(status.find("MOVEMENT") != -1):
+                        data = status.split(",")
                         self.movementFlag = list(map(int,data[1:]))
-                    elif(status[0].find("CALIBRATION") != -1):
-                        data = status[0].split(",")
+                    elif(status.find("CALIBRATION") != -1):
+                        data = status.split(",")
                         self.calibrationState = list(map(int,data[1:]))
-                    elif(status[0].find("POSITION") != -1):
-                        data = status[0].split(",")
+                    elif(status.find("POSITION") != -1):
+                        data = status.split(",")
                         try:
                             self.jointPosition = list(map(float,data[1:]))
                         except:
                             pass
-                    elif(status[0].find("SWITCH") != -1):
-                        data = status[0].split(",")
+                    elif(status.find("SWITCH") != -1):
+                        data = status.split(",")
                         self.switchState = list(map(int,data[1:]))
                     else:
-                        self.log("FAILED TO PARSE: "+status[0])
-                elif(status[0] !=""):
-                    self.log(status[0])
+                        self.log("FAILED TO PARSE: "+status)
+                elif(status !=""):
+                    self.log(status)
 
             except:     
                 self.log("INFO: Did not receive status response from API.")
@@ -163,12 +163,12 @@ class Arm:
 
     def moveJoint(self,motor,degrees):      
         #Check movement is within range allowed
-        if (self.jointMaxRotation[motor]+degrees) > self.jointMaxRotation[motor]:
-            degrees = self.jointMaxRotation[motor] - (self.jointMaxRotation[motor]+degrees)
-
+        if (int(self.jointPosition[motor])+degrees) > self.jointMaxRotation[motor]:
+            degrees = self.jointMaxRotation[motor] - int(self.jointPosition[motor])
+        if (int(self.jointPosition[motor])+degrees) < 0:
+            degrees = -self.jointMaxRotation[motor]
         command = "m"+str(motor)+str(degrees)
         self.sendCommand(command)
-
         self.log("INFO: Command sent to adjust motor "+str(motor)+" "+str(degrees)+" degrees.")
 
     def getPose(self):

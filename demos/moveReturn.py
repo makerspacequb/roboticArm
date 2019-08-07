@@ -17,36 +17,39 @@ with open('config/config.json') as json_file:
     config = json.load(json_file)
 
 arm = Arm(config)
+angle = 70
 
 arm.calibrateArm()
-while(arm.armCalibrated() == False):
-    time.sleep(1)
+while not arm.armCalibrated():
+    time.sleep(0.5)
 
-angle = 45
+while arm.checkMovement():
+    time.sleep(0.5)
 
-arm.speed(0,50)
-arm.speed(1,50)
-arm.speed(2,50)
-arm.speed(3,50)
-arm.speed(4,50)
-arm.speed(5,50)
+arm.setSpeed(0,90)
+arm.setSpeed(1,90)
+arm.setSpeed(2,90)
+arm.setSpeed(3,200)
+arm.setSpeed(4,200)
+arm.setSpeed(5,200)
 
 while arm.connected:
-    arm.move(0,angle)
-    arm.move(1,angle)
-    arm.move(2,angle)
-    arm.move(3,angle)
-    arm.move(4,angle)
-    arm.move(5,angle)
+
+    arm.moveJoint(0,angle)
+    arm.moveJoint(1,angle)
+    arm.moveJoint(2,angle)
+    arm.moveJoint(3,angle)
+    arm.moveJoint(4,angle)
+    arm.moveJoint(5,angle)
     
     time.sleep(5)
 
-    arm.move(0,-angle)
-    arm.move(1,-angle)
-    arm.move(2,-angle)
-    arm.move(3,-angle)
-    arm.move(4,-angle)
-    arm.move(5,-angle)
+    arm.moveJoint(0,-angle)
+    arm.moveJoint(1,-angle)
+    arm.moveJoint(2,-angle)
+    arm.moveJoint(3,-angle)
+    arm.moveJoint(4,-angle)
+    arm.moveJoint(5,-angle)
 
     time.sleep(5)
     

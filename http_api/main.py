@@ -38,7 +38,7 @@ try:
             self.latestMessage = ""
             self.previousMessage = ""
             self.indexPrepared = False
-            self.pids = []
+            self.processes = []
 
             #Update Server Port
             cherrypy.config.update(
@@ -93,10 +93,11 @@ try:
                 self.stopDemos()
                 cwd = os.getcwd()
                 fullPath = cwd+demoPath
-                proc = subprocess.Popen(['python', fullPath], shell=True)
-                time.sleep(3)
-                self.pids.append(proc.pid)
-                status = "Successfully Running Demo from '"+str(demoPath)+"' with PID: "+str(proc.pid)+"."
+                command = "exec python3 "+fullPath
+                p = subprocess.Popen(command,stdout=subprocess.PIPE, shell=True)
+                time.sleep(2)
+                self.processes.append(p)
+                status = "Successfully Running Demo from '"+str(demoPath)+"' with PID: "+str(p.pid)+"."
             except:
                 status = "Failed to run '"+str(demoPath)+"'."
             return status
@@ -105,10 +106,13 @@ try:
         def stopDemos(self):
             status = "Successfully Terminated Demos."
             try:   
-                while self.pids:
-                    pid = self.pids.pop()
-                    os.kill(pid, signal.SIGTERM)
-                    print("INFO: Terminated Process: "+str(pid))
+                while self.processes:
+                    p = self.processes.pop()
+                    p.kill()
+                    time.sleep(1)
+                    status = "INFO: Terminated Process "+str(p.pid)+"."
+                self.disconnect()
+                self.connect()
             except:
                 status = "Failed to terminate demo scripts."
             return status
@@ -143,8 +147,10 @@ try:
             #Get Current Date and Time for Logging
             currentDateTime = time.strftime("%d/%m/%Y %H:%M:%S")
             
-            if(self.connected == False):
+            if not self.connected:
                 status = self.connect()
+            if self.processes:
+                self.stopDemos()
     
             try:
                 #Add command to transmit log

@@ -22,14 +22,13 @@ control = Controller(config)
 
 while 1:
     while control.arm.connected:
-        while control.gamepads > 0:
+        while control.gamepads:
             control.connectGamepad()
             while status:
                 #Get Current Data
                 status = control.getGamepadData()
                 status = control.mapButtons()
                 status = control.mapJoysticks()
-            
         time.sleep(1)
         
     if control.arm.connected == False:

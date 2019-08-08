@@ -23,6 +23,7 @@ class Controller:
         self.logging = True
         self.gamepadConnected = False
         self.gamepadToUse = 0
+        self.gamepad = None
 
         #Create instance of Arm class
         self.arm = Arm(config)
@@ -132,8 +133,10 @@ class Controller:
     
     def gamepads(self):
         gamepads = pygame.joystick.get_count()
+        if not gamepads:
+            self.gamepad = None
         self.log("INFO: There are "+str(gamepads)+" connected to the PC.")
-        return gamepads
+        return int(gamepads)
     
     def getGamepadData(self):
         status = True
@@ -146,9 +149,14 @@ class Controller:
 
     def connectGamepad(self):
         #Initialise first gamepad
-        self.gamepad = pygame.joystick.Joystick(self.gamepadToUse)
-        self.gamepad.init()
-        self.log("INFO: Gamepad Connected Succesfully.")
+        while not self.gamepad: 
+            try:
+                self.gamepad = pygame.joystick.Joystick(self.gamepadToUse)
+                self.gamepad.init()
+                self.log("INFO: Gamepad Connected Succesfully.")
+            except:
+                self.log("INFO: Waiting for Gamepad to be connected.")
+                time.sleep(1)
     
     def mapJoint(self,joint,rawPosition):
         

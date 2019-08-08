@@ -140,11 +140,15 @@ class Controller:
     
     def getGamepadData(self):
         status = True
-        try:
-            #Get Current Data
-            pygame.event.get()
-        except:
-            status = False
+        if not self.gamepad:
+            self.connectGamepad()
+        else:
+            try:
+                #Get Current Data
+                pygame.event.get()
+            except:
+                self.log("ERRO: Could not access gamepad data.")
+                status = False
         return status
 
     def connectGamepad(self):

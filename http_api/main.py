@@ -48,6 +48,7 @@ try:
      
             #On startup try to connect to serial
             self.connect()
+            time.sleep(3)
             self.runDemo(self.xboxControlPath)
         
         def loadConfig(self,configFilePath):
@@ -65,9 +66,6 @@ try:
         def index(self):
             if not self.indexPrepared:
                 self.prepareIndex()
-            #On index try to connect to serial
-            self.connect()
-
             with open ("http_api/index.html", "r") as webPage:
                 contents=webPage.readlines()
             return contents
@@ -100,6 +98,7 @@ try:
                 status = "Successfully Running Demo from '"+str(demoPath)+"' with PID: "+str(p.pid)+"."
             except:
                 status = "Failed to run '"+str(demoPath)+"'."
+            print(status)
             return status
 
         @cherrypy.expose
@@ -111,10 +110,11 @@ try:
                     p.kill()
                     time.sleep(1)
                     status = "INFO: Terminated Process "+str(p.pid)+"."
-                self.disconnect()
-                self.connect()
+                    print(status)
             except:
                 status = "Failed to terminate demo scripts."
+            
+            print(status)
             return status
 
         @cherrypy.expose
@@ -137,8 +137,8 @@ try:
 
             #Return Message
             status = currentDateTime + " - INFO: Transmit and Receive Logs have been cleared."
+            
             print(status)
-
             return status
 
         @cherrypy.expose
@@ -149,9 +149,7 @@ try:
             
             if not self.connected:
                 status = self.connect()
-            if self.processes:
-                self.stopDemos()
-    
+       
             try:
                 #Add command to transmit log
                 with open ("http_api/public/transmitLog.csv", "a+") as log:
@@ -205,7 +203,7 @@ try:
                         self.serial.reset_input_buffer()
                         dump = self.serial.readline().decode('utf-8')
                         currentDateTime = time.strftime("%d/%m/%Y %H:%M:%S")
-                        #status = currentDateTime + " - ERROR: Buffer full dumping '"+str(dump)+"'."
+                        status = currentDateTime + " - ERROR: Buffer full dumping '"+str(dump)+"'."
                         #print(status)
                 except:
                     self.connected = False
@@ -259,8 +257,7 @@ try:
             currentDateTime = time.strftime("%d/%m/%Y %H:%M:%S")
             status = currentDateTime + " - INFO: Motor control box arduino already connected."
 
-            if(self.connected == False):
-                
+            if not self.connected:   
                 try:
                     #Open Serial Connection
                     self.serial = serial.Serial(
@@ -283,10 +280,8 @@ try:
 
         @cherrypy.expose
         def disconnect(self):
-
             status = "INFO: Motor control box is not connected."
-
-            if(self.connected == True):
+            if self.connected:
                 self.serial.close()
                 self.connected = False
                 status = "INFO: Motor control box disconnected."

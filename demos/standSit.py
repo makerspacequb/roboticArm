@@ -20,7 +20,7 @@ with open('config/config.json') as json_file:
 
 #Create instance of Arm class
 arm = Arm(config)
-arm.reset()
+arm.resetArduino()
 
 arm.calibrateArm()
 

@@ -27,7 +27,7 @@ class Controller:
 
         #Create instance of Arm class
         self.arm = Arm(config)
-        self.arm.reset()
+        self.arm.resetArduino()
 
         #Start Pygame
         pygame.init()
@@ -87,7 +87,7 @@ class Controller:
 
             #A BUTTON - STOP
             if(buttonState[0] and (self.lastButtonState[0] == 0)):
-                self.arm.reset()
+                self.arm.resetArduino()
             #B BUTTON - STOP
             if(buttonState[1] and (self.lastButtonState[1] == 0)):
                 self.arm.stop()

@@ -272,21 +272,28 @@ class Arm:
         if response.content.decode("utf-8"):
             self.log(response.content.decode("utf-8"))
 
-    def reset(self):
+    def resetArduino(self):
         messages = ["disconnect","connect"]
         for message in messages:
             url = self.baseURL + message
             response = self.session.get(url,timeout=self.timeout)
             if response.content.decode("utf-8"):
                 self.log(response.content.decode("utf-8"))
-
         time.sleep(1.5)
-        self.log("INFO: Arm Reset.")
-    
-    def eStopReset(self):
+        self.log("INFO: Arduino for Arm Reset.")
+
+    def resetEStop(self):
         self.sendCommand("r")
         time.sleep(1)
         self.log("INFO: Emergency Stop Latch Reset.")
+        
+    def stopDemos(self):
+        url = self.baseURL + "stopDemos"
+        response = self.session.get(url,timeout=self.timeout)
+        if response.content.decode("utf-8"):
+            self.log(response.content.decode("utf-8"))
+        time.sleep(1.5)
+        self.log("INFO: Raspberry Pi Demo Processes Terminated.")
 
     def armCalibrated(self):
         calibrated = True

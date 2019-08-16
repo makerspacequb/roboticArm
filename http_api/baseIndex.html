@@ -27,6 +27,8 @@
     <p>Enter a command to pass to the SERVERNAMEFEILD and press send to deliver.</p>
     <input id="inputCommand" type="text" name="command" value="">
     <button class="button" onclick="actionSendData()">Send</button>
+    <button class="button" onclick="callCommand('stopDemos')">Stop Demo</button>
+    
 
     <h2>Status Message</h2>
         
@@ -64,6 +66,7 @@
     function actionSendData(){
         command = document.getElementById('inputCommand').value;
         var fullCommandString = "send?command=".concat(command);
+        callCommand('stopDemos');
         callCommand(fullCommandString);
     }
 

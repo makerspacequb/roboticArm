@@ -1,5 +1,7 @@
 # AR2 Firmware
 
+New object-orientated firmware for the AR2 robot designed to be run on an Arduino Mega 2560 at 115200 BAUD.
+
 ## Implemented Features
 
 * Simultaneous movemnt

@@ -25,9 +25,10 @@ print("Task complete")
 """
 
 #insert a desired pose for inverse kinematics
-desired_pose = [500, 150, 474.7636732, -20, 50, -90.00999825]
+current_joints = [30, 90, 90, 30, -30, 30]
+desired_pose = [14.65766456, 43.51281973, 317.0026196, -163.0643134, 14.87094445, 106.9356866]
 
 #inverse kinematics not finished
-Joints = kin.inverseKinematics(desired_pose)
+Joints = kin.inverseKinematics(desired_pose, current_joints)
 
 print(Joints)

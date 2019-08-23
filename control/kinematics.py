@@ -194,15 +194,36 @@ class Kinematic:
     def forwardKinematics(self, joint_angles):
         #this method applies the Denavit Hartenberg convention to perform formward kinematics
         
-        A_matrix = self.calculate_A_matrix(joint_angles)
-        H_matrix = self.calculate_H_matrix(A_matrix)
+        #add the arbitrary offsets (may need removed)
+        #joint_angles[2] = joint_angles[2] - 90 
+        #joint_angles[5] = joint_angles[5] + 180
+        
+        #make a copy of joint angles so the passed in value is unaffected
 
-        #pass the final value of the chain and extract th pose of the end effector
-        pose = self.extract_pose(H_matrix[H_matrix.shape[0]-1])
+        j = self.native2kin_angles(joint_angles) #list(joint_angles)
+        
+        result =  self.check_limits(j)
 
-        #pose is of the form [X,Y,Z,Yaw, Pitch, Roll]
-        return pose
+        if result == 1: #valid input given
+                
+            #swap range of inputs
+            j[0] =  j[0]# - 180 
+            j[1] =  j[1]# - 180
+            j[2] = (j[2]- 90)# - 180
+            j[3] =  j[3]# - 180
+            j[4] =  j[4]# - 180
+            j[5] = (j[5] + 180)# - 180
 
+            A_matrix = self.calculate_A_matrix(j)
+            H_matrix = self.calculate_H_matrix(A_matrix)
+
+            #pass the final value of the chain and extract th pose of the end effector
+            pose = self.extract_pose(H_matrix[H_matrix.shape[0]-1])
+
+            #pose is of the form [X,Y,Z,Yaw, Pitch, Roll]
+            return pose
+        else:
+            return -1 #invalid input
 
     def calculate_R0T_Matrix(self, pose):
         #calculate ROT matrix
@@ -216,7 +237,7 @@ class Kinematic:
         """
         #create 4x4 matrix
         R0T_matrix= np.zeros((4,4), dtype=dt)
-
+        #print("b ", pose[1])
         #first row
         R0T_matrix[0,0] = math.cos(pose[3])*math.cos(pose[5]) - math.cos(pose[4])*math.sin(pose[3])*math.sin(pose[5])
         R0T_matrix[0,1] = math.cos(pose[5])*math.sin(pose[3]) + math.cos(pose[3])*math.cos(pose[4])*math.sin(pose[5])
@@ -225,7 +246,7 @@ class Kinematic:
         #second row
         R0T_matrix[1,0] = math.cos(pose[4])*math.cos(pose[5])*math.sin(pose[3]) + math.cos(pose[3])*math.sin(pose[5])
         R0T_matrix[1,1] = math.cos(pose[3])*math.cos(pose[4])*math.cos(pose[5]) - math.sin(pose[3])*math.sin(pose[5]) 
-        R0T_matrix[1,2] = -1*math.cos(pose[4])*math.sin(pose[5])
+        R0T_matrix[1,2] = math.cos(pose[5])*math.sin(pose[4])
         R0T_matrix[1,3] = pose[1]
         #third row
         R0T_matrix[2,0] = math.sin(pose[3])*math.sin(pose[4])
@@ -245,10 +266,10 @@ class Kinematic:
         #define transformation matrix to move from the point on the arm where the tool attaches to the wrist centre
         
         """
-                    |cos(j), -sin(j)cos(alpha)  , sin(j)sin(alpha)  , acos(j)    |
-                    |sin(j), cos(j)cos(alpha)   , -cos(j)sin(alpha) , asin(j)    |
-        #A_matrix = |0     , sin(alpha)         ,  cos(alpha)       , d          |
-                    |0     , 0                  ,0                  , 1          |
+                    |cos(j) , -sin(j)cos(alpha)  , sin(j)sin(alpha)  , acos(j)    |
+                    |sin(j) , cos(j)cos(alpha)   , -cos(j)sin(alpha) , asin(j)    |
+        #A_matrix = |0      , sin(alpha)         , cos(alpha)        , d          |
+                    |0      , 0                  , 0                 , 1          |
 
         """        
         
@@ -294,17 +315,26 @@ class Kinematic:
         #extract desired xy coordinates
         x = pose[0]
         y = pose[1]
-
+        #print("print ========", x, y)
         J1 = math.atan(R05[1,3]/R05[0,3])
+        #print(R05[1,3])
+        #print(R05[0,3])
 
+        #calculate quadrant
         if(x > 0 and y > 0):
+            print("Quadrant 1")
             J1 = math.degrees(J1)
         elif(x > 0 and y < 0):
+            print("Quadrant 2")
             J1 = math.degrees(J1)
         elif(x < 0 and y < 0):
+            print("Quadrant 3")
             J1 = -180 + math.degrees(J1)
         elif(x < 0 and y > 0):
-            J1 = 180 + math.degrees(J1)
+            print("Quadrant 4")
+            J1 = 180 + math.degrees(J1) 
+        else:
+            J1 = 0
 
         return J1
 
@@ -313,6 +343,7 @@ class Kinematic:
         
         #form table of useful parameters of the form (based on labelled diagram):
         #this table performs all the nessecary trig for calculating J2 and J3
+        
         """
                    fwd     mid
         px     |
@@ -328,139 +359,267 @@ class Kinematic:
         J1angle|
         J2angle|
         """
-        table = np.zeros((12,2), dtype=dt)
-        
-        table[0,0] = math.sqrt(R05[1,3]**2 +R05[0,3]**2) 
-        table[0,1] = table[0,0]  
-
-        table[1,0] = R05[2,3] - self.d[0]
-        table[1,1] = table[1,0]
-
-        table[2,0] = table[0,0] - self.a[0]
-        table[2,1] = self.a[0] - table[0,0]
-
-        table[3,0] = math.sqrt(table[1,0]**2 + table[2,0]**2)  
-        table[3,1] = math.sqrt(table[1,1]**2 + table[2,1]**2)
-
-        table[4,0] = math.sqrt(self.d[3]**2 + self.a[3]**2)  
-        table[4,1] = table[4,0]
-
-        table[5,0] = math.degrees(math.atan(table[1,0]/table[2,0]))
-        table[5,1] = math.degrees(math.acos((self.a[1]**2+table[3,1]**2-self.d[3]**2)/(2*self.a[1]*table[3,1])))
-
-        table[6,0] = math.degrees(math.acos((self.a[1]**2+table[3,0]**2-self.d[3]**2)/(2*self.a[1]*table[3,0])))
-        table[6,1] = math.degrees(math.atan(table[2,1]/table[1,0]))
-
         try:
-            table[9,0] = math.degrees(math.atan(self.d[3]/self.a[2]))  
+            table = np.zeros((12,2), dtype=dt)
+            
+            table[0,0] = math.sqrt(R05[1,3]**2 +R05[0,3]**2) 
+            table[0,1] = table[0,0]  
+
+            table[1,0] = R05[2,3] - self.d[0]
+            table[1,1] = table[1,0]
+
+            table[2,0] = table[0,0] - self.a[0]
+            table[2,1] = self.a[0] - table[0,0]
+
+            table[3,0] = math.sqrt(table[1,0]**2 + table[2,0]**2)  
+            table[3,1] = math.sqrt(table[1,1]**2 + table[2,1]**2)
+
+            table[4,0] = math.sqrt(self.d[3]**2 + self.a[3]**2)  
+            table[4,1] = table[4,0]
+
+            table[5,0] = math.degrees(math.atan(table[1,0]/table[2,0]))
+            #print(self.a[1]**2+table[3,1]**2-self.d[3]**2)/(2*self.a[1]*table[3,1])
+            table[5,1] = math.degrees(math.acos((self.a[1]**2+table[3,1]**2-self.d[3]**2)/(2*self.a[1]*table[3,1])))
+
+            table[6,0] = math.degrees(math.acos((self.a[1]**2+table[3,0]**2-self.d[3]**2)/(2*self.a[1]*table[3,0])))
+            table[6,1] = math.degrees(math.atan(table[2,1]/table[1,0]))
+
+            try:
+                table[9,0] = math.degrees(math.atan(self.d[3]/self.a[2]))  
+            except:
+                table[9,0] = 90
+
+            table[9,1] = table[9,0]
+
+            table[7,0] = 180 - math.degrees(math.acos((table[4,0]**2+self.a[1]**2-table[3,0]**2)/(2*math.fabs(table[4,0])*self.a[1]))) +90-table[9,0]
+            table[7,1] = table[7,0]
+
+            table[8,0] = 0
+            table[8,1] = 90-table[5,1] -table[6,1]
+
+            table[10,0] = -(table[5,0]+table[6,0])
+            table[10,1] = -180 + table[8,1]
+
+            table[11,0] = table[7,0] 
+            table[11,1] = table[7,1]
+
+            #select the correct results from the table
+            #depends on the configuration of the arm
+            #print("table_top ", table[2,0])
+            #print("10 0", table[10,0])
+            #print("10 1", table[10,1])
+            if (table[2,0] < 0):
+                J2 = table[10,1]
+                J3 = table[11,1]
+            else:
+                J2 = table[10,0]
+                J3 = table[11,0]
+
         except:
-            table[9,0] = 90
-
-        table[9,1] = table[9,0]
-
-        table[7,0] = 180 - math.degrees(math.acos((table[4,0]**2+self.a[1]**2-table[3,0]**2)/(2*math.fabs(table[4,0])*self.a[1]))) +90-table[9,0]
-        table[7,1] = table[7,0]
-
-        table[8,0] = 0
-        table[8,1] = 90-table[5,1] -table[6,1]
-
-        table[10,0] = -(table[5,0]+table[6,0])
-        table[10,1] = -180 + table[8,1]
-
-        table[11,0] = table[7,0] 
-        table[11,1] = table[7,1]
-
-        #select the correct results from the table
-        #depends on the configuration of the arm
-        if (table[2,0] > 0):
-            J2 = table[10,0]
-            J3 = table[11,0]
-        else:
-            J2 = table[10,0]
-            J3 = table[11,1]
-
-        print("Table")
-        print(table)
+            print("math error, calc_J2J3() - result is garbage")
+            J2=-1
+            J3=-1
+        #print("Table")
+        #print(table)
         return J2, J3
 
 
-    def calc_J456(self, R36):
-        #
+    def calc_J456(self, R36, current_joints):
 
-        J5 = math.degrees(math.atan2(math.sqrt(1-R36[2,2]**2),R36[2,2]))
-        
+        #print("R36", R36)
 
-        if(J5 > 0):
-            J4 = math.degrees(math.atan2(R36[1,2],R36[0,2]))
-            print("here")
-            print(R36[1,2])
-            print(R36[0,2])
-            print(J4)
-            if (R36[2,1] < 0):
-                J6 = math.degrees(math.atan2(-R36[2,1], R36[2,0])) - 180
+        try:
+            J5 = math.degrees(math.atan2(math.sqrt(1-R36[2,2]**2),R36[2,2]))
+            
+            R8Flag = current_joints[4] #1 #simulate seemingly extra value in code change between -1 and 1
+
+            if J5 > 0 and R8Flag > 0:
+                J4 = math.degrees(math.atan2(R36[1,2],R36[0,2]))
+                #print("here")
+                #print(R36[1,2])
+                #print(R36[0,2])
+                #print(J4)
+                
             else:
-                J6 = math.degrees(math.atan2(-R36[2,1], R36[2,0])) + 180
-        else:
-            J4 = math.degrees(math.atan2(-R36[1,2],-R36[0,2]))
-            if (R36[2,1] < 0):
-                J6 = math.degrees(math.atan2(R36[2,2], -R36[0,2])) + 180
+                J5 = math.degrees(math.atan2(-1*math.sqrt(1-R36[2,2]**2),R36[2,2]))
+                J4 = math.degrees(math.atan2(-R36[1,2],-R36[0,2]))
+                
+                #if (R36[2,1] < 0):
+                #    J6 = math.degrees(math.atan2(R36[2,2], -R36[0,2])) + 180
+                #else:
+                #    J6 = math.degrees(math.atan2(R36[2,1], -R36[2,0])) - 180
+            #print(J5)
+            
+            if J5 < 0:
+                if (R36[2,1] < 0):
+                    J6 = math.degrees(math.atan2(R36[2,1], -R36[2,0])) + 180
+                else:
+                    J6 = math.degrees(math.atan2(R36[2,1], -R36[2,0])) - 180
             else:
-                J6 = math.degrees(math.atan2(R36[2,1], -R36[2,0])) - 180
+                #print("here", R36[2,0], R36[2,1])
+                if (R36[2,1] < 0):
+                    J6 = math.degrees(math.atan2(-R36[2,1], R36[2,0])) - 180
+                else:
+                    J6 = math.degrees(math.atan2(-R36[2,1], R36[2,0])) + 180
 
-
+        except:
+            print("math error, calc_J2J3() - result is garbage")
+            J4 = 0
+            J5 = 0
+            J6 = 0
 
         return J4, J5, J6        
 
-    def inverseKinematics(self,pose):
+    def inverseKinematics(self,pose_in, current_joints):
         #method to convert a desired pose to joint positions     
+
+        #convert the native input angles to a form suitable for the kinematic model
+        current_joints = list(self.native2kin_angles(current_joints))
+
+        pose = list(pose_in)
+        
         pose[3] = math.radians(pose[3])
         pose[4] = math.radians(pose[4])
         pose[5] = math.radians(pose[5])
 
+        #print(pose)
+
         R0T_Matrix = self.calculate_R0T_Matrix(pose)
+        #print(R0T_Matrix)
         R0T_workFrame_offset = self.workFrame.dot(R0T_Matrix)
 
         #workout why the negative 1 is needed for this offset to be applied
         R0T_workFrame_offset[0,0] = -1*R0T_workFrame_offset[0,0]
-
-
+        
         inverted_toolFrame = np.transpose(self.toolFrame)
-        print("inv_toolframe")
-        print(inverted_toolFrame)
-
+        #print("inv_toolframe")
+        #print(inverted_toolFrame)
 
         R06 = R0T_workFrame_offset.dot(inverted_toolFrame)
 
         R06_removal_matrix = self.gen_R06_remove()
+        
+        #print(R06)
+        #print(R06_removal_matrix)
         #wrist centre
         H05 = R06.dot(R06_removal_matrix)
-        
+        #print(H05)
         #calculate J1 position
+        
         J1 = self.calc_J1(pose, H05)
-
+        #print("J1", J1)
         J2, J3 = self.calc_J2J3(pose, H05)
 
         J_13 = [J1,J2,(J3-90)]
 
         A_matrix = self.calculate_A_matrix(J_13)
-        
+        #print(A_matrix)
         H01 = self.workFrame.dot(A_matrix[0])
-        
+        #print(A_matrix[0])
         H02 = H01.dot(A_matrix[1])
-        
         H03 = H02.dot(A_matrix[2])
-        
+#       print("H01 ", H01)
         #transpose the oriention matrix of joint 3 relative to base frame
         R03_transpose = np.transpose(H03[0:3,0:3])
-
+        
+        #print("R03 ", list(R03_transpose[2]))
         #not extract the orientation information from H05 (wrist centre)
-        R05 = H05[0:3,0:3]
+        R05 = np.array(H05[0:3,0:3])
+        #print("R05 0", (R05[0,1]))
+        #print("R05 1", (R05[1,1]))
+        #print("R05 2", (R05[2,1]))
 
+        #print("dot ", R03_transpose[2,0]*R05[0,1] + R03_transpose[2,1]*R05[1,1]+R03_transpose[2,2]*R05[2,1])
         #find the orientation of the wrist centre relative to J3#
         R36 = R03_transpose.dot(R05)
+        #print("R36" , (R36))
+        J4, J5, J6 = self.calc_J456(R36, current_joints)
 
-        J4, J5, J6 = self.calc_J456(R36)
+        Joint_angles =  [J1 ,J2 ,J3 ,J4 ,J5 , J6]
+        
+        result = self.check_limits(Joint_angles)
 
-        Joint_angles = [J1,J2,J3,J4,J5,J6]
+        #convert the result back so that the robotic arm firmware can use it
+        Joint_angles = list(self.kin2native_angles(Joint_angles))
+        
+        if result == 1:
+            return Joint_angles
+        else:
+            print("No valid solution found")
+            return -1#joint configuration is invalid
 
-        return Joint_angles
+    def native2kin_angles(self, native_angles):
+        
+        #map the firmware angles to the kinematic model angles
+        
+        kin_angles = [0,0,0,0,0,0]
+
+        kin_angles[0] = native_angles[0] - 170
+        kin_angles[1] = native_angles[1] - 132
+        kin_angles[2] = 140 - (native_angles[2] - 1)
+        kin_angles[3] = -1*native_angles[3] + 164
+        kin_angles[4] = native_angles[4] - 105
+        kin_angles[5] = -1*native_angles[5] + 160
+
+        return kin_angles
+
+    def kin2native_angles(self, kin_angles):
+        
+        #map the kinematic model angles to the firmware angles
+
+        native_angles = [0,0,0,0,0,0]
+        
+        native_angles[0] = kin_angles[0] + 170
+        native_angles[1] = kin_angles[1] + 132
+        native_angles[2] = -1*(kin_angles[2] - 140) + 1
+        native_angles[3] = -1*(kin_angles[3] - 164)
+        native_angles[4] = kin_angles[4] + 105
+        native_angles[5] = -1*(kin_angles[5] - 160)
+
+        return native_angles
+
+
+    def check_limits(self, joint):
+        #check the kinematic angles do not lie outside of a certain range so that the kinematic model does not fail
+        #required as there is no backward configuration for the arm in the model
+        #array to identify which joints have passed and failed
+        test_results = [0,0,0,0,0,0]
+
+        if joint[0] <-170 or joint[0] > 170:
+            print("Joint 0: Out of range")
+            test_results[0] = 1
+
+        if joint[1] <-132 or joint[1] > 0:
+            print("Joint 1: Out of range")
+            test_results[1] = 1
+
+        if joint[2] < 1 or joint[2] > 140:
+            print("Joint 2: Out of range")
+            test_results[2] = 1
+
+        if joint[3] <-164 or joint[3] > 164:
+            print("Joint 3: Out of range")
+            test_results[3] = 1
+
+
+        if joint[4] <-105 or joint[4] > 105:
+            print("Joint 4: Out of range")
+            test_results[4] = 1
+
+        if joint[5] <-160 or joint[5] > 160:
+            print("Joint 5: Out of range")
+            test_results[5] = 1
+
+
+        if sum(test_results) > 0:
+            result = 0 #failed test
+            print("Invalid joint configuration requested")
+        else:
+            result = 1#passed test
+
+        return result
+    
+
+
+
+

@@ -19,18 +19,19 @@ with open('config/config.json') as json_file:
 #Create instance of Arm class
 #ip_address = "192.168.0.105"
 arm = Arm(config)
-arm.reset()
+arm.resetEStop()
 
 arm.calibrateArm()
-step = 100
+step = 50
 
 while((not arm.armCalibrated()) or (arm.checkMovement())):
     time.sleep(1)
+    print("waiting to calibrate...")
 i = 0
 
 #kin_angles = [0, 0, 0, 10, 10, 10]
 kin_angles = [-0.02 ,-90.01, 90.01, 0.02, 89.9, -0.02] #joints into spreadsheet
-
+1
 result = kin.check_limits(kin_angles) #check the angles are within the model ranges
 
 if result == 1:

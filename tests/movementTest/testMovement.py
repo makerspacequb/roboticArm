@@ -20,23 +20,22 @@ with open('config/config.json') as json_file:
 
 #Create instance of Arm class
 arm = Arm(config)
-arm.reset()
+arm.resetEStop()
 
 arm.calibrateArm()
 
 while((not arm.armCalibrated()) or (arm.checkMovement())):
+    print("Calibrating...")
     time.sleep(1)
 
 while arm.connected:
-     
-    while(arm.checkMovement()):
-        time.sleep(1) 
-
-    arm.moveJointTo(0,100)
-      
-    while(arm.checkMovement()):
-        time.sleep(1)
-        
-    arm.moveJointTo(0,180)
+ 
+    arm.waitToStationary()
+    print(arm.movementFlag)#Issues with movement flag
+    arm.moveJointTo(0,10)
+    
+    arm.waitToStationary()
+    print(arm.movementFlag)
+    arm.moveJointTo(0,200)
   
 arm.stop()

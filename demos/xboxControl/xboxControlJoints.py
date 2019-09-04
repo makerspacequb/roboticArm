@@ -23,7 +23,7 @@ control = Controller(config)
 while 1:
     while control.arm.connected:
         while control.gamepads:
-            control.connectGamepad()
+            control.connectGamepad() 
             while status:
                 #Get Current Data
                 status = control.getGamepadData()

@@ -147,7 +147,7 @@ class Controller:
                 #Get Current Data
                 pygame.event.get()
             except:
-                self.log("ERRO: Could not access gamepad data.")
+                self.log("ERROR: Could not access gamepad data.")
                 status = False
         return status
 

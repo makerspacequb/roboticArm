@@ -34,11 +34,16 @@ class Arm:
     jointSpeedDefault = []
     jointAccelDefault = []
 
-    def __init__(self,config):
+    def __init__(self,config, ipAddress=None):
 
         self.joints = 6
         self.logging = True
-        self.ipAddress = config["ipAddress"]
+
+        if ipAddress == None:
+            self.ipAddress = config["ipAddress"]        
+        else:
+            self.ipAddress = ipAddress
+
         self.port = config["port"]
         self.baseURL = "http://"+str(self.ipAddress)+":"+str(self.port)+"/"
         self.error = False
@@ -95,6 +100,7 @@ class Arm:
         #combine with host address
         message = self.baseURL + "send?command=" + command
         message = message.encode('ascii')
+
         if self.pollingStatus == False:
             self.getStatus()
 
@@ -107,8 +113,13 @@ class Arm:
                 self.log("STATUS: Sending '"+str(command)+"' took "+str(round((end-start),2))+" seconds.")
                 self.log(status[0])
             else:
+                #t1 = time.time()
                 self.session.get(message,timeout=self.timeout)
+                #t2 = time.time()
+                #print("in class ", t2 - t1)
             self.connected = True
+
+        
         except:
             self.log("ERROR: Could not access API.")
             self.connected = False
@@ -121,8 +132,7 @@ class Arm:
             try:
                 message = self.baseURL + "getLatest"
                 response = self.session.get(message,timeout=self.timeout)
-                status = str(response.text)
-                      
+                status = str(response.text) 
                 #Extract Joint Positions
                 if(status.find("STATUS:")!=-1):
                     if(status.find("MOVEMENT") != -1):
@@ -187,6 +197,7 @@ class Arm:
         if self.armCalibrated():
             if len(positions) == self.joints:
                 motor = 0
+
                 for position in positions:
                     self.moveJointTo(motor,position)
                     motor += 1
